@@ -21,6 +21,10 @@ def ask_quit():
 
 
 #  MAIN CODE  ##########################################################################################################
+# TODO vlozit dve okna, do kazdeho framu jedno, přidat posuvniky
+# TODO hlavicka tabulky v prvnim okne
+# TODO pridat horni listu (hlavne File...)
+
 
 # Global variables
 folder_path = None
