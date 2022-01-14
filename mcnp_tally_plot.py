@@ -4,6 +4,8 @@
 # Libraries
 import os, sys
 
+from modules import config_mod, mcnp_read
+
 import tkinter
 from tkinter import ttk, messagebox, simpledialog, filedialog, Menu
 from ttkwidgets import CheckboxTreeview
@@ -12,16 +14,17 @@ from pathlib import Path
 
 
 #  FUNCTIONS  ##########################################################################################################
-
-
 def open_folder():
-    folder_path = Path(filedialog.askdirectory(title='Choose directory with input files', initialdir=os.getcwd()))
+    folder_path = Path(filedialog.askdirectory(title='Choose directory with input files', initialdir=Path.cwd()))
 
     output_files = []
     for file in os.listdir(folder_path):
         output_files.append(Path(file))
 
-    print(output_files)
+    for fname in output_files:
+        mcnp_read.read_file(folder_path, fname)
+
+    print(config_mod.tallies.keys())
 
 
 # GUI exit from program
