@@ -24,7 +24,26 @@ def open_folder():
     for fname in output_files:
         mcnp_read.read_file(folder_path, fname)
 
-    print(config_mod.tallies.keys())
+    treeview_fill()
+
+
+# TODO zmenit treeview na CheckboxTreeview
+# TODO vypnout rozsireni okna po nacteni hodnot do treeview
+# TODO u treeView chybí posuvniky
+# fill treeview in window
+def treeview_fill():
+    treeview_files['columns'] = ['File', 'Tally number', 'Tally type', 'Particle', 'Number of values', 'E_min (MeV)', 'E_max (MeV)', 'E_cut-off (MeV)']
+
+    for col_name in ['File', 'Tally number', 'Tally type', 'Particle', 'Number of values', 'E_min (MeV)', 'E_max (MeV)', 'E_cut-off (MeV)']:
+        treeview_files.column(col_name, width=100, stretch=False)
+        treeview_files.heading(col_name, text=col_name)
+
+    x = treeview_files.get_children()       # get id of all items in treeview
+    for i in x:                             # delete all items
+        treeview_files.delete(i)
+
+    for i in config_mod.tallies.keys():      # fill treeview with new values
+        treeview_files.insert('', index='end', values=[i, config_mod.tallies[i][0], config_mod.tallies[i][1], config_mod.tallies[i][2], len(config_mod.tallies[i][3]), config_mod.tallies[i][3][0], config_mod.tallies[i][3][-1], config_mod.tallies[i][6]])
 
 
 # GUI exit from program
@@ -35,9 +54,8 @@ def ask_quit():
 
 #  MAIN CODE  ##########################################################################################################
 # TODO vlozit okno pro log
-# TODO hlavicka tabulky v prvnim okne
-
-
+# TODO vytvořit novy branch a v nem novou tridu pro praci s tallies
+#
 # ----------------------------------------------------------------------------------------------------------------------
 # main window creation
 root = tkinter.Tk()
