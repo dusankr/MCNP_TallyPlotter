@@ -5,7 +5,7 @@
 import os, sys
 
 # import from our files
-from modules import config_mod, mcnp_read, plot_window
+from modules import config_mod, mcnp_read, plot_mod
 
 # GUI libraries
 import tkinter as tk
@@ -103,7 +103,7 @@ treeview_files.configure(yscrollcommand=tree_y_scroll.set)
 
 
 # widgets DOWN frame in GUI
-button_solve = tk.ttk.Button(down_frame, text='Plot data', command=lambda: plot_window(root), width=20)
+button_solve = tk.ttk.Button(down_frame, text='Plot data', command=lambda: plot_mod.plot_window(root), width=20)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # GRIDs

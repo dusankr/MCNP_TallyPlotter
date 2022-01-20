@@ -4,7 +4,6 @@
 import matplotlib.pyplot as plt     # ploting in matlab style
 import os, sys
 from modules import config_mod
-import mcnp_tally_plot
 
 # GUI libraries
 import tkinter
