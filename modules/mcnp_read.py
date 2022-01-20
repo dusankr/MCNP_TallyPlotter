@@ -15,7 +15,6 @@ def read_file(f_path ,fname):
     flux = []
     error = []
 
-
     with open(f_path / fname, 'r', encoding='utf-8') as temp_file:  # open MCNP output file
         content = temp_file.readlines()
 
@@ -76,6 +75,8 @@ def cutoff_func(content):
                 return cutoff_dict
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+# support PLOT functions
 # tally plot limits
 def tally_limits(x, y, y_err, limit):
     x = [limit] + x  # neutron cut off E=1E-9 MeV, default photon and e- cut off 0.001 MeV
@@ -84,3 +85,11 @@ def tally_limits(x, y, y_err, limit):
 
     return x, y, y_err
 
+
+# calculate central value for all bins
+def interval_mid(x):
+    x_center = []
+    for i in range(0, len(x) - 1):
+        x_center.append(x[i] + (x[i + 1] - x[i]) / 2)
+
+    return x_center

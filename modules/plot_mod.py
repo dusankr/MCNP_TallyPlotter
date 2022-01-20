@@ -6,6 +6,8 @@
 # libraries
 import matplotlib.pyplot as plt     # ploting in matlab style
 from modules import config_mod
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
+from matplotlib.figure import Figure
 
 # GUI libraries
 import tkinter
@@ -20,6 +22,14 @@ def plot_window(root):
 
     plot_frame = tkinter.ttk.Frame(new_win)
     plot_option_frame = tkinter.ttk.Frame(new_win)
+
+    # empty place for figure
+    empty_fig = Figure(figsize=(5, 5))
+    canvas = FigureCanvasTkAgg(empty_fig, plot_frame)
+    canvas.get_tk_widget().configure(highlightcolor='black')
+
+    canvas.draw()
+    canvas.get_tk_widget().grid(row=0)
 
     # GRIDs
     # frames in main GRID
