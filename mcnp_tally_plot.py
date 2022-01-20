@@ -4,15 +4,19 @@
 # Libraries
 import os, sys
 
-from modules import config_mod, mcnp_read
+# import from our files
+from modules import config_mod, mcnp_read, plot_window
 
+# GUI libraries
 import tkinter as tk
 from ttkwidgets import CheckboxTreeview
 
+# better and easier work with file and directory paths
 from pathlib import Path
 
 
 #  FUNCTIONS  ##########################################################################################################
+# read outputs from chosen directory
 def open_folder():
     folder_path = Path(tk.filedialog.askdirectory(title='Choose directory with input files', initialdir=Path.cwd()))
 
@@ -21,9 +25,9 @@ def open_folder():
         output_files.append(Path(file))
 
     for fname in output_files:
-        mcnp_read.read_file(folder_path, fname)
+        mcnp_read.read_file(folder_path, fname)     # read tallies from output files
 
-    treeview_fill()
+    treeview_fill()     # fill treeview with tally parameters
 
 
 # TODO zmenit treeview na CheckboxTreeview
@@ -59,10 +63,6 @@ def ask_quit():
 # main window creation
 root = tk.Tk()
 
-# Frames
-up_frame = tk.ttk.Frame(root)
-down_frame = tk.ttk.Frame(root)
-
 # Main window parameters
 root.title('MCNP tally plotting')
 root.minsize(500, 300)
@@ -72,18 +72,9 @@ style = tk.ttk.Style()
 style.theme_use('vista')
 root.protocol('WM_DELETE_WINDOW', ask_quit)  # program end
 
-# ----------------------------------------------------------------------------------------------------------------------
-# treeview
-treeview_files = tk.ttk.Treeview(up_frame)
-treeview_files['show'] = 'headings'
-
-# Treeview X-scrollbar
-tree_x_scroll = tk.ttk.Scrollbar(root, orient='horizontal')
-tree_x_scroll.configure(command=treeview_files.xview)
-treeview_files.configure(xscrollcommand=tree_x_scroll.set)
-# Treeview Y-scrollbar
-tree_y_scroll = tk.ttk.Scrollbar(root, orient='vertical', command=treeview_files.yview)
-treeview_files.configure(yscrollcommand=tree_y_scroll.set)
+# Frames
+up_frame = tk.ttk.Frame(root)
+down_frame = tk.ttk.Frame(root)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # widget MENU
@@ -99,10 +90,20 @@ file_menu.add_command(label='Open work directory', underline=0, command=lambda: 
 # ----------------------------------------------------------------------------------------------------------------------
 # widgets in FRAMEs
 # widgets in UP frame in GUI
-label_layer_types = tk.ttk.Label(up_frame, text='Nejaky text')
+treeview_files = tk.ttk.Treeview(up_frame)
+treeview_files['show'] = 'headings'
+
+# Treeview X-scrollbar
+tree_x_scroll = tk.ttk.Scrollbar(root, orient='horizontal')
+tree_x_scroll.configure(command=treeview_files.xview)
+treeview_files.configure(xscrollcommand=tree_x_scroll.set)
+# Treeview Y-scrollbar
+tree_y_scroll = tk.ttk.Scrollbar(root, orient='vertical', command=treeview_files.yview)
+treeview_files.configure(yscrollcommand=tree_y_scroll.set)
+
 
 # widgets DOWN frame in GUI
-button_solve = tk.ttk.Button(down_frame, text='Close', command=ask_quit, width=20)
+button_solve = tk.ttk.Button(down_frame, text='Plot data', command=lambda: plot_window(root), width=20)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # GRIDs
