@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
+# TODO_list:
+# TODO vložení canvas pro grafy
+# TODO vložení tlačítek pro upravy grafu
 
 # libraries
 import matplotlib.pyplot as plt     # ploting in matlab style
-import os, sys
 from modules import config_mod
 
 # GUI libraries
 import tkinter
-from ttkwidgets import CheckboxTreeview
 
 
 #  Functions  ##########################################################################################################

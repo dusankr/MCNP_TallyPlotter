@@ -1,15 +1,14 @@
 # -*- coding: utf-8 -*-
+# TODO_list:
+# TODO potencialni problem s ruznymi tally a verzemi mcnp (zkusit jiný typ výstupu nebo mctal)
+# TODO problém se jmény, v cut off tabulce jsou jednotná čísla a v tally množná, zatím vyřešeno pomocí odečtení
+#  posledního písmene, funguje jen pro některé částice
 
 # libraries
-import matplotlib.pyplot as plt     # ploting in matlab style
-import os, sys
 from modules import config_mod
 
 
 #  Functions  ##########################################################################################################
-# todo potencialni problem s ruznymi tally a verzemi mcnp (zkusit jiný typ výstupu nebo mctal)
-# todo problém se jmény, v cut off tabulce jsou jednotná čísla a v tally množná, zatím vyřešeno pomocí odečtení
-#  posledního písmene, funguje jen pro některé částice
 # read data from tally
 def read_file(f_path ,fname):
     energy = []

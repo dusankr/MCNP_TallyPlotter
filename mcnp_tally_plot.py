@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
+# TODO vyrešit problem s nezobrazujicicmi se scrollbary
+# TODO nahradit treeview za checkboxtreeview
+# TODO vypnout rozsireni okna po nacteni hodnot do treeview
+# TODO vlozit okno pro log
+# TODO vytvořit novy branch a v nem novou tridu pro praci s tallies
 
 # Libraries
 import os, sys
@@ -30,9 +35,6 @@ def open_folder():
     treeview_fill()     # fill treeview with tally parameters
 
 
-# TODO zmenit treeview na CheckboxTreeview
-# TODO vypnout rozsireni okna po nacteni hodnot do treeview
-# TODO u treeView chybí posuvniky
 # fill treeview in window
 def treeview_fill():
     treeview_files['columns'] = ['File', 'Tally number', 'Tally type', 'Particle', 'Number of values', 'E_min (MeV)', 'E_max (MeV)', 'E_cut-off (MeV)']
@@ -56,10 +58,7 @@ def ask_quit():
 
 
 #  MAIN CODE  ##########################################################################################################
-# TODO vlozit okno pro log
-# TODO vytvořit novy branch a v nem novou tridu pro praci s tallies
-#
-# ----------------------------------------------------------------------------------------------------------------------
+
 # main window creation
 root = tk.Tk()
 
