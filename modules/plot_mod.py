@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
-# TODO vložení canvas pro grafy
+# TODO vložení toolbaru pro grafy
 # TODO vložení tlačítek pro upravy grafu
+# TODO stejná barva chybových úseček jako schodového grafu
 
 # libraries
 import matplotlib.pyplot as plt     # ploting in matlab style
@@ -15,7 +16,7 @@ import tkinter as tk
 
 #  Functions  ##########################################################################################################
 # create new Top level window
-def plot_window(root):
+def plot_window(root, treeview_file, selected):
     new_win = tk.Toplevel(root)
     new_win.title('Plotting window')
     new_win.minsize(100, 150)
@@ -28,7 +29,9 @@ def plot_window(root):
     canvas = FigureCanvasTkAgg(empty_fig, plot_frame)
     canvas.get_tk_widget().configure(highlightcolor='black')
 
-    canvas = FigureCanvasTkAgg(plot_function(['outq_174', 'outq_154']), plot_frame)
+    tally_to_plot = get_selected(treeview_file, selected)
+
+    canvas = FigureCanvasTkAgg(plot_function(tally_to_plot), plot_frame)
 
     canvas.draw()
     canvas.get_tk_widget().grid(row=0)
@@ -56,6 +59,16 @@ def plot_window(root):
     # layout all of the main containers
     new_win.columnconfigure(0, weight=1)
     new_win.rowconfigure(0, weight=1)
+
+
+# get selected tallies from treeview
+def get_selected(treeview_file, selected):
+    selection = []
+
+    for row in selected:
+        selection.append(treeview_file.item(row)['values'][0])
+
+    return selection
 
 
 # ----------------------------------------------------------------------------------------------------------------------

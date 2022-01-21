@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
-# TODO nahradit treeview za checkboxtreeview
 # TODO vlozit okno pro log
 # TODO vytvořit novy branch a v nem novou tridu pro praci s tallies
 
 # LIBRARIES
 # import from our files
+import ttkwidgets
+
 from modules import read_mod, plot_mod
 
 # GUI libraries
 import tkinter as tk
-from ttkwidgets import CheckboxTreeview
+import ttkwidgets
 
 
 #  FUNCTIONS  ##########################################################################################################
@@ -55,17 +56,22 @@ file_menu.add_command(label='Work directory', underline=0, command=lambda: read_
 # widgets in FRAMEs
 
 # widgets in UP frame in GUI
-treeview_files = tk.ttk.Treeview(up_frame)
-
-treeview_files['columns'] = ('File', 'Tally number', 'Tally type', 'Particle', 'Number of values', 'E_min (MeV)', 'E_max (MeV)', 'E_cut-off (MeV)')
+treeview_files = ttkwidgets.CheckboxTreeview(up_frame)
 
 # somehow hide first ghost column
-treeview_files['show'] = 'headings'
+treeview_files['show'] = 'headings', 'tree'
+
+
+treeview_files['columns'] = ('File', 'Tally number', 'Tally type', 'Particle', 'Number of values', 'E_cut-off (MeV)', 'E_min (MeV)', 'E_max (MeV)')
+
 
 for col_name in ['File', 'Tally number', 'Tally type', 'Particle', 'Number of values', 'E_min (MeV)', 'E_max (MeV)',
                  'E_cut-off (MeV)']:
-    treeview_files.column(col_name, width=100, stretch=False)
+    treeview_files.column(col_name, width=100, stretch=True)
     treeview_files.heading(col_name, text=col_name)
+
+treeview_files.column('#0',anchor='w', width=40, stretch=False)
+treeview_files.column('File', width=150, stretch=False)
 
 # Treeview X-scrollbar
 tree_x_scroll = tk.ttk.Scrollbar(up_frame, orient='horizontal')
@@ -77,7 +83,7 @@ treeview_files.configure(yscrollcommand=tree_y_scroll.set)
 
 
 # widgets in DOWN frame in GUI
-button_solve = tk.ttk.Button(down_frame, text='Plot data', command=lambda: plot_mod.plot_window(root), width=20)
+button_solve = tk.ttk.Button(down_frame, text='Plot data', command=lambda: plot_mod.plot_window(root, treeview_files, treeview_files.get_checked()), width=20)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # GRIDs

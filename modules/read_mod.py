@@ -27,16 +27,16 @@ def open_folder(treeview_files):
     for fname in output_files:
         read_file(folder_path, fname)     # read tallies from output files
 
-
+    # fill treeview part
     x = treeview_files.get_children()       # get id of all items in treeview
     for i in x:                             # delete all items
         treeview_files.delete(i)
 
     for i in config_mod.tallies.keys():      # fill treeview with new values
-        treeview_files.insert('', index='end', values=[i, config_mod.tallies[i][0], config_mod.tallies[i][1], config_mod.tallies[i][2], len(config_mod.tallies[i][3]), config_mod.tallies[i][3][0], config_mod.tallies[i][3][-1], config_mod.tallies[i][6]])
+        treeview_files.insert('', index='end', values=[i, config_mod.tallies[i][0], config_mod.tallies[i][1], config_mod.tallies[i][2], len(config_mod.tallies[i][3]), config_mod.tallies[i][6], config_mod.tallies[i][3][0], config_mod.tallies[i][3][-1]])
 
 
-# read data from tally
+# read data from all tally in one output file
 def read_file(f_path ,fname):
     energy = []
     flux = []
