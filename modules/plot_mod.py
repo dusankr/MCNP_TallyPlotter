@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
-# TODO vložení toolbaru pro grafy
 # TODO vložení tlačítek pro upravy grafu
 # TODO stejná barva chybových úseček jako schodového grafu
+# TODO ošetřit když chybí data
 
 # libraries
 import matplotlib.pyplot as plt     # ploting in matlab style
@@ -15,36 +15,34 @@ import tkinter as tk
 
 
 #  Functions  ##########################################################################################################
-# create new Top level window
+# create new Top level window and plot data
 def plot_window(root, treeview_file, selected):
     new_win = tk.Toplevel(root)
+    new_win.grab_set()      # the main window is locked until the new window is closed
+
     new_win.title('Plotting window')
     new_win.minsize(100, 150)
 
     plot_frame = tk.ttk.Frame(new_win)
-    plot_option_frame = tk.ttk.Frame(new_win)
-
-    # empty place for figure
-    empty_fig = Figure(figsize=(5, 5))
-    canvas = FigureCanvasTkAgg(empty_fig, plot_frame)
-    canvas.get_tk_widget().configure(highlightcolor='black')
-
-    tally_to_plot = get_selected(treeview_file, selected)
-
-    canvas = FigureCanvasTkAgg(plot_function(tally_to_plot), plot_frame)
-
-    canvas.draw()
-    canvas.get_tk_widget().grid(row=0)
-
-    # plot otion frame
-    button_replot = tk.ttk.Button(plot_option_frame, text='Plot data', width=20)
-
-
-    # GRIDs
-    # frames in main GRID
     plot_frame.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)  # set the margins between window and content
+
+    plot_option_frame = tk.ttk.Frame(new_win)
     plot_option_frame.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
 
+    tally_to_plot = get_selected(treeview_file, selected)   # obtain keys from checkedbox treeview
+
+    # Canvas for plot
+    canvas = FigureCanvasTkAgg(plot_function(tally_to_plot), plot_frame)    # add Figure to canvas from plot function
+    canvas.draw()
+    canvas.get_tk_widget().grid(column=0, row=0, sticky='nswe')
+
+    # Toolbar for plot
+    toolbar_frame = tk.ttk.Frame(new_win)
+    toolbar_frame.grid(column=0, row=1, sticky='nswe')
+    toolbar = NavigationToolbar2Tk(canvas, toolbar_frame)
+
+    # plot option frame
+    button_replot = tk.ttk.Button(plot_option_frame, text='Plot data', width=20)
     button_replot.grid(sticky='W', column=0, row=0)
 
     # LAYOUTs
