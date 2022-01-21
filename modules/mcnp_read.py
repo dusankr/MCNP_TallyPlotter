@@ -6,10 +6,40 @@
 
 # libraries
 from modules import config_mod
-import matplotlib.pyplot as plt
+import os
+# better and easier work with file and directory paths
+from pathlib import Path
+
+import tkinter as tk
 
 
 #  Functions  ##########################################################################################################
+# read outputs from chosen directory
+def open_folder(treeview_files):
+    folder_path = Path(tk.filedialog.askdirectory(title='Choose directory with MCNP output files', initialdir=Path.cwd()))
+
+    output_files = []
+    for file in os.listdir(folder_path):
+        output_files.append(Path(file))
+
+    for fname in output_files:
+        read_file(folder_path, fname)     # read tallies from output files
+
+    # fill tree view with tally parameters
+    treeview_files['columns'] = ['File', 'Tally number', 'Tally type', 'Particle', 'Number of values', 'E_min (MeV)', 'E_max (MeV)', 'E_cut-off (MeV)']
+
+    for col_name in ['File', 'Tally number', 'Tally type', 'Particle', 'Number of values', 'E_min (MeV)', 'E_max (MeV)', 'E_cut-off (MeV)']:
+        treeview_files.column(col_name, width=100, stretch=False)
+        treeview_files.heading(col_name, text=col_name)
+
+    x = treeview_files.get_children()       # get id of all items in treeview
+    for i in x:                             # delete all items
+        treeview_files.delete(i)
+
+    for i in config_mod.tallies.keys():      # fill treeview with new values
+        treeview_files.insert('', index='end', values=[i, config_mod.tallies[i][0], config_mod.tallies[i][1], config_mod.tallies[i][2], len(config_mod.tallies[i][3]), config_mod.tallies[i][3][0], config_mod.tallies[i][3][-1], config_mod.tallies[i][6]])
+
+
 # read data from tally
 def read_file(f_path ,fname):
     energy = []
