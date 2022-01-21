@@ -6,7 +6,7 @@
 
 # LIBRARIES
 # import from our files
-from modules import mcnp_read, plot_mod
+from modules import read_mod, plot_mod
 
 # GUI libraries
 import tkinter as tk
@@ -49,7 +49,7 @@ root.config(menu=menu_bar)
 # File in MENU definition
 file_menu = tk.Menu(menu_bar, tearoff=0)
 menu_bar.add_cascade(label='File', menu=file_menu)
-file_menu.add_command(label='Work directory', underline=0, command=lambda: mcnp_read.open_folder(treeview_files))
+file_menu.add_command(label='Work directory', underline=0, command=lambda: read_mod.open_folder(treeview_files))
 
 # ----------------------------------------------------------------------------------------------------------------------
 # widgets in FRAMEs
