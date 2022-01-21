@@ -67,8 +67,8 @@ root.title('MCNP tally plotting')
 root.minsize(500, 300)
 # root.maxsize(1000, 600)
 # root.geometry('800x350')
-style = tk.ttk.Style()
-style.theme_use('vista')
+# style = tk.ttk.Style()
+# style.theme_use('vista')
 
 root.protocol('WM_DELETE_WINDOW', ask_quit)  # program end
 
@@ -116,6 +116,8 @@ down_frame.grid(column=0, row=1, sticky='nswe', padx=5, pady=5)
 
 # UP frame widgets grid
 treeview_files.grid(sticky='wens', column=0, columnspan=5, row=0, rowspan=5)
+tree_x_scroll.grid(sticky='wens', column=0, row=5, columnspan=5, padx=5, pady=5)
+tree_y_scroll.grid(sticky='wens', column=5, row=0, rowspan=5, padx=5, pady=5)
 
 # DOWN frame widgets grid
 button_solve.grid(sticky='W', column=0, row=0)
