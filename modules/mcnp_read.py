@@ -6,7 +6,7 @@
 
 # libraries
 from modules import config_mod
-import os
+
 # better and easier work with file and directory paths
 from pathlib import Path
 
@@ -19,7 +19,7 @@ def open_folder(treeview_files):
     folder_path = Path(tk.filedialog.askdirectory(title='Choose directory with MCNP output files', initialdir=Path.cwd()))
 
     output_files = []
-    for file in os.listdir(folder_path):
+    for file in Path.iterdir(folder_path):
         output_files.append(Path(file))
 
     for fname in output_files:
