@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
 # TODO nahradit treeview za checkboxtreeview
-# TODO vypnout rozsireni okna po nacteni hodnot do treeview
 # TODO vlozit okno pro log
 # TODO vytvořit novy branch a v nem novou tridu pro praci s tallies
 
@@ -57,7 +56,16 @@ file_menu.add_command(label='Work directory', underline=0, command=lambda: mcnp_
 
 # widgets in UP frame in GUI
 treeview_files = tk.ttk.Treeview(up_frame)
+
+treeview_files['columns'] = ('File', 'Tally number', 'Tally type', 'Particle', 'Number of values', 'E_min (MeV)', 'E_max (MeV)', 'E_cut-off (MeV)')
+
+# somehow hide first ghost column
 treeview_files['show'] = 'headings'
+
+for col_name in ['File', 'Tally number', 'Tally type', 'Particle', 'Number of values', 'E_min (MeV)', 'E_max (MeV)',
+                 'E_cut-off (MeV)']:
+    treeview_files.column(col_name, width=100, stretch=False)
+    treeview_files.heading(col_name, text=col_name)
 
 # Treeview X-scrollbar
 tree_x_scroll = tk.ttk.Scrollbar(up_frame, orient='horizontal')

@@ -16,6 +16,8 @@ import tkinter as tk
 #  Functions  ##########################################################################################################
 # read outputs from chosen directory
 def open_folder(treeview_files):
+    config_mod.tallies.clear()      # clear tallies dict before read new directory
+
     folder_path = Path(tk.filedialog.askdirectory(title='Choose directory with MCNP output files', initialdir=Path.cwd()))
 
     output_files = []
@@ -25,12 +27,6 @@ def open_folder(treeview_files):
     for fname in output_files:
         read_file(folder_path, fname)     # read tallies from output files
 
-    # fill tree view with tally parameters
-    treeview_files['columns'] = ['File', 'Tally number', 'Tally type', 'Particle', 'Number of values', 'E_min (MeV)', 'E_max (MeV)', 'E_cut-off (MeV)']
-
-    for col_name in ['File', 'Tally number', 'Tally type', 'Particle', 'Number of values', 'E_min (MeV)', 'E_max (MeV)', 'E_cut-off (MeV)']:
-        treeview_files.column(col_name, width=100, stretch=False)
-        treeview_files.heading(col_name, text=col_name)
 
     x = treeview_files.get_children()       # get id of all items in treeview
     for i in x:                             # delete all items
