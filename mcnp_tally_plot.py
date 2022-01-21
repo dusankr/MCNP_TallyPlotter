@@ -75,10 +75,10 @@ root.protocol('WM_DELETE_WINDOW', ask_quit)  # program end
 # Frames
 up_frame = tk.ttk.Frame(root)
 down_frame = tk.ttk.Frame(root)
-bottom_frame = tk.ttk.Frame(root)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # widget MENU
+
 # widget definition
 menu_bar = tk.Menu(root)
 root.config(menu=menu_bar)
@@ -86,10 +86,11 @@ root.config(menu=menu_bar)
 # File in MENU definition
 file_menu = tk.Menu(menu_bar, tearoff=0)
 menu_bar.add_cascade(label='File', menu=file_menu)
-file_menu.add_command(label='Open work directory', underline=0, command=lambda: open_folder())
+file_menu.add_command(label='Work directory', underline=0, command=lambda: open_folder())
 
 # ----------------------------------------------------------------------------------------------------------------------
 # widgets in FRAMEs
+
 # widgets in UP frame in GUI
 treeview_files = tk.ttk.Treeview(up_frame)
 treeview_files['show'] = 'headings'
@@ -103,27 +104,26 @@ tree_y_scroll = tk.ttk.Scrollbar(up_frame, orient='vertical', command=treeview_f
 treeview_files.configure(yscrollcommand=tree_y_scroll.set)
 
 
-# widgets DOWN frame in GUI
+# widgets in DOWN frame in GUI
 button_solve = tk.ttk.Button(down_frame, text='Plot data', command=lambda: plot_mod.plot_window(root), width=20)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # GRIDs
+
 # frames in main GRID
 up_frame.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)     # set the margins between window and content
 down_frame.grid(column=0, row=1, sticky='nswe', padx=5, pady=5)
-# bottom_frame.grid(column=0, row=5, sticky='nswe', padx=5, pady=5)
 
 # UP frame widgets grid
 treeview_files.grid(sticky='wens', column=0, columnspan=5, row=0, rowspan=5)
-
 
 # DOWN frame widgets grid
 button_solve.grid(sticky='W', column=0, row=0)
 
 # ----------------------------------------------------------------------------------------------------------------------
 # LAYOUTs
-# layout UP frame
 
+# layout UP frame
 up_frame.columnconfigure(0, weight=1)
 up_frame.rowconfigure(0, weight=1)
 

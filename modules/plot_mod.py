@@ -10,41 +10,94 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationTool
 from matplotlib.figure import Figure
 
 # GUI libraries
-import tkinter
+import tkinter as tk
 
 
 #  Functions  ##########################################################################################################
 # create new Top level window
 def plot_window(root):
-    new_win = tkinter.Toplevel(root)
+    new_win = tk.Toplevel(root)
     new_win.title('Plotting window')
     new_win.minsize(100, 150)
 
-    plot_frame = tkinter.ttk.Frame(new_win)
-    plot_option_frame = tkinter.ttk.Frame(new_win)
+    plot_frame = tk.ttk.Frame(new_win)
+    plot_option_frame = tk.ttk.Frame(new_win)
 
     # empty place for figure
     empty_fig = Figure(figsize=(5, 5))
     canvas = FigureCanvasTkAgg(empty_fig, plot_frame)
     canvas.get_tk_widget().configure(highlightcolor='black')
 
+    canvas = FigureCanvasTkAgg(plot_function(['outq_174', 'outq_154']), plot_frame)
+
     canvas.draw()
     canvas.get_tk_widget().grid(row=0)
+
+    # plot otion frame
+    button_replot = tk.ttk.Button(plot_option_frame, text='Plot data', width=20)
+
 
     # GRIDs
     # frames in main GRID
     plot_frame.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)  # set the margins between window and content
     plot_option_frame.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
 
+    button_replot.grid(sticky='W', column=0, row=0)
+
     # LAYOUTs
-    # layout UP frame
+    # layout PLOT frame
     plot_frame.columnconfigure(0, weight=1)
     plot_frame.rowconfigure(0, weight=1)
 
-    # layout DOWN frame
+    # layout PLOT_OPTION frame
     plot_option_frame.columnconfigure(0, weight=1)
     plot_option_frame.rowconfigure(0, weight=1)
 
     # layout all of the main containers
     new_win.columnconfigure(0, weight=1)
     new_win.rowconfigure(0, weight=1)
+
+
+# ----------------------------------------------------------------------------------------------------------------------
+# support PLOT functions
+# tally plot limits
+def tally_limits(x, y, y_err, limit):
+    x = [limit] + x  # neutron cut off E=1E-9 MeV, default photon and e- cut off 0.001 MeV
+    y = [0] + y
+    y_err = [0] + y_err
+
+    return x, y, y_err
+
+
+# calculate central value for all bins
+def interval_mid(x):
+    x_center = []
+    for i in range(0, len(x) - 1):
+        x_center.append(x[i] + (x[i + 1] - x[i]) / 2)
+
+    return x_center
+
+
+# plot tallies from user
+def plot_function(tally_to_plot):
+    fig = plt.figure()
+
+    for name in config_mod.tallies.keys():
+        if name in tally_to_plot:
+            x_data, y_data, y_data_err = tally_limits(config_mod.tallies[name][3], config_mod.tallies[name][4], config_mod.tallies[name][5], config_mod.tallies[name][-1])
+
+            # calculate interval centers
+            x_data_center = interval_mid(x_data)
+
+            # plots
+            plt.step(x_data, y_data, label=name)
+            plt.errorbar(x_data_center, y_data[1:], yerr=y_data_err[1:], xerr=0, marker='_', linestyle='None', capthick=0.7, capsize=2)
+
+    # todo zformátovat graf
+    plt.legend(loc='upper right')
+    plt.grid()
+    plt.xlabel('energy (MeV)')
+    plt.ylabel('average flux in cell per one generated neutron')
+    plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+
+    return fig
