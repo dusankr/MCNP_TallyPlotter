@@ -36,11 +36,8 @@ style.theme_use('vista')
 
 root.protocol('WM_DELETE_WINDOW', ask_quit)  # program end
 
-# Frames
-up_frame = tk.ttk.Frame(root)
-down_frame = tk.ttk.Frame(root)
-
 # ----------------------------------------------------------------------------------------------------------------------
+'''
 # widget MENU
 
 # widget definition
@@ -51,16 +48,21 @@ root.config(menu=menu_bar)
 file_menu = tk.Menu(menu_bar, tearoff=0)
 menu_bar.add_cascade(label='File', menu=file_menu)
 file_menu.add_command(label='Work directory', underline=0, command=lambda: read_mod.open_folder(treeview_files))
+'''
 
-# ----------------------------------------------------------------------------------------------------------------------
-# widgets in FRAMEs
+# FRAMES ---------------------------------------------------------------------------------------------------------------
+up_frame = tk.ttk.Frame(root)
+up_frame.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)     # set the margins between window and content
 
-# widgets in UP frame in GUI
+down_frame = tk.ttk.Frame(root)
+down_frame.grid(column=0, row=1, sticky='nswe', padx=5, pady=5)
+
+# widgets in UP frame in GUI -------------------------------------------------------------------------------------------
 treeview_files = ttkwidgets.CheckboxTreeview(up_frame)
+treeview_files.grid(sticky='wens', column=0, columnspan=5, row=0, rowspan=5)
 
 # somehow hide first ghost column
 treeview_files['show'] = 'headings', 'tree'
-
 
 treeview_files['columns'] = ('File', 'Tally number', 'Tally type', 'Particle', 'Number of values', 'E_cut-off (MeV)', 'E_min (MeV)', 'E_max (MeV)')
 
@@ -73,6 +75,7 @@ for col_name in ['File', 'Tally number', 'Tally type', 'Particle', 'Number of va
 treeview_files.column('#0',anchor='w', width=40, stretch=False)
 treeview_files.column('File', width=150, stretch=False)
 
+# TREEVIEW
 # Treeview X-scrollbar
 tree_x_scroll = tk.ttk.Scrollbar(up_frame, orient='horizontal')
 tree_x_scroll.configure(command=treeview_files.xview)
@@ -81,24 +84,16 @@ treeview_files.configure(xscrollcommand=tree_x_scroll.set)
 tree_y_scroll = tk.ttk.Scrollbar(up_frame, orient='vertical', command=treeview_files.yview)
 treeview_files.configure(yscrollcommand=tree_y_scroll.set)
 
-
-# widgets in DOWN frame in GUI
-button_solve = tk.ttk.Button(down_frame, text='Plot data', command=lambda: plot_mod.plot_window(root, treeview_files, treeview_files.get_checked()), width=20)
-
-# ----------------------------------------------------------------------------------------------------------------------
-# GRIDs
-
-# frames in main GRID
-up_frame.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)     # set the margins between window and content
-down_frame.grid(column=0, row=1, sticky='nswe', padx=5, pady=5)
-
-# UP frame widgets grid
-treeview_files.grid(sticky='wens', column=0, columnspan=5, row=0, rowspan=5)
 tree_x_scroll.grid(sticky='wens', column=0, row=5, columnspan=5, padx=5, pady=5)
 tree_y_scroll.grid(sticky='wens', column=5, row=0, rowspan=5, padx=5, pady=5)
 
-# DOWN frame widgets grid
+# widgets in DOWN frame in GUI -----------------------------------------------------------------------------------------
+button_solve = tk.ttk.Button(down_frame, text='Plot data', command=lambda: plot_mod.plot_window(root, treeview_files, treeview_files.get_checked()), width=20)
 button_solve.grid(sticky='W', column=0, row=0)
+
+button_file = tk.ttk.Button(down_frame, text='Work directory', command=lambda: read_mod.open_folder(treeview_files), width=20)
+button_file.grid(sticky='W', column=1, row=0)
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # LAYOUTs

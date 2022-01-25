@@ -3,6 +3,7 @@
 # TODO potencialni problem s ruznymi tally a verzemi mcnp (zkusit jiný typ výstupu nebo mctal)
 # TODO problém se jmény, v cut off tabulce jsou jednotná čísla a v tally množná, zatím vyřešeno pomocí odečtení
 #  posledního písmene, funguje jen pro některé částice
+# TODO pojistka pokud uzivatel nevybere zadnou slozku
 
 # libraries
 from modules import config_mod
@@ -52,7 +53,7 @@ def read_file(f_path ,fname):
         while i < len(content):
             line = content[i].split()
 
-            if len(line) != 0:
+            if len(line) != 0:          # skip empty lines (try to find better solution?)
                 if '1tally' == line[0] and line[1].isdigit():
                     tally_num = line[1]
                     line = content[i + 1].split()

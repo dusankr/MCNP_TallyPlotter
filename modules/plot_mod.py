@@ -45,9 +45,49 @@ def plot_window(root, treeview_file, selected):
     toolbar_frame.grid(column=0, row=1, sticky='nswe')
     toolbar = NavigationToolbar2Tk(canvas, toolbar_frame)
 
-    # plot option frame
-    button_replot = tk.ttk.Button(plot_option_frame, text='Plot data', width=20)
-    button_replot.grid(sticky='W', column=0, row=0)
+    # PLOT OPTION FRAME
+
+    # X AXIS Radio Button
+    x_axis_frame = tk.LabelFrame(plot_option_frame, text='X axis settings')
+    x_axis_frame.grid(column=0, row=0, sticky='nwe', padx=5, pady=5)
+
+    x_lin_radio = tk.Radiobutton(x_axis_frame, text='lin')
+    x_lin_radio.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
+    x_log_radio = tk.Radiobutton(x_axis_frame, text='log')
+    x_log_radio.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
+
+    # Y AXIS Radio Button
+    y_axis_frame = tk.LabelFrame(plot_option_frame, text='Y axis settings')
+    y_axis_frame.grid(column=0, row=1, sticky='nwe', padx=5, pady=5)
+
+    y_lin_radio = tk.Radiobutton(y_axis_frame, text='lin')
+    y_lin_radio.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
+    y_log_radio = tk.Radiobutton(y_axis_frame, text='log')
+    y_log_radio.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
+
+    # DATA Radio Button
+    data_inp_frame = tk.LabelFrame(plot_option_frame, text='Data input')
+    data_inp_frame.grid(column=0, row=2, sticky='n', padx=5, pady=5)
+
+    data_inp_radio = tk.Radiobutton(data_inp_frame, text='norm')
+    data_inp_radio.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
+    data_inp_radio = tk.Radiobutton(data_inp_frame, text='non')
+    data_inp_radio.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
+
+    # LEGEND position
+    legend_frame = tk.LabelFrame(plot_option_frame, text='Legend position')
+    legend_frame.grid(column=0, row=3, sticky='n', padx=5, pady=5)
+
+    # GRID on/off ?
+
+    # Buttons
+    button_replot = tk.ttk.Button(plot_option_frame, text='Replot', width=20)
+    button_replot.grid(column=0, row=4)
+
+    button_export = tk.ttk.Button(plot_option_frame, text='Export to CSV', width=20)
+    button_export.grid(column=0, row=5)
+
+
 
     # LAYOUTs
     # layout PLOT frame
