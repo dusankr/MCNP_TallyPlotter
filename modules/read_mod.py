@@ -44,9 +44,9 @@ def read_file(f_path ,fname):
 
         cutoff_dict = cutoff_func(content)
 
+        energy = []
         flux = [0]
         error = [0]
-        energy = []
 
         for i in range(0, len(content)):
             line = content[i].split()
@@ -88,8 +88,8 @@ def read_file(f_path ,fname):
                     config_mod.tallies[fname.name + '_' + str(tally_num)] = [tally_num, tally_type, tally_ptc, energy, flux, error, cutoff_en]
 
                     energy = []
-                    flux = []
-                    error = []
+                    flux = [0]
+                    error = [0]
 
 
 # return cutoff values from output
