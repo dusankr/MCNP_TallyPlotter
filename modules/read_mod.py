@@ -111,10 +111,9 @@ def cutoff_func(content):
 
 # flux bin normalization per 1 MeV
 def flux_norm(energy, flux, flux_err):
-    print(flux)
+
     for i in range(1, len(flux)):
         flux[i] = flux[i] / (energy[i] - energy[i-1])
         flux_err[i] = flux_err[i] / (energy[i] - energy[i-1])
-    print(flux)
 
     return flux, flux_err
