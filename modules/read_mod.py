@@ -83,9 +83,9 @@ def read_file(f_path ,fname):
                     # add first energy
                     energy = [cutoff_en] + energy  # neutron cut off E=1E-9 MeV, default photon and e- cut off 0.001 MeV
 
-                    flux, error = flux_norm(energy, flux, error)    # create normalized variables for dictionary instead of rewrite original values
+                    flux_n, error_n = flux_norm(energy, flux, error)    # create normalized variables for dictionary instead of rewrite original values
 
-                    config_mod.tallies[fname.name + '_' + str(tally_num)] = [tally_num, tally_type, tally_ptc, energy, flux, error, cutoff_en]
+                    config_mod.tallies[fname.name + '_' + str(tally_num)] = [tally_num, tally_type, tally_ptc, energy, flux, error, cutoff_en, flux_n, error_n]
 
                     energy = []
                     flux = [0]
@@ -110,10 +110,13 @@ def cutoff_func(content):
 
 
 # flux bin normalization per 1 MeV
-def flux_norm(energy, flux, flux_err):
+def flux_norm(energy, flux, error):
+
+    fl_n = [0]
+    fl_n_err = [0]
 
     for i in range(1, len(flux)):
-        flux[i] = flux[i] / (energy[i] - energy[i-1])
-        flux_err[i] = flux_err[i] / (energy[i] - energy[i-1])
+        fl_n.append(flux[i] / (energy[i] - energy[i-1]))
+        fl_n_err.append(error[i] / (energy[i] - energy[i-1]))
 
-    return flux, flux_err
+    return fl_n, fl_n_err

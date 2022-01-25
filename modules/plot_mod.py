@@ -91,7 +91,8 @@ def plot_function(tally_to_plot):
 
     for name in config_mod.tallies.keys():
         if name in tally_to_plot:
-            x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4], config_mod.tallies[name][5]
+            #x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4], config_mod.tallies[name][5]      # unnormalized date
+            x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][7], config_mod.tallies[name][8]     # normalized data
 
             # calculate interval centers
             x_data_center = interval_mid(x_data)
@@ -99,6 +100,7 @@ def plot_function(tally_to_plot):
             # plots
             plt.step(x_data, y_data, label=name)
             plt.errorbar(x_data_center, y_data[1:], yerr=y_data_err[1:], xerr=0, marker='_', linestyle='None', capthick=0.7, capsize=2)
+
 
     # todo zformátovat graf
     plt.legend(loc='upper right')
