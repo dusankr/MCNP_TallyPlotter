@@ -71,14 +71,6 @@ def get_selected(treeview_file, selected):
 
 # ----------------------------------------------------------------------------------------------------------------------
 # support PLOT functions
-# tally plot limits
-def tally_limits(x, y, y_err, limit):
-    x = [limit] + x  # neutron cut off E=1E-9 MeV, default photon and e- cut off 0.001 MeV
-    y = [0] + y
-    y_err = [0] + y_err
-
-    return x, y, y_err
-
 
 # calculate central value for all bins
 def interval_mid(x):
@@ -95,7 +87,7 @@ def plot_function(tally_to_plot):
 
     for name in config_mod.tallies.keys():
         if name in tally_to_plot:
-            x_data, y_data, y_data_err = tally_limits(config_mod.tallies[name][3], config_mod.tallies[name][4], config_mod.tallies[name][5], config_mod.tallies[name][-1])
+            x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4], config_mod.tallies[name][5]
 
             # calculate interval centers
             x_data_center = interval_mid(x_data)

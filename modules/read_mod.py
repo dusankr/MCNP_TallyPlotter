@@ -33,19 +33,20 @@ def open_folder(treeview_files):
         treeview_files.delete(i)
 
     for i in config_mod.tallies.keys():      # fill treeview with new values
-        treeview_files.insert('', index='end', values=[i, config_mod.tallies[i][0], config_mod.tallies[i][1], config_mod.tallies[i][2], len(config_mod.tallies[i][3]), config_mod.tallies[i][6], config_mod.tallies[i][3][0], config_mod.tallies[i][3][-1]])
+        treeview_files.insert('', index='end', values=[i, config_mod.tallies[i][0], config_mod.tallies[i][1], config_mod.tallies[i][2], len(config_mod.tallies[i][3])-1, config_mod.tallies[i][6], config_mod.tallies[i][3][1], config_mod.tallies[i][3][-1]])
 
 
 # read data from all tally in one output file
 def read_file(f_path ,fname):
-    energy = []
-    flux = []
-    error = []
 
     with open(f_path / fname, 'r', encoding='utf-8') as temp_file:  # open MCNP output file
         content = temp_file.readlines()
 
         cutoff_dict = cutoff_func(content)
+
+        flux = [0]
+        error = [0]
+        energy = []
 
         for i in range(0, len(content)):
             line = content[i].split()
@@ -58,6 +59,7 @@ def read_file(f_path ,fname):
                     line = content[i + 2].split()
                     tally_ptc = line[1]
 
+                    # different beginning for different tally types
                     if tally_type == 8:
                         data_start = i + 7 + 2  # data beginning in output file for F8,miss first 2 values-F8 parameters
                     else:
@@ -69,7 +71,7 @@ def read_file(f_path ,fname):
                     while line[0] != 'total':
                         energy.append(float(line[0]))
                         flux.append(float(line[1]))
-                        error.append(float(line[2]) * flux[-1])
+                        error.append(float(line[2])*flux[-1])
                         y += 1
                         line = content[y].split()
 
@@ -77,6 +79,9 @@ def read_file(f_path ,fname):
                     for particle in cutoff_dict.keys():
                         if tally_ptc[:-1] == particle:
                             cutoff_en = cutoff_dict[particle]
+
+                    # add first energy
+                    energy = [cutoff_en] + energy  # neutron cut off E=1E-9 MeV, default photon and e- cut off 0.001 MeV
 
                     config_mod.tallies[fname.name + '_' + str(tally_num)] = [tally_num, tally_type, tally_ptc, energy, flux, error, cutoff_en]
 
