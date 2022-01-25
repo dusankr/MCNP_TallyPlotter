@@ -83,6 +83,8 @@ def read_file(f_path ,fname):
                     # add first energy
                     energy = [cutoff_en] + energy  # neutron cut off E=1E-9 MeV, default photon and e- cut off 0.001 MeV
 
+                    flux, error = flux_norm(energy, flux, error)
+
                     config_mod.tallies[fname.name + '_' + str(tally_num)] = [tally_num, tally_type, tally_ptc, energy, flux, error, cutoff_en]
 
                     energy = []
@@ -105,3 +107,14 @@ def cutoff_func(content):
                     y += 1
                     line = content[y].split()
                 return cutoff_dict
+
+
+# flux bin normalization per 1 MeV
+def flux_norm(energy, flux, flux_err):
+    print(flux)
+    for i in range(1, len(flux)):
+        flux[i] = flux[i] / (energy[i] - energy[i-1])
+        flux_err[i] = flux_err[i] / (energy[i] - energy[i-1])
+    print(flux)
+
+    return flux, flux_err
