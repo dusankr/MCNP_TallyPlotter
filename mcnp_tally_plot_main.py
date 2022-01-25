@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
-# TODO vlozit okno pro log
 # TODO vytvořit novy branch a v nem novou tridu pro praci s tallies
 
 # LIBRARIES
@@ -88,12 +87,14 @@ tree_x_scroll.grid(sticky='wens', column=0, row=5, columnspan=5, padx=5, pady=5)
 tree_y_scroll.grid(sticky='wens', column=5, row=0, rowspan=5, padx=5, pady=5)
 
 # widgets in DOWN frame in GUI -----------------------------------------------------------------------------------------
-button_solve = tk.ttk.Button(down_frame, text='Plot data', command=lambda: plot_mod.plot_window(root, treeview_files, treeview_files.get_checked()), width=20)
-button_solve.grid(sticky='W', column=0, row=0)
-
 button_file = tk.ttk.Button(down_frame, text='Work directory', command=lambda: read_mod.open_folder(treeview_files), width=20)
-button_file.grid(sticky='W', column=1, row=0)
+button_file.grid(column=0, row=0, sticky='ws')
 
+button_solve = tk.ttk.Button(down_frame, text='Plot data', command=lambda: plot_mod.plot_window(root, treeview_files, treeview_files.get_checked()), width=20)
+button_solve.grid(column=1, row=0, sticky='ws')
+
+button_export = tk.ttk.Button(down_frame, text='Export tally to CSV', width=20)     # TODO write function for tally export to CSV/Excel/etc.
+button_export.grid(column=2, row=0, sticky='ws')
 
 # ----------------------------------------------------------------------------------------------------------------------
 # LAYOUTs

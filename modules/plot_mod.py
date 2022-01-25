@@ -76,7 +76,15 @@ def plot_window(root, treeview_file, selected):
 
     # LEGEND position
     legend_frame = tk.LabelFrame(plot_option_frame, text='Legend position')
-    legend_frame.grid(column=0, row=3, sticky='n', padx=5, pady=5)
+    legend_frame.grid(column=0, row=3, sticky='nswe', padx=5, pady=5)
+
+    # option menu variables
+    legend_options = ['best', 'upper right', 'upper left', 'lower left', 'lower right', 'right', 'center left', 'center right', 'lower center', 'upper center', 'center']
+    legend_pos = tk.StringVar(new_win)
+    legend_pos.set('best')
+
+    legend_menu = tk.OptionMenu(legend_frame, legend_pos, *legend_options)
+    legend_menu.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
 
     # GRID on/off ?
 
