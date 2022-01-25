@@ -48,7 +48,7 @@ def read_file(f_path ,fname):
         flux = [0]
         error = [0]
 
-        for i in range(0, len(content)):
+        for i in range(0, len(content)):       # TODO change For cycle to While cycle, return i from While for tally read
             line = content[i].split()
 
             if len(line) != 0:
@@ -83,7 +83,7 @@ def read_file(f_path ,fname):
                     # add first energy
                     energy = [cutoff_en] + energy  # neutron cut off E=1E-9 MeV, default photon and e- cut off 0.001 MeV
 
-                    flux, error = flux_norm(energy, flux, error)
+                    flux, error = flux_norm(energy, flux, error)    # create normalized variables for dictionary instead of rewrite original values
 
                     config_mod.tallies[fname.name + '_' + str(tally_num)] = [tally_num, tally_type, tally_ptc, energy, flux, error, cutoff_en]
 

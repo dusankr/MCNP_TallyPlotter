@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
 # TODO vložení tlačítek pro upravy grafu
+# TODO lin-log osa x
+# TODO lin-log osa y
+# TODO
+# TODO
 # TODO stejná barva chybových úseček jako schodového grafu
 # TODO ošetřit když chybí data
 
