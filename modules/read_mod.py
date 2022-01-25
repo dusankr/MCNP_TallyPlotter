@@ -48,7 +48,8 @@ def read_file(f_path ,fname):
         flux = [0]
         error = [0]
 
-        for i in range(0, len(content)):       # TODO change For cycle to While cycle, return i from While for tally read
+        i = 0
+        while i < len(content):
             line = content[i].split()
 
             if len(line) != 0:
@@ -65,15 +66,15 @@ def read_file(f_path ,fname):
                     else:
                         data_start = i + 10  # data beginning in output file for tally F4 and others
 
-                    y = data_start
-                    line = content[y].split()
+                    i = data_start
+                    line = content[i].split()
 
                     while line[0] != 'total':
                         energy.append(float(line[0]))
                         flux.append(float(line[1]))
                         error.append(float(line[2])*flux[-1])
-                        y += 1
-                        line = content[y].split()
+                        i += 1
+                        line = content[i].split()
 
                     # find correct cut off for every tally
                     for particle in cutoff_dict.keys():
@@ -90,6 +91,7 @@ def read_file(f_path ,fname):
                     energy = []
                     flux = [0]
                     error = [0]
+            i += 1
 
 
 # return cutoff values from output
