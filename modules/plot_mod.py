@@ -153,28 +153,31 @@ def interval_mid(x):
 
 # plot tallies from user
 def plot_function(tally_to_plot, leg, x_scale, y_scale, data_inp, ratio_plot):
-    fig = plt.figure()
+    fig, ax = plt.subplots()
 
     for name in config_mod.tallies.keys():
         if name in tally_to_plot:
             if data_inp == 'norm':
-                x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][7], config_mod.tallies[name][8]  # normalized data
+                x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][7], \
+                                             config_mod.tallies[name][8]  # normalized data
             elif data_inp == 'non':
-                x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4], config_mod.tallies[name][5]  # unnormalized date
+                x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4], \
+                                             config_mod.tallies[name][5]  # unnormalized date
 
             # calculate interval centers
             x_data_center = interval_mid(x_data)
 
             # plots
-            plt.step(x_data, y_data, label=name)
-            plt.errorbar(x_data_center, y_data[1:], yerr=y_data_err[1:], xerr=0, marker='_', linestyle='None', capthick=0.7, capsize=2)
+            ax.step(x_data, y_data, label=name)
+            ax.errorbar(x_data_center, y_data[1:], yerr=y_data_err[1:], xerr=0, marker='None', linestyle='None', capthick=0.7, capsize=2)
 
-    plt.legend(loc=leg)
-    plt.yscale(y_scale)
-    plt.xscale(x_scale)
-    plt.grid()
-    plt.xlabel('energy (MeV)')
-    plt.ylabel('average flux in cell per one generated neutron')
-    #plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))   # does not work in log scale, obviously...
+
+    ax.legend(loc=leg)
+    ax.set_yscale(y_scale)
+    ax.set_xscale(x_scale)
+    ax.grid()
+    ax.set_xlabel('energy (MeV)')
+    ax.set_ylabel('average flux in cell per one generated neutron')
+    ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))   # does not work in log scale with this setting
 
     return fig
