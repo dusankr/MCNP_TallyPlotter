@@ -1,13 +1,11 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
-# TODO vložení tlačítek pro upravy grafu
-# TODO lin-log osa x
-# TODO lin-log osa y
-# TODO
-# TODO
+# TODO zprovoznit replot
+# TODO umisteni do stejneho okna jako je je vyber tally?
 # TODO stejná barva chybových úseček jako schodového grafu
-# TODO ošetřit když chybí data
-# TODO ratio plot -> aktivovat jen když je zvoleno víc tally
+# TODO ošetřit když chybí data přes try+except
+# TODO ratio plot -> aktivovat jen když je zvoleno víc tally které mají stejný rozměr!!!
+# TODO vyresit že jsou prvky rozhazene po okne...
 
 # libraries
 import matplotlib.pyplot as plt     # ploting in matlab style
@@ -28,7 +26,7 @@ def plot_window(root, treeview_file, selected):
     new_win.title('Plotting window')
     new_win.minsize(100, 150)
 
-    # Tkinter variables
+    # Tkinter variables ------------------------------------------------------------------------------------------------
     legend_options = ['best', 'upper right', 'upper left', 'lower left', 'lower right', 'right', 'center left', 'center right', 'lower center', 'upper center', 'center']
     legend_pos = tk.StringVar()      # Option Menu variable
     legend_pos.set(legend_options[0])
@@ -40,11 +38,14 @@ def plot_window(root, treeview_file, selected):
     else:
         ratio_options = ['no ratio']
 
-    x_axis_var = tk.StringVar(value='lin')     # radio button variable
-    y_axis_var = tk.StringVar(value='lin')  # radio button variable
-    data_var = tk.StringVar(value='norm')  # radio button variable
+    # radio button variable
+    x_axis_var = tk.StringVar(value='linear')
+    y_axis_var = tk.StringVar(value='linear')
+    data_var = tk.StringVar(value='non')
 
-    ratio_sel = tk.StringVar()       # Option Menu variable
+    ratio_sel = tk.StringVar(value='no ratio')       # Option Menu variable
+
+    # ------------------------------------------------------------------------------------------------------------------
 
     plot_frame = tk.ttk.Frame(new_win)
     plot_frame.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)  # set the margins between window and content
@@ -53,7 +54,7 @@ def plot_window(root, treeview_file, selected):
     plot_option_frame.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
 
     # Canvas for plot
-    canvas = FigureCanvasTkAgg(plot_function(tally_to_plot, legend_pos.get()), plot_frame)    # add Figure to canvas from plot function
+    canvas = FigureCanvasTkAgg(plot_function(tally_to_plot, legend_pos.get(), x_axis_var.get(), y_axis_var.get(), data_var.get(), ratio_sel.get()), plot_frame)    # add Figure to canvas from plot function
     canvas.draw()
     canvas.get_tk_widget().grid(column=0, row=0, sticky='nswe')
 
@@ -68,7 +69,7 @@ def plot_window(root, treeview_file, selected):
     x_axis_frame = tk.LabelFrame(plot_option_frame, text='X axis settings')
     x_axis_frame.grid(column=0, row=0, sticky='nwe', padx=5, pady=5)
 
-    x_lin_radio = tk.Radiobutton(x_axis_frame, text='lin', variable=x_axis_var, value='lin', tristatevalue="x", command=None)
+    x_lin_radio = tk.Radiobutton(x_axis_frame, text='linear', variable=x_axis_var, value='linear', tristatevalue="x", command=None)
     x_lin_radio.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
     x_log_radio = tk.Radiobutton(x_axis_frame, text='log', variable=x_axis_var, value='log', tristatevalue="x", command=None)
     x_log_radio.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
@@ -77,7 +78,7 @@ def plot_window(root, treeview_file, selected):
     y_axis_frame = tk.LabelFrame(plot_option_frame, text='Y axis settings')
     y_axis_frame.grid(column=0, row=1, sticky='nwe', padx=5, pady=5)
 
-    y_lin_radio = tk.Radiobutton(y_axis_frame, text='lin', variable=y_axis_var, value='lin', tristatevalue="y")
+    y_lin_radio = tk.Radiobutton(y_axis_frame, text='linear', variable=y_axis_var, value='linear', tristatevalue="y")
     y_lin_radio.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
     y_log_radio = tk.Radiobutton(y_axis_frame, text='log', variable=y_axis_var, value='log', tristatevalue="y")
     y_log_radio.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
@@ -114,9 +115,6 @@ def plot_window(root, treeview_file, selected):
     # button_test = tk.ttk.Button(plot_option_frame, text='test', width=20, command=lambda: test_func(canvas))
     # button_test.grid(column=0, row=5)
 
-
-
-
     # LAYOUTs
     # layout PLOT frame
     plot_frame.columnconfigure(0, weight=1)
@@ -141,8 +139,6 @@ def get_selected(treeview_file, selected):
     return selection
 
 
-
-
 # ----------------------------------------------------------------------------------------------------------------------
 # support PLOT functions
 
@@ -156,13 +152,15 @@ def interval_mid(x):
 
 
 # plot tallies from user
-def plot_function(tally_to_plot, leg):
+def plot_function(tally_to_plot, leg, x_scale, y_scale, data_inp, ratio_plot):
     fig = plt.figure()
 
     for name in config_mod.tallies.keys():
         if name in tally_to_plot:
-            #x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4], config_mod.tallies[name][5]      # unnormalized date
-            x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][7], config_mod.tallies[name][8]     # normalized data
+            if data_inp == 'norm':
+                x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][7], config_mod.tallies[name][8]  # normalized data
+            elif data_inp == 'non':
+                x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4], config_mod.tallies[name][5]  # unnormalized date
 
             # calculate interval centers
             x_data_center = interval_mid(x_data)
@@ -171,12 +169,12 @@ def plot_function(tally_to_plot, leg):
             plt.step(x_data, y_data, label=name)
             plt.errorbar(x_data_center, y_data[1:], yerr=y_data_err[1:], xerr=0, marker='_', linestyle='None', capthick=0.7, capsize=2)
 
-
-    # todo zformátovat graf
     plt.legend(loc=leg)
+    plt.yscale(y_scale)
+    plt.xscale(x_scale)
     plt.grid()
     plt.xlabel('energy (MeV)')
     plt.ylabel('average flux in cell per one generated neutron')
-    plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+    #plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0))   # does not work in log scale, obviously...
 
     return fig
