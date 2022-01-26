@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
-# TODO zprovoznit replot
 # TODO umisteni do stejneho okna jako je je vyber tally?
 # TODO ošetřit když chybí data přes try+except
 # TODO ratio plot -> aktivovat jen když je zvoleno víc tally které mají stejný rozměr!!!
@@ -9,6 +8,7 @@
 # TODO nacitani dalsich grafu, viz Pepovi potreby
 
 # libraries
+import matplotlib.figure
 import matplotlib.pyplot as plt     # ploting in matlab style
 from modules import config_mod
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
@@ -53,17 +53,57 @@ def plot_window(root, treeview_file, selected):
     plot_option_frame = tk.ttk.Frame(new_win)
     plot_option_frame.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
 
-    # Canvas for plot
-    canvas = FigureCanvasTkAgg(plot_function(tally_to_plot, legend_pos.get(), x_axis_var.get(), y_axis_var.get(), data_var.get(), ratio_sel.get()), plot_frame)    # add Figure to canvas from plot function
-    canvas.draw()
+    # empty CANVAS definition
+    empty_fig = matplotlib.figure.Figure(figsize=(5, 5))
+    canvas = FigureCanvasTkAgg(empty_fig, plot_frame)
     canvas.get_tk_widget().grid(column=0, row=0, sticky='nswe')
 
-    # Toolbar for plot
-    toolbar_frame = tk.ttk.Frame(new_win)
-    toolbar_frame.grid(column=0, row=1, sticky='nswe')
-    toolbar = NavigationToolbar2Tk(canvas, toolbar_frame)
+    # plot tallies from user
+    def plot_function(tally_to_plot, leg, x_scale, y_scale, data_inp, ratio_plot):
+        fig, ax = plt.subplots()
 
-    # PLOT OPTION FRAME
+        for name in config_mod.tallies.keys():
+            if name in tally_to_plot:
+                if data_inp == 'norm':
+                    x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][7], \
+                                                 config_mod.tallies[name][8]  # normalized data
+                elif data_inp == 'non':
+                    x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4], \
+                                                 config_mod.tallies[name][5]  # unnormalized date
+
+                # calculate interval centers
+                x_data_center = interval_mid(x_data)
+
+                # plots
+                p_color = next(ax._get_lines.prop_cycler)['color']
+                ax.step(x_data, y_data, color=p_color, label=name)
+                ax.errorbar(x_data_center, y_data[1:], yerr=y_data_err[1:], xerr=0, color=p_color, marker='None',
+                            linestyle='None', capthick=0.7, capsize=2)
+
+        ax.legend(loc=leg)
+        ax.set_yscale(y_scale)
+        ax.set_xscale(x_scale)
+        ax.grid()
+        ax.set_xlabel('energy (MeV)')
+        ax.set_ylabel('average flux in cell per one generated neutron')
+        #ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))  # does not work in log scale with this setting
+
+        # Canvas for plot
+        canvas = FigureCanvasTkAgg(fig, plot_frame)  # add Figure to canvas from plot function
+        canvas.draw()
+        canvas.get_tk_widget().grid(column=0, row=0, sticky='nswe')
+
+        # Toolbar for plot
+        toolbar_frame = tk.ttk.Frame(new_win)
+        toolbar_frame.grid(column=0, row=1, sticky='nswe')
+        toolbar = NavigationToolbar2Tk(canvas, toolbar_frame)
+        toolbar.update()
+
+
+
+    plot_function(tally_to_plot, legend_pos.get(), x_axis_var.get(), y_axis_var.get(), data_var.get(), ratio_sel.get())
+
+    # PLOT OPTION FRAME ------------------------------------------------------------------------------------------------
 
     # X AXIS Radio Button
     x_axis_frame = tk.LabelFrame(plot_option_frame, text='X axis settings')
@@ -106,10 +146,8 @@ def plot_window(root, treeview_file, selected):
     ratio_menu = tk.ttk.OptionMenu(ratio_frame, ratio_sel, ratio_options[0], *ratio_options)  # plot_window(root, treeview_files, treeview_files.get_checked()
     ratio_menu.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
 
-    # GRID on/off ?
-
     # Buttons
-    button_replot = tk.ttk.Button(plot_option_frame, text='Replot', width=20, command=lambda: plot_function(tally_to_plot, legend_pos.get()))
+    button_replot = tk.ttk.Button(plot_option_frame, text='Replot', width=20, command=lambda: plot_function(tally_to_plot, legend_pos.get(), x_axis_var.get(), y_axis_var.get(), data_var.get(), ratio_sel.get()))    # add Figure to canvas from plot function
     button_replot.grid(column=0, row=5)
 
     # button_test = tk.ttk.Button(plot_option_frame, text='test', width=20, command=lambda: test_func(canvas))
@@ -150,7 +188,7 @@ def interval_mid(x):
 
     return x_center
 
-
+'''
 # plot tallies from user
 def plot_function(tally_to_plot, leg, x_scale, y_scale, data_inp, ratio_plot):
     fig, ax = plt.subplots()
@@ -182,3 +220,4 @@ def plot_function(tally_to_plot, leg, x_scale, y_scale, data_inp, ratio_plot):
     ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))   # does not work in log scale with this setting
 
     return fig
+'''
