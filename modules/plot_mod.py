@@ -24,7 +24,7 @@ def plot_window(root, treeview_file, selected):
     new_win.grab_set()      # the main window is locked until the new window is closed
 
     new_win.title('Plotting window')
-    new_win.minsize(100, 150)
+    new_win.minsize(150, 200)
 
     # Tkinter variables ------------------------------------------------------------------------------------------------
     legend_options = ['best', 'upper right', 'upper left', 'lower left', 'lower right', 'right', 'center left', 'center right', 'lower center', 'upper center', 'center']
@@ -59,15 +59,15 @@ def plot_window(root, treeview_file, selected):
     canvas.get_tk_widget().grid(column=0, row=0, sticky='nswe')
 
     # plot tallies from user
-    def plot_function(tally_to_plot, leg, x_scale, y_scale, data_inp, ratio_plot):
+    def plot_function(tally_to_plot):
         fig, ax = plt.subplots()
 
         for name in config_mod.tallies.keys():
             if name in tally_to_plot:
-                if data_inp == 'norm':
+                if data_var.get() == 'norm':
                     x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][7], \
                                                  config_mod.tallies[name][8]  # normalized data
-                elif data_inp == 'non':
+                elif data_var.get() == 'non':
                     x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4], \
                                                  config_mod.tallies[name][5]  # unnormalized date
 
@@ -80,9 +80,9 @@ def plot_window(root, treeview_file, selected):
                 ax.errorbar(x_data_center, y_data[1:], yerr=y_data_err[1:], xerr=0, color=p_color, marker='None',
                             linestyle='None', capthick=0.7, capsize=2)
 
-        ax.legend(loc=leg)
-        ax.set_yscale(y_scale)
-        ax.set_xscale(x_scale)
+        ax.legend(loc=legend_pos.get())
+        ax.set_yscale(y_axis_var.get())
+        ax.set_xscale(x_axis_var.get())
         ax.grid()
         ax.set_xlabel('energy (MeV)')
         ax.set_ylabel('average flux in cell per one generated neutron')
@@ -99,9 +99,8 @@ def plot_window(root, treeview_file, selected):
         toolbar = NavigationToolbar2Tk(canvas, toolbar_frame)
         toolbar.update()
 
-
-
-    plot_function(tally_to_plot, legend_pos.get(), x_axis_var.get(), y_axis_var.get(), data_var.get(), ratio_sel.get())
+    # insert plot into empty CANVAS
+    plot_function(tally_to_plot)
 
     # PLOT OPTION FRAME ------------------------------------------------------------------------------------------------
 
@@ -147,7 +146,7 @@ def plot_window(root, treeview_file, selected):
     ratio_menu.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
 
     # Buttons
-    button_replot = tk.ttk.Button(plot_option_frame, text='Replot', width=20, command=lambda: plot_function(tally_to_plot, legend_pos.get(), x_axis_var.get(), y_axis_var.get(), data_var.get(), ratio_sel.get()))    # add Figure to canvas from plot function
+    button_replot = tk.ttk.Button(plot_option_frame, text='Replot', width=20, command=lambda: plot_function(tally_to_plot))    # add Figure to canvas from plot function
     button_replot.grid(column=0, row=5)
 
     # button_test = tk.ttk.Button(plot_option_frame, text='test', width=20, command=lambda: test_func(canvas))
