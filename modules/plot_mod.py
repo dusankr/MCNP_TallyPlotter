@@ -2,16 +2,16 @@
 # TODO_list:
 # TODO zprovoznit replot
 # TODO umisteni do stejneho okna jako je je vyber tally?
-# TODO stejná barva chybových úseček jako schodového grafu
 # TODO ošetřit když chybí data přes try+except
 # TODO ratio plot -> aktivovat jen když je zvoleno víc tally které mají stejný rozměr!!!
 # TODO vyresit že jsou prvky rozhazene po okne...
+# TODO nacteni jinych dat na dalsi osy Y (pro mě občas XS hodnoty, např. z Talys nebo ENDF formatu)
+# TODO nacitani dalsich grafu, viz Pepovi potreby
 
 # libraries
 import matplotlib.pyplot as plt     # ploting in matlab style
 from modules import config_mod
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
-from matplotlib.figure import Figure
 
 # GUI libraries
 import tkinter as tk
@@ -168,8 +168,9 @@ def plot_function(tally_to_plot, leg, x_scale, y_scale, data_inp, ratio_plot):
             x_data_center = interval_mid(x_data)
 
             # plots
-            ax.step(x_data, y_data, label=name)
-            ax.errorbar(x_data_center, y_data[1:], yerr=y_data_err[1:], xerr=0, marker='None', linestyle='None', capthick=0.7, capsize=2)
+            p_color = next(ax._get_lines.prop_cycler)['color']
+            ax.step(x_data, y_data, color=p_color, label=name)
+            ax.errorbar(x_data_center, y_data[1:], yerr=y_data_err[1:], xerr=0, color=p_color, marker='None', linestyle='None', capthick=0.7, capsize=2)
 
 
     ax.legend(loc=leg)
