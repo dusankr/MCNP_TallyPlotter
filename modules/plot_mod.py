@@ -26,6 +26,10 @@ def plot_window(root, treeview_file, selected):
     new_win.title('Plotting window')
     new_win.minsize(150, 200)
 
+    # layout all of the main containers
+    new_win.columnconfigure(0, weight=1)
+    new_win.rowconfigure(0, weight=1)
+
     # Tkinter variables ------------------------------------------------------------------------------------------------
     legend_options = ['best', 'upper right', 'upper left', 'lower left', 'lower right', 'right', 'center left', 'center right', 'lower center', 'upper center', 'center']
     legend_pos = tk.StringVar()      # Option Menu variable
@@ -45,13 +49,21 @@ def plot_window(root, treeview_file, selected):
 
     ratio_sel = tk.StringVar(value='no ratio')       # Option Menu variable
 
-    # ------------------------------------------------------------------------------------------------------------------
+    replot_var = tk.BooleanVar(value=True)     # check box variable
 
-    plot_frame = tk.ttk.Frame(new_win)
+    # ------------------------------------------------------------------------------------------------------------------
+    # MAIN frames
+    plot_frame = tk.ttk.Frame(new_win, width=25)
     plot_frame.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)  # set the margins between window and content
+    # layout PLOT frame
+    plot_frame.columnconfigure(0, weight=1)
+    plot_frame.rowconfigure(0, weight=1)
 
     plot_option_frame = tk.ttk.Frame(new_win)
     plot_option_frame.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
+    # layout PLOT_OPTION frame
+    plot_option_frame.columnconfigure(0, weight=1)
+    plot_option_frame.rowconfigure(0, weight=0)         # wegiht=0 means no stretching...
 
     # empty CANVAS definition
     empty_fig = matplotlib.figure.Figure(figsize=(5, 5))
@@ -125,7 +137,7 @@ def plot_window(root, treeview_file, selected):
 
     # DATA Radio Button
     data_inp_frame = tk.LabelFrame(plot_option_frame, text='Data input')
-    data_inp_frame.grid(column=0, row=2, sticky='n', padx=5, pady=5)
+    data_inp_frame.grid(column=0, row=2, sticky='nswe', padx=5, pady=5)
 
     data_inp_radio = tk.Radiobutton(data_inp_frame, text='norm', variable=data_var, value='norm', tristatevalue="z")
     data_inp_radio.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
@@ -146,25 +158,18 @@ def plot_window(root, treeview_file, selected):
     ratio_menu = tk.ttk.OptionMenu(ratio_frame, ratio_sel, ratio_options[0], *ratio_options)  # plot_window(root, treeview_files, treeview_files.get_checked()
     ratio_menu.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
 
-    # Buttons
-    button_replot = tk.ttk.Button(plot_option_frame, text='Replot', width=20, command=lambda: plot_function(tally_to_plot))    # add Figure to canvas from plot function
-    button_replot.grid(column=0, row=5)
+    # replot frame
+    replot_frame = tk.LabelFrame(plot_option_frame, text='Replot')
+    replot_frame.grid(column=0, row=5, sticky='nswe', padx=5, pady=5)
 
-    button_quit = tk.ttk.Button(plot_option_frame, text='Quit', width=20, command=lambda: new_win.destroy())
-    button_quit.grid(column=0, row=6)
+    chk_replot = tk.Checkbutton(replot_frame, text='disable on change replot', var=replot_var)
+    chk_replot.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
 
-    # LAYOUTs
-    # layout PLOT frame
-    plot_frame.columnconfigure(0, weight=1)
-    plot_frame.rowconfigure(0, weight=1)
+    button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: plot_function(tally_to_plot))    # add Figure to canvas from plot function
+    button_replot.grid(column=0, row=1, sticky='nswe', padx=5, pady=5)
 
-    # layout PLOT_OPTION frame
-    plot_option_frame.columnconfigure(0, weight=1)
-    plot_option_frame.rowconfigure(0, weight=1)
-
-    # layout all of the main containers
-    new_win.columnconfigure(0, weight=1)
-    new_win.rowconfigure(0, weight=1)
+    button_quit = tk.ttk.Button(plot_option_frame, text='Quit', command=lambda: new_win.destroy())
+    button_quit.grid(column=0, row=6, sticky='nswe', padx=5, pady=5)
 
     # call replot when Option Menu are changed
     def my_callback(*args):
@@ -175,6 +180,26 @@ def plot_window(root, treeview_file, selected):
     x_axis_var.trace_add('write', my_callback)
     y_axis_var.trace_add('write', my_callback)
     data_var.trace_add('write', my_callback)
+
+    '''
+    def online_replot():
+        
+        if replot_var.get() == True:
+            legend_pos.trace_remove()
+            ratio_sel.trace_remove()
+            x_axis_var.trace_remove()
+            y_axis_var.trace_remove()
+            data_var.trace_remove()
+        
+
+    def my_callback_2():
+        if replot_var.get() == False:
+            button_replot['state'] = 'disabled'
+        else:
+            button_replot['state'] = 'normal'
+
+    replot_var.trace('r', my_callback_2)
+    '''
 
 # ---------------------------------------------------------------------------------------------------------------------
 # get selected tallies from treeview

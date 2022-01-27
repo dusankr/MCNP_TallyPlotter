@@ -104,8 +104,8 @@ up_frame.columnconfigure(0, weight=1)
 up_frame.rowconfigure(0, weight=1)
 
 # layout DOWN frame
-down_frame.columnconfigure(0, weight=1)
-down_frame.rowconfigure(0, weight=1)
+down_frame.columnconfigure(0, weight=0)
+down_frame.rowconfigure(0, weight=0)
 
 # layout all of the main containers
 root.columnconfigure(0, weight=1)
