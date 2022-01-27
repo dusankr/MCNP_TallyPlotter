@@ -20,6 +20,13 @@ def ask_quit():
         root.destroy()
 
 
+def open_plot_win():
+    if len(treeview_files.get_checked()) != 0:
+        plot_mod.plot_window(root, treeview_files, treeview_files.get_checked())
+    else:
+        tk.messagebox.showerror('Input error', 'Please choose tally for plotting.')
+
+
 #  MAIN CODE  ##########################################################################################################
 
 # main window creation
@@ -90,7 +97,7 @@ tree_y_scroll.grid(sticky='wens', column=5, row=0, rowspan=5, padx=5, pady=5)
 button_file = tk.ttk.Button(down_frame, text='Work directory', command=lambda: read_mod.open_folder(treeview_files), width=20)
 button_file.grid(column=0, row=0, sticky='ws')
 
-button_solve = tk.ttk.Button(down_frame, text='Plot data', command=lambda: plot_mod.plot_window(root, treeview_files, treeview_files.get_checked()), width=20)
+button_solve = tk.ttk.Button(down_frame, text='Plot data', command=lambda: open_plot_win(), width=20)
 button_solve.grid(column=1, row=0, sticky='ws')
 
 button_export = tk.ttk.Button(down_frame, text='Export tally to CSV', width=20)     # TODO write function for tally export to CSV/Excel/etc.

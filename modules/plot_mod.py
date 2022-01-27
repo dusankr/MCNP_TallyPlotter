@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
 # TODO umisteni do stejneho okna jako je je vyber tally?
-# TODO ošetřit když chybí data přes try+except
 # TODO ratio plot -> aktivovat jen když je zvoleno víc tally které mají stejný rozměr!!!
-# TODO vyresit že jsou prvky rozhazene po okne...
 # TODO nacteni jinych dat na dalsi osy Y (pro mě občas XS hodnoty, např. z Talys nebo ENDF formatu)
 # TODO nacitani dalsich grafu, viz Pepovi potreby
 
