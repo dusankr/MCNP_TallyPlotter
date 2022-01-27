@@ -69,7 +69,7 @@ def plot_window(root, treeview_file, selected):
     canvas.get_tk_widget().grid(column=0, row=0, sticky='nswe')
 
     # plot tallies from user
-    def plot_function(tally_to_plot):
+    def plot_function():
         fig, ax = plt.subplots()
 
         for name in config_mod.tallies.keys():
@@ -110,8 +110,8 @@ def plot_window(root, treeview_file, selected):
         toolbar = NavigationToolbar2Tk(canvas, toolbar_frame)
         toolbar.update()
 
-    # insert plot into empty CANVAS
-    plot_function(tally_to_plot)
+    # insert FIRST plot into empty CANVAS
+    plot_function()
 
     # PLOT OPTION FRAME ------------------------------------------------------------------------------------------------
 
@@ -163,7 +163,7 @@ def plot_window(root, treeview_file, selected):
     chk_replot = tk.Checkbutton(replot_frame, text='disable on change replot', var=replot_var)
     chk_replot.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
 
-    button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: plot_function(tally_to_plot))    # add Figure to canvas from plot function
+    button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: plot_function())    # add Figure to canvas from plot function
     button_replot.grid(column=0, row=1, sticky='nswe', padx=5, pady=5)
 
     button_quit = tk.ttk.Button(plot_option_frame, text='Quit', command=lambda: new_win.destroy())
@@ -171,7 +171,7 @@ def plot_window(root, treeview_file, selected):
 
     # call replot when Option Menu are changed
     def my_callback(*args):
-        plot_function(tally_to_plot)
+        plot_function()
 
     legend_pos.trace_add('write', my_callback)
     ratio_sel.trace_add('write', my_callback)
