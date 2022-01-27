@@ -3,7 +3,6 @@
 # TODO potencialni problem s ruznymi tally a verzemi mcnp (zkusit jiný typ výstupu nebo mctal)
 # TODO problém se jmény, v cut off tabulce jsou jednotná čísla a v tally množná, zatím vyřešeno pomocí odečtení
 #  posledního písmene, funguje jen pro některé částice
-# TODO pojistka pokud uzivatel nevybere zadnou slozku
 
 # libraries
 from modules import config_mod
@@ -25,8 +24,12 @@ def open_folder(treeview_files):
     for file in Path.iterdir(folder_path):
         output_files.append(Path(file))
 
-    for fname in output_files:
-        read_file(folder_path, fname)     # read tallies from output files
+    try:
+        for fname in output_files:
+            read_file(folder_path, fname)  # read tallies from output files
+    except:
+        tk.messagebox.showerror('Input error', 'No directory was selected.')
+        return
 
     # fill treeview part
     x = treeview_files.get_children()       # get id of all items in treeview

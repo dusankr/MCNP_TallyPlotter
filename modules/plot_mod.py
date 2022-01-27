@@ -86,7 +86,8 @@ def plot_window(root, treeview_file, selected):
         ax.grid()
         ax.set_xlabel('energy (MeV)')
         ax.set_ylabel('average flux in cell per one generated neutron')
-        #ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0))  # does not work in log scale with this setting
+        if y_axis_var.get() == 'linear':
+            ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True)  # does not work in log scale with this setting
 
         # Canvas for plot
         canvas = FigureCanvasTkAgg(fig, plot_frame)  # add Figure to canvas from plot function
@@ -108,9 +109,9 @@ def plot_window(root, treeview_file, selected):
     x_axis_frame = tk.LabelFrame(plot_option_frame, text='X axis settings')
     x_axis_frame.grid(column=0, row=0, sticky='nwe', padx=5, pady=5)
 
-    x_lin_radio = tk.Radiobutton(x_axis_frame, text='linear', variable=x_axis_var, value='linear', tristatevalue="x", command=None)
+    x_lin_radio = tk.Radiobutton(x_axis_frame, text='linear', variable=x_axis_var, value='linear', tristatevalue="x")
     x_lin_radio.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
-    x_log_radio = tk.Radiobutton(x_axis_frame, text='log', variable=x_axis_var, value='log', tristatevalue="x", command=None)
+    x_log_radio = tk.Radiobutton(x_axis_frame, text='log', variable=x_axis_var, value='log', tristatevalue="x")
     x_log_radio.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
 
     # Y AXIS Radio Button
@@ -149,8 +150,8 @@ def plot_window(root, treeview_file, selected):
     button_replot = tk.ttk.Button(plot_option_frame, text='Replot', width=20, command=lambda: plot_function(tally_to_plot))    # add Figure to canvas from plot function
     button_replot.grid(column=0, row=5)
 
-    # button_test = tk.ttk.Button(plot_option_frame, text='test', width=20, command=lambda: test_func(canvas))
-    # button_test.grid(column=0, row=5)
+    button_quit = tk.ttk.Button(plot_option_frame, text='Quit', width=20, command=lambda: new_win.destroy())
+    button_quit.grid(column=0, row=6)
 
     # LAYOUTs
     # layout PLOT frame
@@ -165,7 +166,17 @@ def plot_window(root, treeview_file, selected):
     new_win.columnconfigure(0, weight=1)
     new_win.rowconfigure(0, weight=1)
 
+    # call replot when Option Menu are changed
+    def my_callback(*args):
+        plot_function(tally_to_plot)
 
+    legend_pos.trace_add('write', my_callback)
+    ratio_sel.trace_add('write', my_callback)
+    x_axis_var.trace_add('write', my_callback)
+    y_axis_var.trace_add('write', my_callback)
+    data_var.trace_add('write', my_callback)
+
+# ---------------------------------------------------------------------------------------------------------------------
 # get selected tallies from treeview
 def get_selected(treeview_file, selected):
     selection = []
@@ -186,37 +197,3 @@ def interval_mid(x):
         x_center.append(x[i] + (x[i + 1] - x[i]) / 2)
 
     return x_center
-
-'''
-# plot tallies from user
-def plot_function(tally_to_plot, leg, x_scale, y_scale, data_inp, ratio_plot):
-    fig, ax = plt.subplots()
-
-    for name in config_mod.tallies.keys():
-        if name in tally_to_plot:
-            if data_inp == 'norm':
-                x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][7], \
-                                             config_mod.tallies[name][8]  # normalized data
-            elif data_inp == 'non':
-                x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4], \
-                                             config_mod.tallies[name][5]  # unnormalized date
-
-            # calculate interval centers
-            x_data_center = interval_mid(x_data)
-
-            # plots
-            p_color = next(ax._get_lines.prop_cycler)['color']
-            ax.step(x_data, y_data, color=p_color, label=name)
-            ax.errorbar(x_data_center, y_data[1:], yerr=y_data_err[1:], xerr=0, color=p_color, marker='None', linestyle='None', capthick=0.7, capsize=2)
-
-
-    ax.legend(loc=leg)
-    ax.set_yscale(y_scale)
-    ax.set_xscale(x_scale)
-    ax.grid()
-    ax.set_xlabel('energy (MeV)')
-    ax.set_ylabel('average flux in cell per one generated neutron')
-    ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))   # does not work in log scale with this setting
-
-    return fig
-'''
