@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
 # TODO umisteni do stejneho okna jako je je vyber tally?
-# TODO ratio plot -> aktivovat jen když je zvoleno víc tally které mají stejný rozměr!!!
 # TODO nacteni jinych dat na dalsi osy Y (pro mě občas XS hodnoty, např. z Talys nebo ENDF formatu)
-# TODO nacitani dalsich grafu, viz Pepovi potreby
+# TODO přesunout ratio plot do externi fce.
 
 # libraries
 import matplotlib.figure
 import matplotlib.pyplot as plt     # ploting in matlab style
 from modules import config_mod
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
+import math
 
 # GUI libraries
 import tkinter as tk
@@ -95,24 +95,28 @@ def plot_window(root, treeview_file, selected):
                 if data_var.get() == 'norm':
                     x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][7][:], \
                                                  config_mod.tallies[name][8][:]  # normalized data
+                    y_label = 'Tally / MeV / particle'
                 elif data_var.get() == 'non':
                     x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4][:], \
                                                  config_mod.tallies[name][5][:]  # unnormalized data
+                    y_label = 'Tally / particle'
 
                 if ratio_sel.get() != 'no ratio':
+                    y_label = 'Tally to Tally ratio (-)'
                     if x_data != x_ratio:   # skip this cycle step if energy bins in current tally have different step from reference tally
                         continue
 
-                    for i in range(0, len(y_data)):     # calculate ratio values
+                    for i in range(0, len(y_data)):     # calculate ratio values and their errors
                         if (y_data[i] != 0) and (y_ratio[i] != 0):      # only for non zero values
+                            print(math.sqrt( (y_data_err[i] / y_data[i])**2 + (y_err_ratio[i] / y_ratio[i])**2 ))
+                            err = math.sqrt((y_data_err[i] / y_data[i]) ** 2 + (y_err_ratio[i] / y_ratio[i]) ** 2)
                             y_data[i] = y_data[i] / y_ratio[i]
+                            y_data_err[i] = y_data[i] * err
                         else:
                             y_data[i] = 0
+                            y_data_err[i] = 0
 
                     name = name + '/' + ratio_sel.get()
-
-                #print('original:\t', name, ' ', config_mod.tallies[name][4])
-                #print('copy:\t\t', name, ' ', y_data)
 
                 # calculate interval centers
                 x_data_center = interval_mid(x_data)
@@ -128,7 +132,7 @@ def plot_window(root, treeview_file, selected):
         ax.set_xscale(x_axis_var.get())
         ax.grid()
         ax.set_xlabel('energy (MeV)')
-        ax.set_ylabel('average flux in cell per one generated neutron')
+        ax.set_ylabel(y_label)
         if y_axis_var.get() == 'linear':
             ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True)  # does not work in log scale with this setting
 
@@ -202,6 +206,7 @@ def plot_window(root, treeview_file, selected):
     button_quit = tk.ttk.Button(plot_option_frame, text='Quit', command=lambda: new_win.destroy())
     button_quit.grid(column=0, row=6, sticky='nswe', padx=5, pady=5)
 
+    # TODO problem s dvojitym behem programu na Option menu
     '''
     # call replot when Option Menu are changed
     def my_callback(*args):

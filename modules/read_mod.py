@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
-# TODO potencialni problem s ruznymi tally a verzemi mcnp (zkusit jiný typ výstupu nebo mctal)
-# TODO problém se jmény, v cut off tabulce jsou jednotná čísla a v tally množná, zatím vyřešeno pomocí odečtení
-#  posledního písmene, funguje jen pro některé částice
+# TODO problem s ruznymi tally, verzemi mcnp, cut off
+# TODO pokud je cut off vetsi nez E_min???
+# TODO test MCTAL
 
 # libraries
 from modules import config_mod
