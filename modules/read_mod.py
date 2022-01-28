@@ -157,10 +157,10 @@ def cutoff_func(content):
                 cutoff_dict[line[2]] = float(line[3])
                 y += 1
                 line = content[y].split()
-            print(cutoff_dict)
+            # print(cutoff_dict)    # print cut off dict
             return cutoff_dict
         if k == len(content) - 1:
-            print(cutoff_dict)
+            # print(cutoff_dict)    # print cut off dict
             return cutoff_dict
 
 

@@ -49,6 +49,9 @@ def plot_window(root, treeview_file, selected):
 
     replot_var = tk.BooleanVar(value=True)     # check box variable
 
+    global pocet_spusteni
+    pocet_spusteni = 0
+
     # ------------------------------------------------------------------------------------------------------------------
     # MAIN frames
     plot_frame = tk.ttk.Frame(new_win, width=25)
@@ -70,16 +73,46 @@ def plot_window(root, treeview_file, selected):
 
     # plot tallies from user
     def plot_function():
+        global pocet_spusteni
+        pocet_spusteni += 1
+        print(pocet_spusteni)
+
         fig, ax = plt.subplots()
 
+        # read reference data for ratio plot
+        if (ratio_sel.get() != 'no ratio') and (data_var.get() == 'non'):
+            x_ratio, y_ratio, y_err_ratio = config_mod.tallies[ratio_sel.get()][3], config_mod.tallies[ratio_sel.get()][4], config_mod.tallies[ratio_sel.get()][5]
+        elif (ratio_sel.get() != 'no ratio') and (data_var.get() == 'norm'):
+            x_ratio, y_ratio, y_err_ratio = config_mod.tallies[ratio_sel.get()][3], config_mod.tallies[ratio_sel.get()][7], config_mod.tallies[ratio_sel.get()][8]
+
+        # create new list in case the ratio plot is choosen and delete reference tally
+        tally_to_plot_mod = tally_to_plot[:]
+        if ratio_sel.get() in tally_to_plot_mod:
+            tally_to_plot_mod.remove(ratio_sel.get())
+
         for name in config_mod.tallies.keys():
-            if name in tally_to_plot:
+            if name in tally_to_plot_mod:
                 if data_var.get() == 'norm':
-                    x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][7], \
-                                                 config_mod.tallies[name][8]  # normalized data
+                    x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][7][:], \
+                                                 config_mod.tallies[name][8][:]  # normalized data
                 elif data_var.get() == 'non':
-                    x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4], \
-                                                 config_mod.tallies[name][5]  # unnormalized date
+                    x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4][:], \
+                                                 config_mod.tallies[name][5][:]  # unnormalized data
+
+                if ratio_sel.get() != 'no ratio':
+                    if x_data != x_ratio:   # skip this cycle step if energy bins in current tally have different step from reference tally
+                        continue
+
+                    for i in range(0, len(y_data)):     # calculate ratio values
+                        if (y_data[i] != 0) and (y_ratio[i] != 0):      # only for non zero values
+                            y_data[i] = y_data[i] / y_ratio[i]
+                        else:
+                            y_data[i] = 0
+
+                    name = name + '/' + ratio_sel.get()
+
+                #print('original:\t', name, ' ', config_mod.tallies[name][4])
+                #print('copy:\t\t', name, ' ', y_data)
 
                 # calculate interval centers
                 x_data_center = interval_mid(x_data)
@@ -90,7 +123,7 @@ def plot_window(root, treeview_file, selected):
                 ax.errorbar(x_data_center, y_data[1:], yerr=y_data_err[1:], xerr=0, color=p_color, marker='None',
                             linestyle='None', capthick=0.7, capsize=2)
 
-        ax.legend(loc=legend_pos.get())
+        ax.legend(loc=legend_pos.get(), fontsize=8)
         ax.set_yscale(y_axis_var.get())
         ax.set_xscale(x_axis_var.get())
         ax.grid()
@@ -169,6 +202,7 @@ def plot_window(root, treeview_file, selected):
     button_quit = tk.ttk.Button(plot_option_frame, text='Quit', command=lambda: new_win.destroy())
     button_quit.grid(column=0, row=6, sticky='nswe', padx=5, pady=5)
 
+    '''
     # call replot when Option Menu are changed
     def my_callback(*args):
         plot_function()
@@ -178,7 +212,7 @@ def plot_window(root, treeview_file, selected):
     x_axis_var.trace_add('write', my_callback)
     y_axis_var.trace_add('write', my_callback)
     data_var.trace_add('write', my_callback)
-
+    '''
     '''
     def online_replot():
         
