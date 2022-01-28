@@ -38,7 +38,7 @@ root.minsize(500, 300)
 # root.maxsize(1000, 600)
 # root.geometry('800x350')
 style = tk.ttk.Style()
-style.theme_use('vista')
+# style.theme_use('vista')
 
 root.protocol('WM_DELETE_WINDOW', ask_quit)  # program end
 
@@ -70,11 +70,11 @@ treeview_files.grid(sticky='wens', column=0, columnspan=5, row=0, rowspan=5)
 # somehow hide first ghost column
 treeview_files['show'] = 'headings', 'tree'
 
-treeview_files['columns'] = ('File', 'Tally number', 'Tally type', 'Particle', 'Number of values', 'E_cut-off (MeV)', 'E_min (MeV)', 'E_max (MeV)')
+treeview_files['columns'] = ('File', 'Tally number', 'Tally type', 'Particle', 'Number of values', 'E_cut-off (MeV)', 'E_min (MeV)', 'E_max (MeV)', 'comment')
 
 
 for col_name in ['File', 'Tally number', 'Tally type', 'Particle', 'Number of values', 'E_min (MeV)', 'E_max (MeV)',
-                 'E_cut-off (MeV)']:
+                 'E_cut-off (MeV)', "comment"]:
     treeview_files.column(col_name, width=100, stretch=True)
     treeview_files.heading(col_name, text=col_name)
 
