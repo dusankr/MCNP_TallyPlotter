@@ -25,21 +25,26 @@ def open_folder(treeview_files):
     for file in Path.iterdir(folder_path):
         output_files.append(Path(file))
 
+
     # TODO Dusan - hidden files Windows
     hidden = 0  # You have to set it and test it for windows
     while hidden < len(output_files):
-        if "/." in str(output_files[hidden]):  # if there is unix hiden file
+
+        if "." in str(output_files[hidden].stem)[0]:  # if there is unix hiden file (compare first letter from file name)
             print("Hidden file was skipped ---> " + str(output_files[hidden]))  # file is printed
             del output_files[hidden]  # file is deleted
         else:
-            hidden = hidden + 1
-
+            hidden += 1
+    '''
     try:
         for fname in output_files:
             read_file(folder_path, fname)  # read tallies from output files
     except:
         tk.messagebox.showerror('Input error', 'No directory was selected.')
         return
+    '''
+    for fname in output_files:
+        read_file(folder_path, fname)  # read tallies from output files
 
     # fill treeview part
     x = treeview_files.get_children()  # get id of all items in treeview
