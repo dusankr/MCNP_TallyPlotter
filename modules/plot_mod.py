@@ -3,6 +3,9 @@
 # TODO umisteni do stejneho okna jako je je vyber tally?
 # TODO nacteni jinych dat na dalsi osy Y (pro mě občas XS hodnoty, např. z Talys nebo ENDF formatu)
 # TODO přesunout ratio plot do externi fce.
+# TODO novy problem s dvojitou pocatecni hodnotou u OptionMenu
+# TODO smazat subplot (limit 20 oken kvůli paměti)
+# TODO deaktivace online replotu na check box
 
 # libraries
 import matplotlib.figure
@@ -30,8 +33,7 @@ def plot_window(root, treeview_file, selected):
 
     # Tkinter variables ------------------------------------------------------------------------------------------------
     legend_options = ['best', 'upper right', 'upper left', 'lower left', 'lower right', 'right', 'center left', 'center right', 'lower center', 'upper center', 'center']
-    legend_pos = tk.StringVar()      # Option Menu variable
-    legend_pos.set(legend_options[0])
+    legend_pos = tk.StringVar(value='best')      # Option Menu variable
 
     tally_to_plot = get_selected(treeview_file, selected)  # obtain keys from checkedbox treeview
 
@@ -108,7 +110,6 @@ def plot_window(root, treeview_file, selected):
 
                     for i in range(0, len(y_data)):     # calculate ratio values and their errors
                         if (y_data[i] != 0) and (y_ratio[i] != 0):      # only for non zero values
-                            print(math.sqrt( (y_data_err[i] / y_data[i])**2 + (y_err_ratio[i] / y_ratio[i])**2 ))
                             err = math.sqrt((y_data_err[i] / y_data[i]) ** 2 + (y_err_ratio[i] / y_ratio[i]) ** 2)
                             y_data[i] = y_data[i] / y_ratio[i]
                             y_data_err[i] = y_data[i] * err
@@ -183,14 +184,14 @@ def plot_window(root, treeview_file, selected):
     legend_frame = tk.LabelFrame(plot_option_frame, text='Legend position')
     legend_frame.grid(column=0, row=3, sticky='nswe', padx=5, pady=5)
 
-    legend_menu = tk.ttk.OptionMenu(legend_frame, legend_pos, legend_options[0], *legend_options)   # plot_window(root, treeview_files, treeview_files.get_checked()
+    legend_menu = tk.OptionMenu(legend_frame, legend_pos, legend_options[0], *legend_options)   # plot_window(root, treeview_files, treeview_files.get_checked()
     legend_menu.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
 
     # Plot TO Plot ratio
     ratio_frame = tk.LabelFrame(plot_option_frame, text='Ratio plot')
     ratio_frame.grid(column=0, row=4, sticky='nswe', padx=5, pady=5)
 
-    ratio_menu = tk.ttk.OptionMenu(ratio_frame, ratio_sel, ratio_options[0], *ratio_options)  # plot_window(root, treeview_files, treeview_files.get_checked()
+    ratio_menu = tk.OptionMenu(ratio_frame, ratio_sel, ratio_options[0], *ratio_options)  # plot_window(root, treeview_files, treeview_files.get_checked()
     ratio_menu.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
 
     # replot frame
@@ -206,8 +207,6 @@ def plot_window(root, treeview_file, selected):
     button_quit = tk.ttk.Button(plot_option_frame, text='Quit', command=lambda: new_win.destroy())
     button_quit.grid(column=0, row=6, sticky='nswe', padx=5, pady=5)
 
-    # TODO problem s dvojitym behem programu na Option menu
-    '''
     # call replot when Option Menu are changed
     def my_callback(*args):
         plot_function()
@@ -217,7 +216,7 @@ def plot_window(root, treeview_file, selected):
     x_axis_var.trace_add('write', my_callback)
     y_axis_var.trace_add('write', my_callback)
     data_var.trace_add('write', my_callback)
-    '''
+
     '''
     def online_replot():
         
