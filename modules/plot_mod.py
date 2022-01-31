@@ -3,13 +3,11 @@
 # TODO umisteni do stejneho okna jako je je vyber tally?
 # TODO nacteni jinych dat na dalsi osy Y (pro mě občas XS hodnoty, např. z Talys nebo ENDF formatu)
 # TODO přesunout ratio plot do externi fce.
-# TODO novy problem s dvojitou pocatecni hodnotou u OptionMenu
-# TODO smazat subplot (limit 20 oken kvůli paměti)
 # TODO deaktivace online replotu na check box
 # TODO excel export
 
 # libraries
-import matplotlib.figure
+import matplotlib
 import matplotlib.pyplot as plt     # ploting in matlab style
 from modules import config_mod
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
@@ -79,6 +77,10 @@ def plot_window(root, treeview_file, selected):
         global pocet_spusteni
         pocet_spusteni += 1
         print(pocet_spusteni)
+
+        # close previous instance of figure
+        if len(plt.get_fignums()) > 1:
+            plt.close(plt.gcf().number)
 
         fig, ax = plt.subplots()
 
