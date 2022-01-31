@@ -4,43 +4,45 @@
 # TODO pokud je cut off vetsi nez E_min???
 # TODO test MCTAL
 
-# TODO ošetření na skryté windos soubory
-
 # libraries
+import pathlib
+
 from modules import config_mod
 
 # better and easier work with file and directory paths
-from pathlib import Path
+import pathlib
 
 import tkinter as tk
 import os
 
+# lib for Windows API (nt is name for win OS)
+if os.name == 'nt':     # return OS system name
+    import win32api, win32con
+
 #  Functions  ##########################################################################################################
+def file_is_hidden(p):
+    if os.name != 'nt':
+        return False
+    attribute = win32api.GetFileAttributes(str(p))
+    # & - bitwise AND; | - bitwise OR
+    if (attribute & (win32con.FILE_ATTRIBUTE_HIDDEN | win32con.FILE_ATTRIBUTE_SYSTEM)) == 2:
+        return True
+
 # read outputs from chosen directory
 def open_folder(treeview_files):
     config_mod.tallies.clear()  # clear tallies dict before read new directory
 
-    folder_path = Path(tk.filedialog.askdirectory(title='Choose directory with MCNP output files', initialdir=Path.cwd()))
+    folder_path = pathlib.Path(tk.filedialog.askdirectory(title='Choose directory with MCNP output files', initialdir=pathlib.Path.cwd()))
 
     output_files = []
-    for file in Path.iterdir(folder_path):
-        if Path(file).is_dir() or (Path(file).stem[0] == '.'):  # UNIX/Mac hidden files and directories are skipped
+    for file in pathlib.Path.iterdir(folder_path):
+        if file.is_dir() or (file.stem[0] == '.'):  # UNIX/Mac hidden files and directories are skipped
+            continue                                # skip to next iteration
+        elif file_is_hidden(file):                  # Windows hidden files are skipped
             continue
-        output_files.append(Path(file))
+        else:
+            output_files.append(file)
 
-
-    # hidden files in Windows (nt is name for win OS)
-    if os.name == 'nt':
-        import win32api, win32con
-
-        for p in output_files:
-            print(p.name)
-            attribute = win32api.GetFileAttributes(p.name)
-            print(attribute & (win32con.FILE_ATTRIBUTE_HIDDEN | win32con.FILE_ATTRIBUTE_SYSTEM))
-
-
-
-    # TODO Dusan - hidden files Windows
     '''
     try:
         for fname in output_files:
