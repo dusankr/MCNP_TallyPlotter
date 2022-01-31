@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
-# TODO vytvořit novy branch a v nem novou tridu pro praci s tallies
 
 # LIBRARIES
 # import from our files

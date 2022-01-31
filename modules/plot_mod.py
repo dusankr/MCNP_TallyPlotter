@@ -6,6 +6,7 @@
 # TODO novy problem s dvojitou pocatecni hodnotou u OptionMenu
 # TODO smazat subplot (limit 20 oken kvůli paměti)
 # TODO deaktivace online replotu na check box
+# TODO excel export
 
 # libraries
 import matplotlib.figure

@@ -4,6 +4,8 @@
 # TODO pokud je cut off vetsi nez E_min???
 # TODO test MCTAL
 
+# TODO ošetření na skryté windos soubory
+
 # libraries
 from modules import config_mod
 
@@ -11,30 +13,34 @@ from modules import config_mod
 from pathlib import Path
 
 import tkinter as tk
-
+import os
 
 #  Functions  ##########################################################################################################
 # read outputs from chosen directory
 def open_folder(treeview_files):
     config_mod.tallies.clear()  # clear tallies dict before read new directory
 
-    folder_path = Path(
-        tk.filedialog.askdirectory(title='Choose directory with MCNP output files', initialdir=Path.cwd()))
+    folder_path = Path(tk.filedialog.askdirectory(title='Choose directory with MCNP output files', initialdir=Path.cwd()))
 
     output_files = []
     for file in Path.iterdir(folder_path):
+        if Path(file).is_dir() or (Path(file).stem[0] == '.'):  # UNIX/Mac hidden files and directories are skipped
+            continue
         output_files.append(Path(file))
 
 
-    # TODO Dusan - hidden files Windows
-    hidden = 0  # You have to set it and test it for windows
-    while hidden < len(output_files):
+    # hidden files in Windows (nt is name for win OS)
+    if os.name == 'nt':
+        import win32api, win32con
 
-        if "." in str(output_files[hidden].stem)[0]:  # if there is unix hiden file (compare first letter from file name)
-            print("Hidden file was skipped ---> " + str(output_files[hidden]))  # file is printed
-            del output_files[hidden]  # file is deleted
-        else:
-            hidden += 1
+        for p in output_files:
+            print(p.name)
+            attribute = win32api.GetFileAttributes(p.name)
+            print(attribute & (win32con.FILE_ATTRIBUTE_HIDDEN | win32con.FILE_ATTRIBUTE_SYSTEM))
+
+
+
+    # TODO Dusan - hidden files Windows
     '''
     try:
         for fname in output_files:
@@ -42,9 +48,11 @@ def open_folder(treeview_files):
     except:
         tk.messagebox.showerror('Input error', 'No directory was selected.')
         return
+    
     '''
     for fname in output_files:
         read_file(folder_path, fname)  # read tallies from output files
+
 
     # fill treeview part
     x = treeview_files.get_children()  # get id of all items in treeview
