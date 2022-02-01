@@ -3,8 +3,10 @@
 # TODO umisteni do stejneho okna jako je je vyber tally?
 # TODO nacteni jinych dat na dalsi osy Y (pro mě občas XS hodnoty, např. z Talys nebo ENDF formatu)
 # TODO přesunout ratio plot do externi fce.
-# TODO deaktivace online replotu na check box
 # TODO excel export
+# TODO save plot
+# TODO change size of axis titles
+# TODO opravit: havaruje pri zavreni grafu a jeho znovuotvreni
 
 # libraries
 import matplotlib
@@ -48,10 +50,7 @@ def plot_window(root, treeview_file, selected):
 
     ratio_sel = tk.StringVar(value='no ratio')       # Option Menu variable
 
-    replot_var = tk.BooleanVar(value=True)     # check box variable
-
-    global pocet_spusteni
-    pocet_spusteni = 0
+    replot_var = tk.BooleanVar(value=False)     # check box variable
 
     # ------------------------------------------------------------------------------------------------------------------
     # MAIN frames
@@ -74,9 +73,6 @@ def plot_window(root, treeview_file, selected):
 
     # plot tallies from user
     def plot_function():
-        global pocet_spusteni
-        pocet_spusteni += 1
-        print(pocet_spusteni)
 
         # close previous instance of figure
         if len(plt.get_fignums()) > 1:
@@ -201,44 +197,47 @@ def plot_window(root, treeview_file, selected):
     replot_frame = tk.LabelFrame(plot_option_frame, text='Replot')
     replot_frame.grid(column=0, row=5, sticky='nswe', padx=5, pady=5)
 
-    chk_replot = tk.Checkbutton(replot_frame, text='disable on change replot', var=replot_var)
+    chk_replot = tk.Checkbutton(replot_frame, text='disable on change replot', var=replot_var, command=lambda: turn_off_replot())
     chk_replot.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
 
     button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: plot_function())    # add Figure to canvas from plot function
+    button_replot['state'] = 'disabled'
     button_replot.grid(column=0, row=1, sticky='nswe', padx=5, pady=5)
 
-    button_quit = tk.ttk.Button(plot_option_frame, text='Quit', command=lambda: new_win.destroy())
+    button_quit = tk.ttk.Button(plot_option_frame, text='Quit', command=new_win.destroy)
     button_quit.grid(column=0, row=6, sticky='nswe', padx=5, pady=5)
 
     # call replot when Option Menu are changed
     def my_callback(*args):
         plot_function()
 
+    # first definition of Tkinter Variables tracing
     legend_pos.trace_add('write', my_callback)
     ratio_sel.trace_add('write', my_callback)
     x_axis_var.trace_add('write', my_callback)
     y_axis_var.trace_add('write', my_callback)
     data_var.trace_add('write', my_callback)
 
-    '''
-    def online_replot():
-        
-        if replot_var.get() == True:
-            legend_pos.trace_remove()
-            ratio_sel.trace_remove()
-            x_axis_var.trace_remove()
-            y_axis_var.trace_remove()
-            data_var.trace_remove()
-        
 
-    def my_callback_2():
-        if replot_var.get() == False:
-            button_replot['state'] = 'disabled'
-        else:
+    # turn on-off online replot
+    def turn_off_replot():
+        if replot_var.get() == True:
             button_replot['state'] = 'normal'
 
-    replot_var.trace('r', my_callback_2)
-    '''
+            legend_pos.trace_remove('write', legend_pos.trace_info()[0][1])
+            ratio_sel.trace_remove('write', ratio_sel.trace_info()[0][1])
+            x_axis_var.trace_remove('write', x_axis_var.trace_info()[0][1])
+            y_axis_var.trace_remove('write', y_axis_var.trace_info()[0][1])
+            data_var.trace_remove('write', data_var.trace_info()[0][1])
+        else:
+            button_replot['state'] = 'disabled'
+
+            legend_pos.trace_add('write', my_callback)
+            ratio_sel.trace_add('write', my_callback)
+            x_axis_var.trace_add('write', my_callback)
+            y_axis_var.trace_add('write', my_callback)
+            data_var.trace_add('write', my_callback)
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 # get selected tallies from treeview
