@@ -4,9 +4,6 @@
 # TODO nacteni jinych dat na dalsi osy Y (pro mě občas XS hodnoty, např. z Talys nebo ENDF formatu)
 # TODO přesunout ratio plot do externi fce.
 # TODO excel export
-# TODO save plot
-# TODO change size of axis titles
-# TODO opravit: havaruje pri zavreni grafu a jeho znovuotvreni
 
 # libraries
 import matplotlib
@@ -49,8 +46,9 @@ def plot_window(root, treeview_file, selected):
     data_var = tk.StringVar(value='non')
 
     ratio_sel = tk.StringVar(value='no ratio')       # Option Menu variable
-
     replot_var = tk.BooleanVar(value=False)     # check box variable
+    axis_var = tk.StringVar(value=11)
+    leg_var = tk.StringVar(value=8)
 
     # ------------------------------------------------------------------------------------------------------------------
     # MAIN frames
@@ -127,12 +125,13 @@ def plot_window(root, treeview_file, selected):
                 ax.errorbar(x_data_center, y_data[1:], yerr=y_data_err[1:], xerr=0, color=p_color, marker='None',
                             linestyle='None', capthick=0.7, capsize=2)
 
-        ax.legend(loc=legend_pos.get(), fontsize=8)
-        ax.set_yscale(y_axis_var.get())
+        # plot settings
+        ax.legend(loc=legend_pos.get(), fontsize=leg_var.get())
         ax.set_xscale(x_axis_var.get())
+        ax.set_yscale(y_axis_var.get())
         ax.grid()
-        ax.set_xlabel('energy (MeV)')
-        ax.set_ylabel(y_label)
+        ax.set_xlabel('energy (MeV)', fontsize=axis_var.get())
+        ax.set_ylabel(y_label, fontsize=axis_var.get())
         if y_axis_var.get() == 'linear':
             ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True)  # does not work in log scale with this setting
 
@@ -179,12 +178,17 @@ def plot_window(root, treeview_file, selected):
     data_inp_radio = tk.Radiobutton(data_inp_frame, text='non', variable=data_var, value='non', tristatevalue="z")
     data_inp_radio.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
 
-    # LEGEND position
-    legend_frame = tk.LabelFrame(plot_option_frame, text='Legend position')
+    # LEGEND settings
+    legend_frame = tk.LabelFrame(plot_option_frame, text='Legend settings')
     legend_frame.grid(column=0, row=3, sticky='nswe', padx=5, pady=5)
+    legend_frame.columnconfigure(0, weight=1)
+    legend_frame.rowconfigure(0, weight=1)
 
     legend_menu = tk.OptionMenu(legend_frame, legend_pos, legend_options[0], *legend_options)   # plot_window(root, treeview_files, treeview_files.get_checked()
     legend_menu.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
+
+    leg_spinbox = tk.ttk.Spinbox(legend_frame, from_=5, to=20, textvariable=leg_var, wrap=True, width=4)
+    leg_spinbox.grid(column=1, row=0, sticky='e', padx=5, pady=5)
 
     # Plot TO Plot ratio
     ratio_frame = tk.LabelFrame(plot_option_frame, text='Ratio plot')
@@ -193,9 +197,20 @@ def plot_window(root, treeview_file, selected):
     ratio_menu = tk.OptionMenu(ratio_frame, ratio_sel, ratio_options[0], *ratio_options)  # plot_window(root, treeview_files, treeview_files.get_checked()
     ratio_menu.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
 
+    # text size frame
+    size_frame = tk.LabelFrame(plot_option_frame, text='change size')
+    size_frame.grid(column=0, row=5, sticky='nswe', padx=5, pady=5)
+    size_frame.columnconfigure(0, weight=1)
+    size_frame.rowconfigure(0, weight=1)
+
+    axis_title = tk.Label(size_frame, text='Axis title size')
+    axis_title.grid(column=0, row=0, sticky='nw', padx=5, pady=5)
+    axis_spinbox = tk.ttk.Spinbox(size_frame, from_=5, to=20, textvariable=axis_var, wrap=True, width=4)
+    axis_spinbox.grid(column=1, row=0, sticky='sne', padx=5, pady=5)
+
     # replot frame
     replot_frame = tk.LabelFrame(plot_option_frame, text='Replot')
-    replot_frame.grid(column=0, row=5, sticky='nswe', padx=5, pady=5)
+    replot_frame.grid(column=0, row=6, sticky='nswe', padx=5, pady=5)
 
     chk_replot = tk.Checkbutton(replot_frame, text='disable on change replot', var=replot_var, command=lambda: turn_off_replot())
     chk_replot.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
@@ -204,9 +219,11 @@ def plot_window(root, treeview_file, selected):
     button_replot['state'] = 'disabled'
     button_replot.grid(column=0, row=1, sticky='nswe', padx=5, pady=5)
 
-    button_quit = tk.ttk.Button(plot_option_frame, text='Quit', command=new_win.destroy)
+    # TODO opravit: havaruje pri zavreni grafu a jeho znovuotvreni
+    '''
+    button_quit = tk.ttk.Button(plot_option_frame, text='Quit', command=new_win.quit)
     button_quit.grid(column=0, row=6, sticky='nswe', padx=5, pady=5)
-
+    '''
     # call replot when Option Menu are changed
     def my_callback(*args):
         plot_function()
@@ -217,6 +234,8 @@ def plot_window(root, treeview_file, selected):
     x_axis_var.trace_add('write', my_callback)
     y_axis_var.trace_add('write', my_callback)
     data_var.trace_add('write', my_callback)
+    axis_var.trace_add('write', my_callback)
+    leg_var.trace_add('write', my_callback)
 
 
     # turn on-off online replot
@@ -229,6 +248,8 @@ def plot_window(root, treeview_file, selected):
             x_axis_var.trace_remove('write', x_axis_var.trace_info()[0][1])
             y_axis_var.trace_remove('write', y_axis_var.trace_info()[0][1])
             data_var.trace_remove('write', data_var.trace_info()[0][1])
+            axis_var.trace_remove('write', axis_var.trace_info()[0][1])
+            leg_var.trace_remove('write', leg_var.trace_info()[0][1])
         else:
             button_replot['state'] = 'disabled'
 
@@ -237,6 +258,8 @@ def plot_window(root, treeview_file, selected):
             x_axis_var.trace_add('write', my_callback)
             y_axis_var.trace_add('write', my_callback)
             data_var.trace_add('write', my_callback)
+            axis_var.trace_add('write', my_callback)
+            leg_var.trace_add('write', my_callback)
 
 
 # ---------------------------------------------------------------------------------------------------------------------
