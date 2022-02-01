@@ -45,10 +45,16 @@ def plot_window(root, treeview_file, selected):
     y_axis_var = tk.StringVar(value='linear')
     data_var = tk.StringVar(value='non')
 
-    ratio_sel = tk.StringVar(value='no ratio')       # Option Menu variable
-    replot_var = tk.BooleanVar(value=False)     # check box variable
-    axis_var = tk.StringVar(value=11)
-    leg_var = tk.StringVar(value=8)
+    ratio_sel = tk.StringVar(value='no ratio')  # Option Menu variable
+    replot_var = tk.BooleanVar(value=False)     # Check box variable
+    axis_var = tk.StringVar(value=11)           # SpinBox variable
+    leg_var = tk.StringVar(value=8)             # SpinBox variable
+
+    grid_options = ['major', 'minor', 'both']
+    grid_axis_options = ['both', 'x', 'y']
+    grid_var = tk.StringVar(value='major')      # Option Menu variable
+    grid_axis_var = tk.StringVar(value='both')  # Option Menu variable
+    grid_on_var = tk.BooleanVar(value=True)     # Check box variable
 
     # ------------------------------------------------------------------------------------------------------------------
     # MAIN frames
@@ -62,7 +68,7 @@ def plot_window(root, treeview_file, selected):
     plot_option_frame.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
     # layout PLOT_OPTION frame
     plot_option_frame.columnconfigure(0, weight=1)
-    plot_option_frame.rowconfigure(0, weight=0)         # wegiht=0 means no stretching...
+    plot_option_frame.rowconfigure(0, weight=0)         # weight=0 means no stretching...
 
     # empty CANVAS definition
     empty_fig = matplotlib.figure.Figure(figsize=(5, 5))
@@ -129,7 +135,7 @@ def plot_window(root, treeview_file, selected):
         ax.legend(loc=legend_pos.get(), fontsize=leg_var.get())
         ax.set_xscale(x_axis_var.get())
         ax.set_yscale(y_axis_var.get())
-        ax.grid()
+        ax.grid(visible=grid_on_var.get() ,which=grid_var.get(), axis=grid_axis_var.get())
         ax.set_xlabel('energy (MeV)', fontsize=axis_var.get())
         ax.set_ylabel(y_label, fontsize=axis_var.get())
         if y_axis_var.get() == 'linear':
@@ -151,7 +157,7 @@ def plot_window(root, treeview_file, selected):
 
     # PLOT OPTION FRAME ------------------------------------------------------------------------------------------------
 
-    # X AXIS Radio Button
+    # X AXIS Radio Button ----------------------------------------------------------------------------------------------
     x_axis_frame = tk.LabelFrame(plot_option_frame, text='X axis settings')
     x_axis_frame.grid(column=0, row=0, sticky='nwe', padx=5, pady=5)
 
@@ -169,7 +175,7 @@ def plot_window(root, treeview_file, selected):
     y_log_radio = tk.Radiobutton(y_axis_frame, text='log', variable=y_axis_var, value='log', tristatevalue="y")
     y_log_radio.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
 
-    # DATA Radio Button
+    # DATA Radio Button ------------------------------------------------------------------------------------------------
     data_inp_frame = tk.LabelFrame(plot_option_frame, text='Data input')
     data_inp_frame.grid(column=0, row=2, sticky='nswe', padx=5, pady=5)
 
@@ -178,27 +184,27 @@ def plot_window(root, treeview_file, selected):
     data_inp_radio = tk.Radiobutton(data_inp_frame, text='non', variable=data_var, value='non', tristatevalue="z")
     data_inp_radio.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
 
-    # LEGEND settings
+    # LEGEND settings --------------------------------------------------------------------------------------------------
     legend_frame = tk.LabelFrame(plot_option_frame, text='Legend settings')
     legend_frame.grid(column=0, row=3, sticky='nswe', padx=5, pady=5)
     legend_frame.columnconfigure(0, weight=1)
     legend_frame.rowconfigure(0, weight=1)
 
-    legend_menu = tk.OptionMenu(legend_frame, legend_pos, legend_options[0], *legend_options)   # plot_window(root, treeview_files, treeview_files.get_checked()
+    legend_menu = tk.OptionMenu(legend_frame, legend_pos, *legend_options)   # plot_window(root, treeview_files, treeview_files.get_checked()
     legend_menu.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
 
     leg_spinbox = tk.ttk.Spinbox(legend_frame, from_=5, to=20, textvariable=leg_var, wrap=True, width=4)
     leg_spinbox.grid(column=1, row=0, sticky='e', padx=5, pady=5)
 
-    # Plot TO Plot ratio
+    # Plot TO Plot ratio -----------------------------------------------------------------------------------------------
     ratio_frame = tk.LabelFrame(plot_option_frame, text='Ratio plot')
     ratio_frame.grid(column=0, row=4, sticky='nswe', padx=5, pady=5)
 
-    ratio_menu = tk.OptionMenu(ratio_frame, ratio_sel, ratio_options[0], *ratio_options)  # plot_window(root, treeview_files, treeview_files.get_checked()
+    ratio_menu = tk.OptionMenu(ratio_frame, ratio_sel, *ratio_options)  # plot_window(root, treeview_files, treeview_files.get_checked()
     ratio_menu.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
 
-    # text size frame
-    size_frame = tk.LabelFrame(plot_option_frame, text='change size')
+    # text size frame --------------------------------------------------------------------------------------------------
+    size_frame = tk.LabelFrame(plot_option_frame, text='Change size')
     size_frame.grid(column=0, row=5, sticky='nswe', padx=5, pady=5)
     size_frame.columnconfigure(0, weight=1)
     size_frame.rowconfigure(0, weight=1)
@@ -208,9 +214,23 @@ def plot_window(root, treeview_file, selected):
     axis_spinbox = tk.ttk.Spinbox(size_frame, from_=5, to=20, textvariable=axis_var, wrap=True, width=4)
     axis_spinbox.grid(column=1, row=0, sticky='sne', padx=5, pady=5)
 
-    # replot frame
+    # GRID settings ----------------------------------------------------------------------------------------------------
+    grid_frame = tk.LabelFrame(plot_option_frame, text='Grid settings')
+    grid_frame.grid(column=0, row=6, sticky='nswe', padx=5, pady=5)
+
+    grid_chk = tk.Checkbutton(grid_frame, text='Grid ON', var=grid_on_var)
+    grid_chk.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
+
+    grid_menu = tk.OptionMenu(grid_frame, grid_var, *grid_options)
+    grid_menu.grid(column=0, row=1, sticky='nswe', padx=5, pady=5)
+
+    grid_axis_menu = tk.OptionMenu(grid_frame, grid_axis_var, *grid_axis_options)
+    grid_axis_menu.grid(column=1, row=1, sticky='nswe', padx=5, pady=5)
+
+
+    # replot frame -----------------------------------------------------------------------------------------------------
     replot_frame = tk.LabelFrame(plot_option_frame, text='Replot')
-    replot_frame.grid(column=0, row=6, sticky='nswe', padx=5, pady=5)
+    replot_frame.grid(column=0, row=7, sticky='nswe', padx=5, pady=5)
 
     chk_replot = tk.Checkbutton(replot_frame, text='disable on change replot', var=replot_var, command=lambda: turn_off_replot())
     chk_replot.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
@@ -224,7 +244,8 @@ def plot_window(root, treeview_file, selected):
     button_quit = tk.ttk.Button(plot_option_frame, text='Quit', command=new_win.quit)
     button_quit.grid(column=0, row=6, sticky='nswe', padx=5, pady=5)
     '''
-    # call replot when Option Menu are changed
+
+    # call replot when Option Menu are changed -------------------------------------------------------------------------
     def my_callback(*args):
         plot_function()
 
@@ -236,7 +257,9 @@ def plot_window(root, treeview_file, selected):
     data_var.trace_add('write', my_callback)
     axis_var.trace_add('write', my_callback)
     leg_var.trace_add('write', my_callback)
-
+    grid_on_var.trace_add('write', my_callback)
+    grid_var.trace_add('write', my_callback)
+    grid_axis_var.trace_add('write', my_callback)
 
     # turn on-off online replot
     def turn_off_replot():
@@ -250,6 +273,9 @@ def plot_window(root, treeview_file, selected):
             data_var.trace_remove('write', data_var.trace_info()[0][1])
             axis_var.trace_remove('write', axis_var.trace_info()[0][1])
             leg_var.trace_remove('write', leg_var.trace_info()[0][1])
+            grid_on_var.trace_remove('write', grid_on_var.trace_info()[0][1])
+            grid_var.trace_remove('write', grid_var.trace_info()[0][1])
+            grid_axis_var.trace_remove('write', grid_axis_var.trace_info()[0][1])
         else:
             button_replot['state'] = 'disabled'
 
@@ -260,6 +286,9 @@ def plot_window(root, treeview_file, selected):
             data_var.trace_add('write', my_callback)
             axis_var.trace_add('write', my_callback)
             leg_var.trace_add('write', my_callback)
+            grid_on_var.trace_add('write', my_callback)
+            grid_var.trace_add('write', my_callback)
+            grid_axis_var.trace_add('write', my_callback)
 
 
 # ---------------------------------------------------------------------------------------------------------------------
