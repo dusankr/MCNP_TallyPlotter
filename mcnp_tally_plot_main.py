@@ -21,7 +21,13 @@ def ask_quit():
 
 def open_plot_win():
     if len(treeview_files.get_checked()) != 0:
-        plot_mod.plot_window(root, treeview_files, treeview_files.get_checked())
+
+        # send selected tallies to plot_mod function
+        selection = []
+        for row in treeview_files.get_checked():
+            selection.append(treeview_files.item(row)['values'][0])
+
+        plot_mod.plot_window(root, selection)
     else:
         tk.messagebox.showerror('Input error', 'Please choose tally for plotting.')
 

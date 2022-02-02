@@ -7,9 +7,7 @@
 # TODO excel export
 # Provozni/vylepseni kodu
 # TODO přesunout ratio plot do externi fce.
-# TODO popřemýšlet na způsobem vraceni tally_to_plot
 # TODO pouzit relativni nejistoty a na abs. je převést až při vykreslování
-# TODO canvas jako globální proměnná?
 # Nastavení grafu
 # TODO nové názvy os
 # TODO volba fontu pro export
@@ -33,14 +31,12 @@ import tkinter as tk
 
 #  Functions  ##########################################################################################################
 # create new Top level window and plot data
-def plot_window(root, treeview_file, selected):
+def plot_window(root, tally_to_plot):
 
     # Tkinter variables
     legend_options = ['best', 'upper right', 'upper left', 'lower left', 'lower right', 'right', 'center left',
                       'center right', 'lower center', 'upper center', 'center']
     legend_pos = tk.StringVar(value='best')  # Option Menu variable
-
-    tally_to_plot = get_selected(treeview_file, selected)  # obtain keys from checkedbox treeview
 
     if len(tally_to_plot) > 1:
         ratio_options = ['no ratio'] + tally_to_plot
@@ -367,17 +363,7 @@ def plot_window(root, treeview_file, selected):
             grid_axis_menu['state'] = 'disabled'
 
 
-# OUTSIDE funcitons ----------------------------------------------------------------------------------------------------
-# get selected tallies from treeview
-def get_selected(treeview_file, selected):
-    selection = []
-
-    for row in selected:
-        selection.append(treeview_file.item(row)['values'][0])
-
-    return selection
-
-
+# OUTSIDE functions ----------------------------------------------------------------------------------------------------
 # calculate central value for all bins
 def interval_mid(x):
     x_center = []

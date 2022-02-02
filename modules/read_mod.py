@@ -5,8 +5,6 @@
 # TODO test MCTAL
 
 # libraries
-import pathlib
-
 from modules import config_mod
 
 # better and easier work with file and directory paths
@@ -50,7 +48,6 @@ def open_folder(treeview_files):
 
     for fname in output_files:
         read_file(folder_path, fname)  # read tallies from output files
-
 
     # fill treeview part
     x = treeview_files.get_children()  # get id of all items in treeview
