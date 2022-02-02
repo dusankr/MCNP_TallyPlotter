@@ -59,7 +59,7 @@ def open_folder(treeview_files):
                               values=[i, config_mod.tallies[i][0], config_mod.tallies[i][1], config_mod.tallies[i][2],
                                       len(config_mod.tallies[i][3]) - 1, config_mod.tallies[i][6],
                                       config_mod.tallies[i][3][1], config_mod.tallies[i][3][-1],
-                                      config_mod.tallies[i][9]])
+                                      config_mod.tallies[i][8]])
 
 
 # read data from all tally in one output file
@@ -119,14 +119,13 @@ def read_file(f_path, fname):
                     while line[0] != 'total':
                         energy.append(float(line[0]))
                         flux.append(float(line[1]))
-                        error.append(float(line[2]) * flux[-1])
+                        error.append(float(line[2]))
                         i += 1
                         line = content[i].split()
 
                     # find correct cut off for every tally
                     for particle in cutoff_dict.keys():
-                        if tally_ptc[
-                            -1] == "s":  # some tallies are not in plural, do not know why -> cure this difference with "s"
+                        if tally_ptc[-1] == "s":  # some tallies are not in plural, do not know why -> cure this difference with "s"
                             if tally_ptc[:-1] == particle:
                                 cutoff_en = cutoff_dict[particle]
                         elif tally_ptc == particle:
@@ -135,12 +134,10 @@ def read_file(f_path, fname):
                     # add first energy
                     energy = [cutoff_en] + energy  # neutron cut off E=1E-9 MeV, default photon and e- cut off 0.001 MeV
 
-                    flux_n, error_n = flux_norm(energy, flux,
-                                                error)  # create normalized variables for dictionary instead of rewrite original values
+                    # create normalized variables for dictionary instead of rewrite original values
+                    flux_n = flux_norm(energy, flux)
 
-                    config_mod.tallies[fname.name + '_' + str(tally_num)] = [tally_num, tally_type, tally_ptc, energy,
-                                                                             flux, error, cutoff_en, flux_n, error_n,
-                                                                             com_loaded]
+                    config_mod.tallies[fname.name + '_' + str(tally_num)] = [tally_num, tally_type, tally_ptc, energy, flux, error, cutoff_en, flux_n, com_loaded]
 
                     energy = []
                     flux = [0]
@@ -168,16 +165,12 @@ def cutoff_func(content):
 
 
 # flux bin normalization per 1 MeV
-def flux_norm(energy, flux, error):
+def flux_norm(energy, flux):
     fl_n = [0]
-    fl_n_err = [0]
-
     for i in range(1, len(flux)):
         if (energy[i] - energy[i - 1]) == 0:
             fl_n.append(0)
-            fl_n_err.append(0)
         else:
             fl_n.append(flux[i] / (energy[i] - energy[i - 1]))
-            fl_n_err.append(error[i] / (energy[i] - energy[i - 1]))
 
-    return fl_n, fl_n_err
+    return fl_n

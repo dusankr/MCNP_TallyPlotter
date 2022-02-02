@@ -6,8 +6,9 @@
 # TODO umisteni do stejneho okna jako je je vyber tally?
 # TODO excel export
 # Provozni/vylepseni kodu
+# TODO předělat kreslení grafů na updata podle vzorů na webu...
+
 # TODO přesunout ratio plot do externi fce.
-# TODO pouzit relativni nejistoty a na abs. je převést až při vykreslování
 # Nastavení grafu
 # TODO nové názvy os
 # TODO volba fontu pro export
@@ -82,7 +83,7 @@ def plot_window(root, tally_to_plot):
     # MAIN frames ------------------------------------------------------------------------------------------------------
     plot_frame = tk.ttk.Frame(new_win)
     plot_frame.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)  # set the margins between window and content
-    #plot_frame.grid_propagate(False)
+    plot_frame.grid_propagate(False)
     # layout PLOT frame
     plot_frame.columnconfigure(0, weight=1)
     plot_frame.rowconfigure(0, weight=1)
@@ -120,9 +121,9 @@ def plot_window(root, tally_to_plot):
         if (ratio_sel.get() != 'no ratio') and (data_var.get() == 'non'):
             x_ratio, y_ratio, y_err_ratio = config_mod.tallies[ratio_sel.get()][3], config_mod.tallies[ratio_sel.get()][4], config_mod.tallies[ratio_sel.get()][5]
         elif (ratio_sel.get() != 'no ratio') and (data_var.get() == 'norm'):
-            x_ratio, y_ratio, y_err_ratio = config_mod.tallies[ratio_sel.get()][3], config_mod.tallies[ratio_sel.get()][7], config_mod.tallies[ratio_sel.get()][8]
+            x_ratio, y_ratio, y_err_ratio = config_mod.tallies[ratio_sel.get()][3], config_mod.tallies[ratio_sel.get()][7], config_mod.tallies[ratio_sel.get()][5]
 
-        # create new list in case the ratio plot is choosen and delete reference tally
+        # create new list in case the ratio plot is chosen and delete reference tally
         tally_to_plot_mod = tally_to_plot[:]
         if ratio_sel.get() in tally_to_plot_mod:
             tally_to_plot_mod.remove(ratio_sel.get())
@@ -130,12 +131,10 @@ def plot_window(root, tally_to_plot):
         for name in config_mod.tallies.keys():
             if name in tally_to_plot_mod:
                 if data_var.get() == 'norm':
-                    x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][7][:], \
-                                                 config_mod.tallies[name][8][:]  # normalized data
+                    x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][7][:], config_mod.tallies[name][5][:]  # normalized data
                     y_label = 'Tally / MeV / particle'
                 elif data_var.get() == 'non':
-                    x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4][:], \
-                                                 config_mod.tallies[name][5][:]  # unnormalized data
+                    x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4][:], config_mod.tallies[name][5][:]  # original data
                     y_label = 'Tally / particle'
 
                 if ratio_sel.get() != 'no ratio':
@@ -145,9 +144,8 @@ def plot_window(root, tally_to_plot):
 
                     for i in range(0, len(y_data)):     # calculate ratio values and their errors
                         if (y_data[i] != 0) and (y_ratio[i] != 0):      # only for non zero values
-                            err = math.sqrt((y_data_err[i] / y_data[i]) ** 2 + (y_err_ratio[i] / y_ratio[i]) ** 2)
+                            y_data_err[i] = math.sqrt(y_data_err[i]**2 + y_err_ratio[i]**2)
                             y_data[i] = y_data[i] / y_ratio[i]
-                            y_data_err[i] = y_data[i] * err
                         else:
                             y_data[i] = 0
                             y_data_err[i] = 0
@@ -160,8 +158,9 @@ def plot_window(root, tally_to_plot):
                 # plots
                 p_color = next(ax._get_lines.prop_cycler)['color']      # same color for step and errorbar plot
                 ax.step(x_data, y_data, color=p_color, label=name)
-                ax.errorbar(x_data_center, y_data[1:], yerr=y_data_err[1:], xerr=0, color=p_color, marker='None',
-                            linestyle='None', capthick=0.7, capsize=2)
+
+                err = [a*b for a,b in zip(y_data_err, y_data)]          # abs error
+                ax.errorbar(x_data_center, y_data[1:], yerr=err[1:], xerr=0, color=p_color, marker='None',  linestyle='None', capthick=0.7, capsize=2)
 
         # plot settings
         ax.legend(loc=legend_pos.get(), fontsize=leg_var.get())
