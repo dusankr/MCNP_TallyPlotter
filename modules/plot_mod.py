@@ -13,7 +13,7 @@
 # TODO nové názvy os
 # TODO volba fontu pro export
 # TODO scrollbar pro nastaveni grafu
-# TODO zrušit sticky pro canvas při změnách velikosti
+# TODO změna velikosti a sticky pro canvas jen při aktivaci export rezimu
 
 # libraries
 import matplotlib
@@ -245,22 +245,6 @@ def plot_window(root, treeview_file, selected):
     ticks_spinbox = tk.ttk.Spinbox(size_frame, from_=5, to=20, textvariable=ticks_var, wrap=True, width=4)
     ticks_spinbox.grid(column=1, row=1, sticky='sne', padx=5, pady=5)
 
-    # figure size ------------------------------------------------------------------------------------------------------
-    figsize_frame = tk.LabelFrame(plot_option_frame, text='Export settings')
-    figsize_frame.grid(column=0, row=8, sticky='nswe', padx=5, pady=5)
-    figsize_frame.columnconfigure(0, weight=1)
-    figsize_frame.rowconfigure(0, weight=1)
-
-    width_title = tk.Label(figsize_frame, text='Width (cm)')
-    width_title.grid(column=0, row=0, sticky='nw', padx=5, pady=5)
-    height_title = tk.Label(figsize_frame, text='Height (cm)')
-    height_title.grid(column=1, row=0, sticky='nw', padx=5, pady=5)
-
-    width_spinbox = tk.ttk.Spinbox(figsize_frame, from_=1, to=20, increment=.1, textvariable=xfig_var, wrap=True, width=4)
-    width_spinbox.grid(column=0, row=1, sticky='sn', padx=5, pady=5)
-    height_spinbox = tk.ttk.Spinbox(figsize_frame, from_=1, to=20, increment=.1, textvariable=yfig_var, wrap=True, width=4)
-    height_spinbox.grid(column=1, row=1, sticky='sn', padx=5, pady=5)
-
     # GRID settings ----------------------------------------------------------------------------------------------------
     grid_frame = tk.LabelFrame(plot_option_frame, text='Grid settings')
     grid_frame.grid(column=0, row=6, sticky='nswe', padx=5, pady=5)
@@ -277,13 +261,25 @@ def plot_window(root, treeview_file, selected):
     # replot frame -----------------------------------------------------------------------------------------------------
     replot_frame = tk.LabelFrame(plot_option_frame, text='Replot')
     replot_frame.grid(column=0, row=7, sticky='nswe', padx=5, pady=5)
+    #replot_frame.columnconfigure(0, weight=0)
+    #replot_frame.rowconfigure(0, weight=0)
 
     chk_replot = tk.Checkbutton(replot_frame, text='disable on change replot', var=replot_var, command=lambda: turn_off_replot())
-    chk_replot.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
+    chk_replot.grid(column=0, columnspan=2, row=0, sticky='nswe', padx=5, pady=5)
+
+    width_title = tk.Label(replot_frame, text='Width (cm)')
+    width_title.grid(column=0, row=1, sticky='nw', padx=5, pady=5)
+    height_title = tk.Label(replot_frame, text='Height (cm)')
+    height_title.grid(column=1, row=1, sticky='nw', padx=5, pady=5)
+
+    width_spinbox = tk.ttk.Spinbox(replot_frame, from_=1, increment=.1, state='readonly', textvariable=xfig_var, wrap=True, width=4)
+    width_spinbox.grid(column=0, row=2, sticky='sn', padx=5, pady=5)
+    height_spinbox = tk.ttk.Spinbox(replot_frame, from_=1, increment=.1, state='readonly', textvariable=yfig_var, wrap=True, width=4)
+    height_spinbox.grid(column=1, row=2, sticky='sn', padx=5, pady=5)
 
     button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: plot_function())    # add Figure to canvas from plot function
     button_replot['state'] = 'disabled'
-    button_replot.grid(column=0, row=1, sticky='nswe', padx=5, pady=5)
+    button_replot.grid(column=0, columnspan=2, row=3, sticky='nswe', padx=5, pady=5)
 
     # TODO opravit: havaruje pri zavreni grafu a jeho znovuotvreni
     '''
@@ -313,6 +309,8 @@ def plot_window(root, treeview_file, selected):
     def turn_off_replot():
         if replot_var.get() == True:
             button_replot['state'] = 'normal'
+            width_spinbox['state'] = 'normal'
+            height_spinbox['state'] = 'normal'
 
             legend_pos.trace_remove('write', legend_pos.trace_info()[0][1])
             ratio_sel.trace_remove('write', ratio_sel.trace_info()[0][1])
@@ -327,6 +325,8 @@ def plot_window(root, treeview_file, selected):
             ticks_var.trace_remove('write', ticks_var.trace_info()[0][1])
         else:
             button_replot['state'] = 'disabled'
+            width_spinbox['state'] = 'readonly'
+            height_spinbox['state'] = 'readonly'
 
             legend_pos.trace_add('write', my_callback)
             ratio_sel.trace_add('write', my_callback)
