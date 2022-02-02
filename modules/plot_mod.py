@@ -34,20 +34,11 @@ import tkinter as tk
 #  Functions  ##########################################################################################################
 # create new Top level window and plot data
 def plot_window(root, treeview_file, selected):
-    new_win = tk.Toplevel(root)
-    new_win.grab_set()      # the main window is locked until the new window is closed
 
-    new_win.title('Plotting window')
-    new_win.minsize(150, 200)
-
-    # layout all of the main containers
-    new_win.columnconfigure(0, weight=1)
-    new_win.columnconfigure(1, weight=0)
-    new_win.rowconfigure(0, weight=1)
-
-    # Tkinter variables ------------------------------------------------------------------------------------------------
-    legend_options = ['best', 'upper right', 'upper left', 'lower left', 'lower right', 'right', 'center left', 'center right', 'lower center', 'upper center', 'center']
-    legend_pos = tk.StringVar(value='best')      # Option Menu variable
+    # Tkinter variables
+    legend_options = ['best', 'upper right', 'upper left', 'lower left', 'lower right', 'right', 'center left',
+                      'center right', 'lower center', 'upper center', 'center']
+    legend_pos = tk.StringVar(value='best')  # Option Menu variable
 
     tally_to_plot = get_selected(treeview_file, selected)  # obtain keys from checkedbox treeview
 
@@ -62,26 +53,37 @@ def plot_window(root, treeview_file, selected):
     data_var = tk.StringVar(value='non')
 
     ratio_sel = tk.StringVar(value='no ratio')  # Option Menu variable
-    replot_var = tk.BooleanVar(value=False)     # Check box variable
+    replot_var = tk.BooleanVar(value=False)  # Check box variable
 
     # font size variables
-    axis_var = tk.StringVar(value=11)           # SpinBox variable
-    leg_var = tk.StringVar(value=8)             # SpinBox variable
-    ticks_var = tk.StringVar(value=10)          # SpinBox variable
+    axis_var = tk.StringVar(value=11)  # SpinBox variable
+    leg_var = tk.StringVar(value=8)  # SpinBox variable
+    ticks_var = tk.StringVar(value=10)  # SpinBox variable
 
     # grid variables
     grid_options = ['major', 'minor', 'both']
     grid_axis_options = ['both', 'x', 'y']
-    grid_var = tk.StringVar(value='major')      # Option Menu variable
+    grid_var = tk.StringVar(value='major')  # Option Menu variable
     grid_axis_var = tk.StringVar(value='both')  # Option Menu variable
-    grid_on_var = tk.BooleanVar(value=True)     # Check box variable
+    grid_on_var = tk.BooleanVar(value=True)  # Check box variable
 
     # figure size
-    xfig_var = tk.StringVar(value=20)            # SpinBox variable
-    yfig_var = tk.StringVar(value=15)            # SpinBox variable
+    xfig_var = tk.StringVar(value=20)  # SpinBox variable
+    yfig_var = tk.StringVar(value=15)  # SpinBox variable
 
-    # ------------------------------------------------------------------------------------------------------------------
-    # MAIN frames
+    # NEW Window definition---------------------------------------------------------------------------------------------
+    new_win = tk.Toplevel(root)
+    new_win.grab_set()      # the main window is locked until the new window is closed
+
+    new_win.title('Plotting window')
+    new_win.minsize(150, 200)
+
+    # layout all of the main containers
+    new_win.columnconfigure(0, weight=1)
+    new_win.columnconfigure(1, weight=0)
+    new_win.rowconfigure(0, weight=1)
+
+    # MAIN frames ------------------------------------------------------------------------------------------------------
     plot_frame = tk.ttk.Frame(new_win)
     plot_frame.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)  # set the margins between window and content
     #plot_frame.grid_propagate(False)
@@ -104,7 +106,7 @@ def plot_window(root, treeview_file, selected):
     plot_option_frame.configure(yscrollcommand=option_scroll.set)
     '''
 
-    # plot tallies from user
+    # plot tallies from user -------------------------------------------------------------------------------------------
     def plot_function():
 
         # close previous instance of figure
@@ -302,7 +304,9 @@ def plot_window(root, treeview_file, selected):
     '''
     # endregion all tkinter widgets for
 
-    # call replot when Option Menu are changed -------------------------------------------------------------------------
+    # FUNCTIONS conected to MAIN function ------------------------------------------------------------------------------
+
+    # call replot when Option Menu are changed
     def my_callback(*args):
         plot_function()
 
@@ -363,7 +367,7 @@ def plot_window(root, treeview_file, selected):
             grid_axis_menu['state'] = 'disabled'
 
 
-# ---------------------------------------------------------------------------------------------------------------------
+# OUTSIDE funcitons ----------------------------------------------------------------------------------------------------
 # get selected tallies from treeview
 def get_selected(treeview_file, selected):
     selection = []
@@ -374,9 +378,6 @@ def get_selected(treeview_file, selected):
     return selection
 
 
-# ----------------------------------------------------------------------------------------------------------------------
-# support PLOT functions
-
 # calculate central value for all bins
 def interval_mid(x):
     x_center = []
@@ -384,5 +385,3 @@ def interval_mid(x):
         x_center.append(x[i] + (x[i + 1] - x[i]) / 2)
 
     return x_center
-
-
