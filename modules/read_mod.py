@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
-# TODO problem s ruznymi tally, verzemi mcnp, cut off
 # TODO pokud je cut off vetsi nez E_min???
 # TODO test MCTAL
 
 # libraries
 from modules import config_mod
-
-# better and easier work with file and directory paths
-import pathlib
-
+import pathlib      # better and easier work with file and directory paths
 import tkinter as tk
 import os
 

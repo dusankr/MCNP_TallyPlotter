@@ -2,11 +2,7 @@
 # TODO_list:
 
 # LIBRARIES
-# import from our files
-import ttkwidgets
-
 from modules import read_mod, plot_mod
-
 # GUI libraries
 import tkinter as tk
 import ttkwidgets

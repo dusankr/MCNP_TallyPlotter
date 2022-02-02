@@ -7,17 +7,15 @@
 # TODO excel export
 # Provozni/vylepseni kodu
 # TODO předělat kreslení grafů na updata podle vzorů na webu...
-
-# TODO přesunout ratio plot do externi fce.
 # Nastavení grafu
-# TODO nové názvy os
-# TODO volba fontu pro export
 # TODO scrollbar pro nastaveni grafu
-# TODO zabránit neustálým změnám velikosti okna
 # tkinter.tix.ScrolledWindow
 # https://stackoverflow.com/questions/21255216/python-tkinter-attributeerror-nonetype-object-has-no-attribute-xview
 # https://stackoverflow.com/questions/23705043/nonetype-object-has-no-attribute-yview
 # https://blog.teclado.com/tkinter-scrollable-frames/
+# Aktualni
+# TODO nové názvy os
+# TODO volba fontu pro export
 
 # libraries
 import matplotlib
