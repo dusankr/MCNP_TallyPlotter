@@ -9,10 +9,15 @@
 # TODO přesunout ratio plot do externi fce.
 # TODO popřemýšlet na způsobem vraceni tally_to_plot
 # TODO pouzit relativni nejistoty a na abs. je převést až při vykreslování
+# TODO canvas jako globální proměnná?
 # Nastavení grafu
 # TODO nové názvy os
 # TODO volba fontu pro export
 # TODO scrollbar pro nastaveni grafu
+# tkinter.tix.ScrolledWindow
+# https://stackoverflow.com/questions/21255216/python-tkinter-attributeerror-nonetype-object-has-no-attribute-xview
+# https://stackoverflow.com/questions/23705043/nonetype-object-has-no-attribute-yview
+# https://blog.teclado.com/tkinter-scrollable-frames/
 # TODO změna velikosti a sticky pro canvas jen při aktivaci export rezimu
 
 # libraries
@@ -37,6 +42,7 @@ def plot_window(root, treeview_file, selected):
 
     # layout all of the main containers
     new_win.columnconfigure(0, weight=1)
+    new_win.columnconfigure(1, weight=0)
     new_win.rowconfigure(0, weight=1)
 
     # Tkinter variables ------------------------------------------------------------------------------------------------
@@ -78,21 +84,26 @@ def plot_window(root, treeview_file, selected):
     # MAIN frames
     plot_frame = tk.ttk.Frame(new_win)
     plot_frame.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)  # set the margins between window and content
+    #plot_frame.grid_propagate(False)
     # layout PLOT frame
     plot_frame.columnconfigure(0, weight=1)
     plot_frame.rowconfigure(0, weight=1)
 
-    plot_option_frame = tk.LabelFrame(new_win, text='Plot settings' , width=25)
+    plot_option_frame = tk.LabelFrame(new_win, text='Plot settings', width=25)
     plot_option_frame.grid(column=1, columnspan=2, row=0, sticky='nswe', padx=5, pady=5)
     # layout PLOT_OPTION frame
     plot_option_frame.columnconfigure(0, weight=1)
     plot_option_frame.rowconfigure(0, weight=0)         # weight=0 means no stretching...
+    ''''
+    option_scroll = tk.ttk.Scrollbar(new_win, orient='vertical', command=new_win.yview)
+    option_scroll.grid(sticky='wens', column=2, row=0, rowspan=1, padx=5, pady=5)
+    new_win.configure(yscrollcommand=option_scroll.set)
+    
+    option_scroll = tk.ttk.Scrollbar(plot_option_frame, orient='vertical', command=plot_option_frame.yview)
+    option_scroll.grid(sticky='wens', column=1, row=0, rowspan=8, padx=5, pady=5)
+    plot_option_frame.configure(yscrollcommand=option_scroll.set)
     '''
-    # empty CANVAS definition
-    empty_fig = matplotlib.figure.Figure(figsize=(5, 5))
-    mycanvas = FigureCanvasTkAgg(empty_fig, plot_frame)
-    mycanvas.get_tk_widget().grid(column=0, row=0, sticky='nswe')
-    '''
+
     # plot tallies from user
     def plot_function():
 
@@ -104,7 +115,8 @@ def plot_window(root, treeview_file, selected):
         if config_mod.canvas_id:
             config_mod.canvas_id.get_tk_widget().destroy()
 
-        fig, ax = plt.subplots(figsize=(float(xfig_var.get())/2.54, float(yfig_var.get())/2.54))
+        fig, ax = plt.subplots()        # figsize=(10,8)
+        fig.set_size_inches(float(xfig_var.get()) / 2.54, float(yfig_var.get()) / 2.54)
 
         # read reference data for ratio plot
         if (ratio_sel.get() != 'no ratio') and (data_var.get() == 'non'):
@@ -165,20 +177,22 @@ def plot_window(root, treeview_file, selected):
             ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True)  # does not work in log scale with this setting
 
         # Canvas for plot
-        mycanvas = FigureCanvasTkAgg(fig, plot_frame)  # add Figure to canvas from plot function
-        mycanvas.draw()
-        mycanvas.get_tk_widget().grid(column=0, row=0)
+        config_mod.canvas_id = FigureCanvasTkAgg(fig, plot_frame)  # add Figure to canvas from plot function
+        config_mod.canvas_id.draw()
+
+        if replot_var.get():
+            config_mod.canvas_id.get_tk_widget().grid(column=0, row=0)
+        else:
+            config_mod.canvas_id.get_tk_widget().grid(column=0, row=0, sticky='nswe')
 
         # Toolbar for plot
         toolbar_frame = tk.ttk.Frame(plot_frame)
         toolbar_frame.grid(column=0, row=1, sticky='nswe')
-        toolbar = NavigationToolbar2Tk(mycanvas, toolbar_frame)
+        toolbar = NavigationToolbar2Tk(config_mod.canvas_id, toolbar_frame)
         toolbar.update()
 
-        return mycanvas
-
     # insert FIRST plot CANVAS
-    config_mod.canvas_id = plot_function()
+    plot_function()
 
     # region Description: all Tkinter Widgets used for plot settings
     # PLOT OPTION FRAME ------------------------------------------------------------------------------------------------
@@ -249,7 +263,7 @@ def plot_window(root, treeview_file, selected):
     grid_frame = tk.LabelFrame(plot_option_frame, text='Grid settings')
     grid_frame.grid(column=0, row=6, sticky='nswe', padx=5, pady=5)
 
-    grid_chk = tk.Checkbutton(grid_frame, text='Grid ON', var=grid_on_var)
+    grid_chk = tk.Checkbutton(grid_frame, text='Grid ON', var=grid_on_var, command=lambda: change_state())
     grid_chk.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
 
     grid_menu = tk.OptionMenu(grid_frame, grid_var, *grid_options)
@@ -272,9 +286,9 @@ def plot_window(root, treeview_file, selected):
     height_title = tk.Label(replot_frame, text='Height (cm)')
     height_title.grid(column=1, row=1, sticky='nw', padx=5, pady=5)
 
-    width_spinbox = tk.ttk.Spinbox(replot_frame, from_=1, increment=.1, state='readonly', textvariable=xfig_var, wrap=True, width=4)
+    width_spinbox = tk.ttk.Spinbox(replot_frame, from_=5, to=30, increment=.1, state='readonly', textvariable=xfig_var, wrap=True, width=4)
     width_spinbox.grid(column=0, row=2, sticky='sn', padx=5, pady=5)
-    height_spinbox = tk.ttk.Spinbox(replot_frame, from_=1, increment=.1, state='readonly', textvariable=yfig_var, wrap=True, width=4)
+    height_spinbox = tk.ttk.Spinbox(replot_frame, from_=5, to=30, increment=.1, state='readonly', textvariable=yfig_var, wrap=True, width=4)
     height_spinbox.grid(column=1, row=2, sticky='sn', padx=5, pady=5)
 
     button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: plot_function())    # add Figure to canvas from plot function
@@ -290,7 +304,7 @@ def plot_window(root, treeview_file, selected):
 
     # call replot when Option Menu are changed -------------------------------------------------------------------------
     def my_callback(*args):
-        config_mod.canvas_id = plot_function()
+        plot_function()
 
     # first definition of Tkinter Variables tracing
     legend_pos.trace_add('write', my_callback)
@@ -340,6 +354,14 @@ def plot_window(root, treeview_file, selected):
             grid_axis_var.trace_add('write', my_callback)
             ticks_var.trace_add('write', my_callback)
 
+    def change_state():
+        if grid_on_var.get():
+            grid_menu['state'] = 'normal'
+            grid_axis_menu['state'] = 'normal'
+        else:
+            grid_menu['state'] = 'disabled'
+            grid_axis_menu['state'] = 'disabled'
+
 
 # ---------------------------------------------------------------------------------------------------------------------
 # get selected tallies from treeview
@@ -362,3 +384,5 @@ def interval_mid(x):
         x_center.append(x[i] + (x[i + 1] - x[i]) / 2)
 
     return x_center
+
+
