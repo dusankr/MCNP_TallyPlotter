@@ -43,15 +43,11 @@ def open_folder(treeview_files):
         else:
             output_files.append(file)
 
-    '''
-    try:
-        for fname in output_files:
-            read_file(folder_path, fname)  # read tallies from output files
-    except:
+    # return in case user do not chose any directory <- nevím jestli bude fungovat na macu, kdyžtak předělat že do folder path se uloží pathlib.Path.cwd()
+    if str(folder_path) == '.':
         tk.messagebox.showerror('Input error', 'No directory was selected.')
         return
-    
-    '''
+
     for fname in output_files:
         read_file(folder_path, fname)  # read tallies from output files
 

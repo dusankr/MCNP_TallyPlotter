@@ -14,11 +14,11 @@
 # TODO nové názvy os
 # TODO volba fontu pro export
 # TODO scrollbar pro nastaveni grafu
+# TODO zabránit neustálým změnám velikosti okna
 # tkinter.tix.ScrolledWindow
 # https://stackoverflow.com/questions/21255216/python-tkinter-attributeerror-nonetype-object-has-no-attribute-xview
 # https://stackoverflow.com/questions/23705043/nonetype-object-has-no-attribute-yview
 # https://blog.teclado.com/tkinter-scrollable-frames/
-# TODO změna velikosti a sticky pro canvas jen při aktivaci export rezimu
 
 # libraries
 import matplotlib
