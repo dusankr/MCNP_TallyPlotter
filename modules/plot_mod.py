@@ -82,8 +82,8 @@ def plot_window(root, treeview_file, selected):
     plot_frame.columnconfigure(0, weight=1)
     plot_frame.rowconfigure(0, weight=1)
 
-    plot_option_frame = tk.ttk.Frame(new_win, width=25)
-    plot_option_frame.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
+    plot_option_frame = tk.LabelFrame(new_win, text='Plot settings' , width=25)
+    plot_option_frame.grid(column=1, columnspan=2, row=0, sticky='nswe', padx=5, pady=5)
     # layout PLOT_OPTION frame
     plot_option_frame.columnconfigure(0, weight=1)
     plot_option_frame.rowconfigure(0, weight=0)         # weight=0 means no stretching...
@@ -170,7 +170,7 @@ def plot_window(root, treeview_file, selected):
         mycanvas.get_tk_widget().grid(column=0, row=0)
 
         # Toolbar for plot
-        toolbar_frame = tk.ttk.Frame(new_win)
+        toolbar_frame = tk.ttk.Frame(plot_frame)
         toolbar_frame.grid(column=0, row=1, sticky='nswe')
         toolbar = NavigationToolbar2Tk(mycanvas, toolbar_frame)
         toolbar.update()
@@ -246,7 +246,7 @@ def plot_window(root, treeview_file, selected):
     ticks_spinbox.grid(column=1, row=1, sticky='sne', padx=5, pady=5)
 
     # figure size ------------------------------------------------------------------------------------------------------
-    figsize_frame = tk.LabelFrame(plot_option_frame, text='Figure size')
+    figsize_frame = tk.LabelFrame(plot_option_frame, text='Export settings')
     figsize_frame.grid(column=0, row=8, sticky='nswe', padx=5, pady=5)
     figsize_frame.columnconfigure(0, weight=1)
     figsize_frame.rowconfigure(0, weight=1)

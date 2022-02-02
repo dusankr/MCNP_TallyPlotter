@@ -82,15 +82,16 @@ treeview_files.column('File', width=150, stretch=False)
 
 # TREEVIEW
 # Treeview X-scrollbar
-tree_x_scroll = tk.ttk.Scrollbar(up_frame, orient='horizontal')
-tree_x_scroll.configure(command=treeview_files.xview)
-treeview_files.configure(xscrollcommand=tree_x_scroll.set)
+tree_x_scroll = tk.ttk.Scrollbar(up_frame, orient='horizontal', command=treeview_files.xview)
+tree_x_scroll.grid(sticky='wens', column=0, row=5, columnspan=5, padx=5, pady=5)
+
 # Treeview Y-scrollbar
 tree_y_scroll = tk.ttk.Scrollbar(up_frame, orient='vertical', command=treeview_files.yview)
+tree_y_scroll.grid(sticky='wens', column=5, row=0, rowspan=5, padx=5, pady=5)
+
+treeview_files.configure(xscrollcommand=tree_x_scroll.set)
 treeview_files.configure(yscrollcommand=tree_y_scroll.set)
 
-tree_x_scroll.grid(sticky='wens', column=0, row=5, columnspan=5, padx=5, pady=5)
-tree_y_scroll.grid(sticky='wens', column=5, row=0, rowspan=5, padx=5, pady=5)
 
 # widgets in DOWN frame in GUI -----------------------------------------------------------------------------------------
 button_file = tk.ttk.Button(down_frame, text='Work directory', command=lambda: read_mod.open_folder(treeview_files), width=20)
