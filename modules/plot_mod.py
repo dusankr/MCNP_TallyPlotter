@@ -31,7 +31,7 @@ import tkinter as tk
 # create new Top level window and plot data
 def plot_window(root, tally_to_plot):
 
-    # Tkinter variables
+    # region Tkinter local variables
     legend_options = ['best', 'upper right', 'upper left', 'lower left', 'lower right', 'right', 'center left',
                       'center right', 'lower center', 'upper center', 'center']
     legend_pos = tk.StringVar(value='best')  # Option Menu variable
@@ -64,6 +64,17 @@ def plot_window(root, tally_to_plot):
     # figure size
     xfig_var = tk.StringVar(value=20)  # SpinBox variable
     yfig_var = tk.StringVar(value=15)  # SpinBox variable
+
+    # Axis entry variables
+    xlabel_var = tk.StringVar()
+    ylabel_var = tk.StringVar()
+
+    font_family_options = ['sans-serif']
+    font_options = ['Tahoma', 'DejaVu Sans', 'Lucida Grande', 'Verdana']
+    font_f_var = tk.StringVar()
+    font_var = tk.StringVar()
+
+    # endregion
 
     # NEW Window definition---------------------------------------------------------------------------------------------
     new_win = tk.Toplevel(root)
@@ -290,9 +301,17 @@ def plot_window(root, tally_to_plot):
     height_spinbox = tk.ttk.Spinbox(replot_frame, from_=5, to=30, increment=.1, state='readonly', textvariable=yfig_var, wrap=True, width=4)
     height_spinbox.grid(column=1, row=2, sticky='sn', padx=5, pady=5)
 
-    button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: plot_function())    # add Figure to canvas from plot function
-    button_replot['state'] = 'disabled'
-    button_replot.grid(column=0, columnspan=2, row=3, sticky='nswe', padx=5, pady=5)
+    x_title = tk.Label(replot_frame, text='X axis title:').grid(column=0, row=3, sticky='nw', padx=5, pady=5)
+    x_entry = tk.Entry(replot_frame, textvariable=xlabel_var).grid(column=0, columnspan=2, row=4, sticky='nwse', padx=5, pady=5)
+
+    y_title = tk.Label(replot_frame, text='Y axis title:').grid(column=0, row=5, sticky='nw', padx=5, pady=5)
+    y_entry = tk.Entry(replot_frame, textvariable=ylabel_var).grid(column=0, columnspan=2, row=6, sticky='nwse', padx=5, pady=5)
+
+    font_f_menu = tk.OptionMenu(replot_frame, font_f_var, *font_family_options).grid(column=0, columnspan=2, row=7, sticky='nwse', padx=5, pady=5)
+    font_f_menu = tk.OptionMenu(replot_frame, font_var, *font_options).grid(column=0, columnspan=2, row=8, sticky='nwse', padx=5, pady=5)
+
+    button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: plot_function(), state='disabled')      # add Figure to canvas from plot function
+    button_replot.grid(column=0, columnspan=2, row=9, sticky='nswe', padx=5, pady=5)
 
     # TODO opravit: havaruje pri zavreni grafu a jeho znovuotvreni
     '''
