@@ -6,7 +6,6 @@
 # TODO umisteni do stejneho okna jako je je vyber tally?
 # TODO excel export
 # Provozni/vylepseni kodu
-# TODO předělat kreslení grafů na updata podle vzorů na webu...
 # Nastavení grafu
 # TODO scrollbar pro nastaveni grafu
 # tkinter.tix.ScrolledWindow
@@ -71,7 +70,6 @@ def plot_window(root, tally_to_plot):
     new_win.grab_set()      # the main window is locked until the new window is closed
 
     new_win.title('Plotting window')
-    new_win.minsize(150, 200)
 
     # layout all of the main containers
     new_win.columnconfigure(0, weight=1)
@@ -81,7 +79,10 @@ def plot_window(root, tally_to_plot):
     # MAIN frames ------------------------------------------------------------------------------------------------------
     plot_frame = tk.ttk.Frame(new_win)
     plot_frame.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)  # set the margins between window and content
-    plot_frame.grid_propagate(False)
+
+    # Turn of auto resize of plot frame
+    # plot_frame.grid_propagate(False)
+
     # layout PLOT frame
     plot_frame.columnconfigure(0, weight=1)
     plot_frame.rowconfigure(0, weight=1)
@@ -91,6 +92,8 @@ def plot_window(root, tally_to_plot):
     # layout PLOT_OPTION frame
     plot_option_frame.columnconfigure(0, weight=1)
     plot_option_frame.rowconfigure(0, weight=0)         # weight=0 means no stretching...
+
+    # pokus o scroll bar:
     ''''
     option_scroll = tk.ttk.Scrollbar(new_win, orient='vertical', command=new_win.yview)
     option_scroll.grid(sticky='wens', column=2, row=0, rowspan=1, padx=5, pady=5)
@@ -101,19 +104,30 @@ def plot_window(root, tally_to_plot):
     plot_option_frame.configure(yscrollcommand=option_scroll.set)
     '''
 
+    # pokus o vykopnutí Canvas z funkcí
+    config_mod.fig_id = matplotlib.figure.Figure()
+    config_mod.ax = config_mod.fig_id.add_subplot()
+
+    config_mod.canvas_id = FigureCanvasTkAgg(config_mod.fig_id, plot_frame)  # add Figure to canvas from plot function
+    config_mod.canvas_id.get_tk_widget().grid(column=0, row=0, sticky='nswe')
+    config_mod.canvas_id.draw()
+
+    # Toolbar for plot
+    toolbar_frame = tk.ttk.Frame(plot_frame)
+    toolbar_frame.grid(column=0, row=1, sticky='nswe')
+    toolbar = NavigationToolbar2Tk(config_mod.canvas_id, toolbar_frame)
+    toolbar.update()
+
     # plot tallies from user -------------------------------------------------------------------------------------------
     def plot_function():
 
-        # close previous instance of figure
-        if len(plt.get_fignums()) > 1:
-            plt.close(plt.gcf().number)
+        config_mod.ax.clear()
 
-        # delete previous instance of canvas if exists
-        if config_mod.canvas_id:
-            config_mod.canvas_id.get_tk_widget().destroy()
-
-        fig, ax = plt.subplots()        # figsize=(10,8)
-        fig.set_size_inches(float(xfig_var.get()) / 2.54, float(yfig_var.get()) / 2.54)
+        if replot_var.get():
+            config_mod.canvas_id.get_tk_widget().grid(column=0, row=0)
+            config_mod.fig_id.set_size_inches(float(xfig_var.get()) / 2.54, float(yfig_var.get()) / 2.54)
+        else:
+            config_mod.canvas_id.get_tk_widget().grid(column=0, row=0, sticky='nswe')
 
         # read reference data for ratio plot
         if (ratio_sel.get() != 'no ratio') and (data_var.get() == 'non'):
@@ -126,6 +140,7 @@ def plot_window(root, tally_to_plot):
         if ratio_sel.get() in tally_to_plot_mod:
             tally_to_plot_mod.remove(ratio_sel.get())
 
+        # plot all chosen values
         for name in config_mod.tallies.keys():
             if name in tally_to_plot_mod:
                 if data_var.get() == 'norm':
@@ -135,10 +150,11 @@ def plot_window(root, tally_to_plot):
                     x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4][:], config_mod.tallies[name][5][:]  # original data
                     y_label = 'Tally / particle'
 
+                # return ration values
                 if ratio_sel.get() != 'no ratio':
                     y_label = 'Tally to Tally ratio (-)'
-                    if x_data != x_ratio:   # skip this cycle step if energy bins in current tally have different step from reference tally
-                        continue
+                    if x_data != x_ratio:
+                        continue        # skip this cycle step if energy bins in current tally have different step from reference tally
 
                     for i in range(0, len(y_data)):     # calculate ratio values and their errors
                         if (y_data[i] != 0) and (y_ratio[i] != 0):      # only for non zero values
@@ -147,44 +163,32 @@ def plot_window(root, tally_to_plot):
                         else:
                             y_data[i] = 0
                             y_data_err[i] = 0
-
+                    # return new curve title for ratio plot
                     name = name + '/' + ratio_sel.get()
 
                 # calculate interval centers
                 x_data_center = interval_mid(x_data)
 
                 # plots
-                p_color = next(ax._get_lines.prop_cycler)['color']      # same color for step and errorbar plot
-                ax.step(x_data, y_data, color=p_color, label=name)
+                p_color = next(config_mod.ax._get_lines.prop_cycler)['color']      # same color for step and errorbar plot
+                config_mod.ax.step(x_data, y_data, color=p_color, label=name)
 
                 err = [a*b for a,b in zip(y_data_err, y_data)]          # abs error
-                ax.errorbar(x_data_center, y_data[1:], yerr=err[1:], xerr=0, color=p_color, marker='None',  linestyle='None', capthick=0.7, capsize=2)
+                config_mod.ax.errorbar(x_data_center, y_data[1:], yerr=err[1:], xerr=0, color=p_color, marker='None',  linestyle='None', capthick=0.7, capsize=2)
 
         # plot settings
-        ax.legend(loc=legend_pos.get(), fontsize=leg_var.get())
-        ax.set_xscale(x_axis_var.get())
-        ax.set_yscale(y_axis_var.get())
-        ax.grid(visible=grid_on_var.get(), which=grid_var.get(), axis=grid_axis_var.get())
-        ax.set_xlabel('energy (MeV)', fontsize=axis_var.get())
-        ax.set_ylabel(y_label, fontsize=axis_var.get())
-        ax.tick_params(axis='both', labelsize=ticks_var.get())
+        config_mod.ax.legend(loc=legend_pos.get(), fontsize=leg_var.get())
+        config_mod.ax.set_xscale(x_axis_var.get())
+        config_mod.ax.set_yscale(y_axis_var.get())
+        config_mod.ax.grid(visible=grid_on_var.get(), which=grid_var.get(), axis=grid_axis_var.get())
+        config_mod.ax.set_xlabel('energy (MeV)', fontsize=axis_var.get())
+        config_mod.ax.set_ylabel(y_label, fontsize=axis_var.get())
+        config_mod.ax.tick_params(axis='both', labelsize=ticks_var.get())
         if y_axis_var.get() == 'linear':
-            ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True)  # does not work in log scale with this setting
+            config_mod.ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True)  # does not work in log scale with this setting
 
         # Canvas for plot
-        config_mod.canvas_id = FigureCanvasTkAgg(fig, plot_frame)  # add Figure to canvas from plot function
         config_mod.canvas_id.draw()
-
-        if replot_var.get():
-            config_mod.canvas_id.get_tk_widget().grid(column=0, row=0)
-        else:
-            config_mod.canvas_id.get_tk_widget().grid(column=0, row=0, sticky='nswe')
-
-        # Toolbar for plot
-        toolbar_frame = tk.ttk.Frame(plot_frame)
-        toolbar_frame.grid(column=0, row=1, sticky='nswe')
-        toolbar = NavigationToolbar2Tk(config_mod.canvas_id, toolbar_frame)
-        toolbar.update()
 
     # insert FIRST plot CANVAS
     plot_function()
