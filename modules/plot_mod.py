@@ -93,12 +93,16 @@ def plot_window(root, tally_to_plot):
     plot_frame.rowconfigure(0, weight=1)
 
     plot_option_frame = tk.LabelFrame(new_win, text='Plot settings', width=25)
-    plot_option_frame.grid(column=1, columnspan=2, row=0, sticky='nswe', padx=5, pady=5)
+    plot_option_frame.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
     # layout PLOT_OPTION frame
     plot_option_frame.columnconfigure(0, weight=1)
     plot_option_frame.rowconfigure(0, weight=0)         # weight=0 means no stretching...
 
-    # pokus o scroll bar:
+    # Srollbar cannot work in window or frame -> canvas
+    # https://riptutorial.com/tkinter/example/30942/scrolling-a-group-of-widgets
+    win_scroll = tk.Scrollbar(new_win, orient='vertical')
+    win_scroll.grid(sticky='ns', column=2, row=0)
+
     ''''
     option_scroll = tk.ttk.Scrollbar(new_win, orient='vertical', command=new_win.yview)
     option_scroll.grid(sticky='wens', column=2, row=0, rowspan=1, padx=5, pady=5)
@@ -228,6 +232,9 @@ def plot_window(root, tally_to_plot):
     data_inp_radio = tk.Radiobutton(data_inp_frame, text='non', variable=data_var, value='non', tristatevalue="z")
     data_inp_radio.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
 
+    ratio_menu = tk.OptionMenu(data_inp_frame, ratio_sel, *ratio_options)  # plot_window(root, treeview_files, treeview_files.get_checked()
+    ratio_menu.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=5, pady=5)
+
     # LEGEND settings --------------------------------------------------------------------------------------------------
     legend_frame = tk.LabelFrame(plot_option_frame, text='Legend settings')
     legend_frame.grid(column=0, row=3, sticky='nswe', padx=5, pady=5)
@@ -240,28 +247,19 @@ def plot_window(root, tally_to_plot):
     leg_spinbox = tk.ttk.Spinbox(legend_frame, from_=5, to=20, textvariable=leg_var, wrap=True, width=4)
     leg_spinbox.grid(column=1, row=0, sticky='e', padx=5, pady=5)
 
-    # Plot TO Plot ratio -----------------------------------------------------------------------------------------------
-    ratio_frame = tk.LabelFrame(plot_option_frame, text='Ratio plot')
-    ratio_frame.grid(column=0, row=4, sticky='nswe', padx=5, pady=5)
-
-    ratio_menu = tk.OptionMenu(ratio_frame, ratio_sel, *ratio_options)  # plot_window(root, treeview_files, treeview_files.get_checked()
-    ratio_menu.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
-
     # text size frame --------------------------------------------------------------------------------------------------
     size_frame = tk.LabelFrame(plot_option_frame, text='Font size')
     size_frame.grid(column=0, row=5, sticky='nswe', padx=5, pady=5)
     size_frame.columnconfigure(0, weight=1)
     size_frame.rowconfigure(0, weight=1)
 
-    axis_title = tk.Label(size_frame, text='Axis title size')
+    axis_title = tk.Label(size_frame, text='Axis/Tics')
     axis_title.grid(column=0, row=0, sticky='nw', padx=5, pady=5)
     axis_spinbox = tk.ttk.Spinbox(size_frame, from_=5, to=20, textvariable=axis_var, wrap=True, width=4)
     axis_spinbox.grid(column=1, row=0, sticky='sne', padx=5, pady=5)
 
-    ticks_title = tk.Label(size_frame, text='Ticks title size')
-    ticks_title.grid(column=0, row=1, sticky='nw', padx=5, pady=5)
     ticks_spinbox = tk.ttk.Spinbox(size_frame, from_=5, to=20, textvariable=ticks_var, wrap=True, width=4)
-    ticks_spinbox.grid(column=1, row=1, sticky='sne', padx=5, pady=5)
+    ticks_spinbox.grid(column=2, row=0, sticky='sne', padx=5, pady=5)
 
     # GRID settings ----------------------------------------------------------------------------------------------------
     grid_frame = tk.LabelFrame(plot_option_frame, text='Grid settings')
@@ -284,7 +282,7 @@ def plot_window(root, tally_to_plot):
 
     chk_replot = tk.Checkbutton(replot_frame, text='disable on change replot', var=replot_var, command=lambda: turn_off_replot())
     chk_replot.grid(column=0, columnspan=2, row=0, sticky='nswe', padx=5, pady=5)
-
+    '''
     width_title = tk.Label(replot_frame, text='Width (cm)')
     width_title.grid(column=0, row=1, sticky='nw', padx=5, pady=5)
     height_title = tk.Label(replot_frame, text='Height (cm)')
@@ -294,7 +292,7 @@ def plot_window(root, tally_to_plot):
     width_spinbox.grid(column=0, row=2, sticky='sn', padx=5, pady=5)
     height_spinbox = tk.ttk.Spinbox(replot_frame, from_=5, to=30, increment=.1, state='readonly', textvariable=yfig_var, wrap=True, width=4)
     height_spinbox.grid(column=1, row=2, sticky='sn', padx=5, pady=5)
-
+    
     x_title = tk.Label(replot_frame, text='X axis title:').grid(column=0, row=3, sticky='nw', padx=5, pady=5)
     x_entry = tk.Entry(replot_frame, textvariable=xlabel_var).grid(column=0, columnspan=2, row=4, sticky='nwse', padx=5, pady=5)
 
@@ -303,7 +301,7 @@ def plot_window(root, tally_to_plot):
 
     font_f_menu = tk.OptionMenu(replot_frame, font_f_var, *font_family_options).grid(column=0, columnspan=2, row=7, sticky='nwse', padx=5, pady=5)
     font_f_menu = tk.OptionMenu(replot_frame, font_var, *font_options).grid(column=0, columnspan=2, row=8, sticky='nwse', padx=5, pady=5)
-
+    '''
     button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: plot_function(), state='disabled')      # add Figure to canvas from plot function
     button_replot.grid(column=0, columnspan=2, row=9, sticky='nswe', padx=5, pady=5)
 
@@ -337,8 +335,8 @@ def plot_window(root, tally_to_plot):
     def turn_off_replot():
         if replot_var.get() == True:
             button_replot['state'] = 'normal'
-            width_spinbox['state'] = 'normal'
-            height_spinbox['state'] = 'normal'
+            #width_spinbox['state'] = 'normal'
+            #height_spinbox['state'] = 'normal'
 
             legend_pos.trace_remove('write', legend_pos.trace_info()[0][1])
             ratio_sel.trace_remove('write', ratio_sel.trace_info()[0][1])
@@ -353,8 +351,8 @@ def plot_window(root, tally_to_plot):
             ticks_var.trace_remove('write', ticks_var.trace_info()[0][1])
         else:
             button_replot['state'] = 'disabled'
-            width_spinbox['state'] = 'readonly'
-            height_spinbox['state'] = 'readonly'
+            #width_spinbox['state'] = 'readonly'
+            #height_spinbox['state'] = 'readonly'
 
             legend_pos.trace_add('write', my_callback)
             ratio_sel.trace_add('write', my_callback)
