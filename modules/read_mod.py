@@ -5,13 +5,14 @@
 
 # libraries
 from modules import config_mod
-import pathlib      # better and easier work with file and directory paths
+import pathlib  # better and easier work with file and directory paths
 import tkinter as tk
 import os
 
 # lib for Windows API (nt is name for win OS)
-if os.name == 'nt':     # return OS system name
+if os.name == 'nt':  # return OS system name
     import win32api, win32con
+
 
 #  Functions  ##########################################################################################################
 def file_is_hidden(p):
@@ -22,17 +23,19 @@ def file_is_hidden(p):
     if (attribute & (win32con.FILE_ATTRIBUTE_HIDDEN | win32con.FILE_ATTRIBUTE_SYSTEM)) == 2:
         return True
 
+
 # read outputs from chosen directory
 def open_folder(treeview_files):
     config_mod.tallies.clear()  # clear tallies dict before read new directory
 
-    folder_path = pathlib.Path(tk.filedialog.askdirectory(title='Choose directory with MCNP output files', initialdir=pathlib.Path.cwd()))
+    folder_path = pathlib.Path(
+        tk.filedialog.askdirectory(title='Choose directory with MCNP output files', initialdir=pathlib.Path.cwd()))
 
     output_files = []
     for file in pathlib.Path.iterdir(folder_path):
         if file.is_dir() or (file.stem[0] == '.'):  # UNIX/Mac hidden files and directories are skipped
-            continue                                # skip to next iteration
-        elif file_is_hidden(file):                  # Windows hidden files are skipped
+            continue  # skip to next iteration
+        elif file_is_hidden(file):  # Windows hidden files are skipped
             continue
         else:
             output_files.append(file)
@@ -68,7 +71,8 @@ def read_file(f_path, fname):
         energy = []
         flux = [0]
         error = [0]
-
+        # josef20220202-1line
+        save_talies = None  # new variable for separate more items(cells or surfaces) in one tally
         i = 0
         while i < len(content):
             line = content[i].split()
@@ -77,6 +81,7 @@ def read_file(f_path, fname):
                 if '1tally' == line[0] and line[1].isdigit():
                     tally_num = line[1]
                     line = content[i + 1].split()
+                    print("\n", fname.name)
 
                     comment_loading = []
                     if line[0] == "+":
@@ -98,46 +103,110 @@ def read_file(f_path, fname):
                     # different beginning for different tally types
                     walking = 0
                     maxwalking = 50
+                    # josef20220202-start
                     while walking < maxwalking:
                         line = content[i + walking].split()
-                        if len(line) != 0:
-                            if "energy" == line[0]:
-                                data_start = i + walking + 1
-                                walking = maxwalking
-                            else:
-                                walking = walking + 1
-                        elif len(line) == 0:
+                        if len(line) != 0 and "energy" == line[0]:
+                            surface_or_cell = content[
+                                i + walking - 1].split()  # new variable which takes first item of found tally
+                            data_start = i + walking + 1
+                            if len(surface_or_cell) == 0:  # some tallies of mcnp version that there is extra empty line between item description and "energy"
+                                surface_or_cell = content[i + walking - 2].split()
+                            walking = maxwalking
+                        else:
                             walking = walking + 1
+
+                    # find correct cut off for every tally
+                    for particle in cutoff_dict.keys():
+                        if tally_ptc[
+                            -1] == "s":  # some tallies are not in plural, do not know why -> cure this difference with "s"
+                            if tally_ptc[:-1] == particle:
+                                cutoff_en = cutoff_dict[particle]
+                        elif tally_ptc == particle:
+                            cutoff_en = cutoff_dict[particle]
 
                     i = data_start
                     line = content[i].split()
-
                     while line[0] != 'total':
                         energy.append(float(line[0]))
                         flux.append(float(line[1]))
                         error.append(float(line[2]))
                         i += 1
                         line = content[i].split()
-
-                    # find correct cut off for every tally
-                    for particle in cutoff_dict.keys():
-                        if tally_ptc[-1] == "s":  # some tallies are not in plural, do not know why -> cure this difference with "s"
-                            if tally_ptc[:-1] == particle:
-                                cutoff_en = cutoff_dict[particle]
-                        elif tally_ptc == particle:
-                            cutoff_en = cutoff_dict[particle]
-
+                        last = i
                     # add first energy
                     energy = [cutoff_en] + energy  # neutron cut off E=1E-9 MeV, default photon and e- cut off 0.001 MeV
-
                     # create normalized variables for dictionary instead of rewrite original values
                     flux_n = flux_norm(energy, flux)
 
-                    config_mod.tallies[fname.name + '_' + str(tally_num)] = [tally_num, tally_type, tally_ptc, energy, flux, error, cutoff_en, flux_n, com_loaded]
+                    control_next_tally_connection = content[last + 2].split()
+                    # print(control_next_tally_connection)
+                    if len(control_next_tally_connection) != 0 and control_next_tally_connection[0] == surface_or_cell[
+                        0] and control_next_tally_connection[
+                        1].isdigit():  # second word must be digit, for point detector (tally5) there is dvo data file for one tally - collide and uncolide results, first world is the same, but second is not digit!
+                        print(str(surface_or_cell[0]) + str(surface_or_cell[1]) + "  ---  line" + str(last + 2))
+                        next_tally = last + 4
+                        more_items_in_one_tally = True
+                    else:
+                        print(str(surface_or_cell[0]) + str(surface_or_cell[1]) + "  ---  line" + str(i + walking - 2))
+                        print("---> no more items in this tally !")
+                        more_items_in_one_tally = False
 
-                    energy = []
-                    flux = [0]
-                    error = [0]
+                    while more_items_in_one_tally == True:
+                        config_mod.tallies[
+                            fname.name + '_' + str(tally_num) + "_" + str(surface_or_cell[0]) + "_" + str(
+                                surface_or_cell[1])] = [tally_num, tally_type, tally_ptc, energy, flux, error,
+                                                        cutoff_en, flux_n, com_loaded]
+                        # print("vice tallies",config_mod.tallies.keys())
+                        energy = []
+                        flux = [0]
+                        error = [0]
+                        surface_or_cell = control_next_tally_connection
+
+                        line = content[next_tally].split()
+                        while line[0] != 'total':
+                            energy.append(float(line[0]))
+                            flux.append(float(line[1]))
+                            error.append(float(line[2]))
+                            next_tally += 1
+                            line = content[next_tally].split()
+                            last = next_tally
+                        energy = [
+                                     cutoff_en] + energy  # neutron cut off E=1E-9 MeV, default photon and e- cut off 0.001 MeV
+                        flux_n = flux_norm(energy, flux)
+
+                        control_next_tally_connection = content[last + 2].split()
+                        # print("control",control_next_tally_connection)
+                        # print(control_next_tally_connection)
+                        if control_next_tally_connection[0] == surface_or_cell[0]:
+                            print("--------> next tally included...")
+                            print(str(surface_or_cell[0]) + str(surface_or_cell[1]) + "  ---  line" + str(last + 4))
+                            next_tally = last + 4
+                            save_talies = control_next_tally_connection[1]
+                            more_items_in_one_tally = True
+                        else:
+                            save_talies = control_next_tally_connection[1]
+                            more_items_in_one_tally = False
+
+                    else:
+                        if len(control_next_tally_connection) > 1 and save_talies == control_next_tally_connection[1]:
+                            print("--------> next tally included...")
+                            print(str(surface_or_cell[0]) + str(surface_or_cell[1]) + "  ---  line" + str(last + 4))
+                            config_mod.tallies[
+                                fname.name + '_' + str(tally_num) + "_" + str(surface_or_cell[0]) + "_" + str(
+                                    surface_or_cell[1])] = [tally_num, tally_type, tally_ptc, energy, flux, error,
+                                                            cutoff_en, flux_n, com_loaded]
+                            # print("last_tallies.....")
+                        else:
+                            config_mod.tallies[fname.name + '_' + str(tally_num)] = [tally_num, tally_type, tally_ptc,
+                                                                                     energy, flux, error, cutoff_en,
+                                                                                     flux_n, com_loaded]
+                            print("---> This file does not contain more items per tally\n\n\n")
+
+                        # josef20220202-end
+                        energy = []
+                        flux = [0]
+                        error = [0]
             i += 1
 
 

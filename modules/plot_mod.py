@@ -7,13 +7,7 @@
 # TODO excel export
 # Provozni/vylepseni kodu
 # Nastavení grafu
-# TODO scrollbar pro nastaveni grafu
-# tkinter.tix.ScrolledWindow
-# https://stackoverflow.com/questions/21255216/python-tkinter-attributeerror-nonetype-object-has-no-attribute-xview
-# https://stackoverflow.com/questions/23705043/nonetype-object-has-no-attribute-yview
-# https://blog.teclado.com/tkinter-scrollable-frames/
-# Aktualni
-# TODO nové názvy os
+# TODO nové názvy os, legendy...
 # TODO volba fontu pro export
 
 # libraries
