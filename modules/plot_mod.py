@@ -5,10 +5,11 @@
 # TODO nacteni jinych dat na dalsi osy Y (pro mě občas XS hodnoty, např. z Talys nebo ENDF formatu)
 # TODO umisteni do stejneho okna jako je je vyber tally?
 # TODO excel export
-# Provozni/vylepseni kodu
-# Nastavení grafu
-# TODO nové názvy os, legendy...
-# TODO volba fontu pro export
+# Provozni/vylepseni kodu:
+# Nastavení grafu:
+# TODO nové názvy os, legendy v novém okně
+# TODO volba fontu pro export v novém okně
+# TODO aktivace LaTeX v novém okně
 
 # libraries
 import matplotlib
@@ -44,8 +45,8 @@ def plot_window(root, tally_to_plot):
     replot_var = tk.BooleanVar(value=False)  # Check box variable
 
     # font size variables
-    axis_var = tk.StringVar(value=11)  # SpinBox variable
-    leg_var = tk.StringVar(value=8)  # SpinBox variable
+    axis_var = tk.StringVar(value=12)  # SpinBox variable
+    leg_var = tk.StringVar(value=10)  # SpinBox variable
     ticks_var = tk.StringVar(value=10)  # SpinBox variable
 
     # grid variables
@@ -85,8 +86,7 @@ def plot_window(root, tally_to_plot):
     plot_frame = tk.ttk.Frame(new_win)
     plot_frame.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)  # set the margins between window and content
 
-    # Turn of auto resize of plot frame
-    # plot_frame.grid_propagate(False)
+    # plot_frame.grid_propagate(False)      # Turn of auto resize of plot frame
 
     # layout PLOT frame
     plot_frame.columnconfigure(0, weight=1)
@@ -103,17 +103,7 @@ def plot_window(root, tally_to_plot):
     win_scroll = tk.Scrollbar(new_win, orient='vertical')
     win_scroll.grid(sticky='ns', column=2, row=0)
 
-    ''''
-    option_scroll = tk.ttk.Scrollbar(new_win, orient='vertical', command=new_win.yview)
-    option_scroll.grid(sticky='wens', column=2, row=0, rowspan=1, padx=5, pady=5)
-    new_win.configure(yscrollcommand=option_scroll.set)
-    
-    option_scroll = tk.ttk.Scrollbar(plot_option_frame, orient='vertical', command=plot_option_frame.yview)
-    option_scroll.grid(sticky='wens', column=1, row=0, rowspan=8, padx=5, pady=5)
-    plot_option_frame.configure(yscrollcommand=option_scroll.set)
-    '''
-
-    # pokus o vykopnutí Canvas z funkcí
+    # Canvas definition
     config_mod.fig_id = matplotlib.figure.Figure()
     config_mod.ax = config_mod.fig_id.add_subplot()
 
@@ -277,11 +267,18 @@ def plot_window(root, tally_to_plot):
     # replot frame -----------------------------------------------------------------------------------------------------
     replot_frame = tk.LabelFrame(plot_option_frame, text='Replot')
     replot_frame.grid(column=0, row=7, sticky='nswe', padx=5, pady=5)
-    #replot_frame.columnconfigure(0, weight=0)
-    #replot_frame.rowconfigure(0, weight=0)
 
     chk_replot = tk.Checkbutton(replot_frame, text='disable on change replot', var=replot_var, command=lambda: turn_off_replot())
     chk_replot.grid(column=0, columnspan=2, row=0, sticky='nswe', padx=5, pady=5)
+
+    button_settings = tk.ttk.Button(replot_frame, text='Export settings')
+    button_settings.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=5, pady=5)
+
+    button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: plot_function(), state='disabled')
+    button_replot.grid(column=0, columnspan=2, row=2, sticky='nswe', padx=5, pady=5)
+
+    button_quit = tk.ttk.Button(plot_option_frame, text='Quit', command=new_win.destroy)
+    button_quit.grid(column=0, row=8, sticky='we', padx=5, pady=5)
     '''
     width_title = tk.Label(replot_frame, text='Width (cm)')
     width_title.grid(column=0, row=1, sticky='nw', padx=5, pady=5)
@@ -302,14 +299,7 @@ def plot_window(root, tally_to_plot):
     font_f_menu = tk.OptionMenu(replot_frame, font_f_var, *font_family_options).grid(column=0, columnspan=2, row=7, sticky='nwse', padx=5, pady=5)
     font_f_menu = tk.OptionMenu(replot_frame, font_var, *font_options).grid(column=0, columnspan=2, row=8, sticky='nwse', padx=5, pady=5)
     '''
-    button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: plot_function(), state='disabled')      # add Figure to canvas from plot function
-    button_replot.grid(column=0, columnspan=2, row=9, sticky='nswe', padx=5, pady=5)
 
-    # TODO opravit: havaruje pri zavreni grafu a jeho znovuotvreni
-    '''
-    button_quit = tk.ttk.Button(plot_option_frame, text='Quit', command=new_win.quit)
-    button_quit.grid(column=0, row=6, sticky='nswe', padx=5, pady=5)
-    '''
     # endregion all tkinter widgets for
 
     # FUNCTIONS conected to MAIN function ------------------------------------------------------------------------------
