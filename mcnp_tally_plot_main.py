@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
-# TODO osetrit aby neslo zvolit update pred tím než bude nactena slozka
 
 # LIBRARIES
-from modules import read_mod, plot_mod
+from modules import read_mod, plot_mod, config_mod
 # GUI libraries
 import tkinter as tk
 import ttkwidgets
-import matplotlib.font_manager
+
+import openpyxl
+import pathlib
+
 
 #  FUNCTIONS  ##########################################################################################################
 # GUI exit from program
@@ -16,18 +18,45 @@ def ask_quit():
         root.destroy()
 
 
-def open_plot_win():
+# return selected tallies
+def selected_tally():
     if len(treeview_files.get_checked()) != 0:
 
         # send selected tallies to plot_mod function
         selection = []
         for row in treeview_files.get_checked():
             selection.append(treeview_files.item(row)['values'][0])
-
-        plot_mod.plot_window(root, selection)
     else:
         tk.messagebox.showerror('Input error', 'Please choose tally for plotting.')
 
+    return selection
+
+
+# save selected tallies
+def save_to_xlsx():
+    # create new directory if doesn't exists
+    result_path = config_mod.folder_path / 'export'
+    result_path.mkdir(parents=True, exist_ok=True)
+
+    # ask xlsx file name
+    filename = tk.simpledialog.askstring(title='Export to XLSX', prompt='Choose a name for export without extension:')
+
+    wb = openpyxl.Workbook()
+    del wb['Sheet']
+
+    # create new sheets
+    for tally in selected_tally():
+        wb.create_sheet(tally)
+        wb[tally].append(['Tally number', config_mod.tallies[tally][0]])
+        wb[tally].append(['Tally type', config_mod.tallies[tally][1]])
+        wb[tally].append(['Tally particle', config_mod.tallies[tally][2]])
+        wb[tally].append(['Comment', config_mod.tallies[tally][8]])
+        wb[tally].append(['energy', 'flux', 'flux normalized per 1 MeV','error'])
+        for i in range(0, len(config_mod.tallies[tally][3])):
+            wb[tally].append((config_mod.tallies[tally][3][i], config_mod.tallies[tally][4][i], config_mod.tallies[tally][7][i], config_mod.tallies[tally][5][i]))
+
+    wb.save(filename= str(result_path / pathlib.Path(filename)) + '.xlsx')
+    tk.messagebox.showinfo(title='Export to XLSX', message='Tally export has been completed.')
 
 #  MAIN CODE  ##########################################################################################################
 
@@ -115,10 +144,10 @@ button_file.grid(column=0, row=0, sticky='ws')
 button_update = tk.ttk.Button(button_frame, text='Update directory', state='disabled', command=lambda: read_mod.read_folder(treeview_files), width=20)
 button_update.grid(column=1, row=0, sticky='ws')
 
-button_solve = tk.ttk.Button(button_frame, text='Plot data', command=lambda: open_plot_win(), width=20)
+button_solve = tk.ttk.Button(button_frame, text='Plot data', command=lambda: plot_mod.plot_window(root, selected_tally()), width=20)
 button_solve.grid(column=2, row=0, sticky='ws')
 
-button_export = tk.ttk.Button(button_frame, text='Export tally to CSV', width=20)
+button_export = tk.ttk.Button(button_frame, text='Export tally to xlsx', command=lambda: save_to_xlsx(), width=20)
 button_export.grid(column=3, row=0, sticky='ws')
 
 # -----------------------------------

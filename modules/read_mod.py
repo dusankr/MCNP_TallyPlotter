@@ -2,7 +2,7 @@
 # TODO_list:
 # TODO pokud je cut off vetsi nez E_min???
 # TODO test MCTAL
-# TODO save to csv/xlsx
+
 # TODO open output in new window
 # TODO save input from output?
 # TODO change structure of tallies dictionary? -> tallies dict. only for file names, inside it create dict for every single tally -> structured treeview for better orientation?
