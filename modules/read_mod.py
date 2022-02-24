@@ -2,6 +2,11 @@
 # TODO_list:
 # TODO pokud je cut off vetsi nez E_min???
 # TODO test MCTAL
+# TODO save to csv/xlsx
+# TODO open output in new window
+# TODO save input from output?
+# TODO change structure of tallies dictionary? -> tallies dict. only for file names, inside it create dict for every single tally -> structured treeview for better orientation?
+
 
 # libraries
 from modules import config_mod
@@ -15,6 +20,7 @@ if os.name == 'nt':  # return OS system name
 
 
 #  Functions  ##########################################################################################################
+# check if file is hidden in Windows folder
 def file_is_hidden(p):
     if os.name != 'nt':
         return False
@@ -24,29 +30,40 @@ def file_is_hidden(p):
         return True
 
 
-# read outputs from chosen directory
-def open_folder(treeview_files):
-    config_mod.tallies.clear()  # clear tallies dict before read new directory
+# chose folder with MCNP outputs, read all files
+def open_folder(treeview_files, workdir_label, button_update):
+    config_mod.folder_path = pathlib.Path(tk.filedialog.askdirectory(title='Choose directory with MCNP output files', initialdir=pathlib.Path.cwd()))
 
-    folder_path = pathlib.Path(
-        tk.filedialog.askdirectory(title='Choose directory with MCNP output files', initialdir=pathlib.Path.cwd()))
-
-    output_files = []
-    for file in pathlib.Path.iterdir(folder_path):
-        if file.is_dir() or (file.stem[0] == '.'):  # UNIX/Mac hidden files and directories are skipped
-            continue  # skip to next iteration
-        elif file_is_hidden(file):  # Windows hidden files are skipped
-            continue
-        else:
-            output_files.append(file)
-
-    # return in case user do not chose any directory <- nevím jestli bude fungovat na macu, kdyžtak předělat že do folder path se uloží pathlib.Path.cwd()
-    if str(folder_path) == '.':
+    # return in case user do not chose any directory <- TODO does it work on MAC/LINUX?
+    if str(config_mod.folder_path) == '.':
         tk.messagebox.showerror('Input error', 'No directory was selected.')
         return
 
-    for fname in output_files:
-        read_file(folder_path, fname)  # read tallies from output files
+    workdir_label['text'] = 'Work directory: ' + str(config_mod.folder_path)
+    button_update['state'] = 'normal'
+
+    read_folder(treeview_files)
+
+
+# read files from folder
+def read_folder(treeview_files):
+    config_mod.tallies.clear()  # clear tallies dict before read new directory
+
+    config_mod.output_files = []
+    for file in pathlib.Path.iterdir(config_mod.folder_path):
+        if file.is_dir() or (file.stem[0] == '.') or file_is_hidden(file):  # UNIX/Mac/Windows hidden files and directories are skipped
+            continue  # skip to next iteration
+        else:
+            config_mod.output_files.append(file)
+
+    read_tallies(treeview_files)
+
+
+# read outputs from chosen directory
+def read_tallies(treeview_files):
+
+    for fname in config_mod.output_files:
+        read_tally(config_mod.folder_path, fname)  # read tallies from output files
 
     # fill treeview part
     x = treeview_files.get_children()  # get id of all items in treeview
@@ -61,8 +78,8 @@ def open_folder(treeview_files):
                                       config_mod.tallies[i][8]])
 
 
-# read data from all tally in one output file
-def read_file(f_path, fname):
+# read data from all tally in one output file and add them into global dictionary
+def read_tally(f_path, fname):
     with open(f_path / fname, 'r', encoding='utf-8') as temp_file:  # open MCNP output file
         content = temp_file.readlines()
 
@@ -118,8 +135,7 @@ def read_file(f_path, fname):
 
                     # find correct cut off for every tally
                     for particle in cutoff_dict.keys():
-                        if tally_ptc[
-                            -1] == "s":  # some tallies are not in plural, do not know why -> cure this difference with "s"
+                        if tally_ptc[-1] == "s":  # some tallies are not in plural, do not know why -> cure this difference with "s"
                             if tally_ptc[:-1] == particle:
                                 cutoff_en = cutoff_dict[particle]
                         elif tally_ptc == particle:
@@ -141,9 +157,7 @@ def read_file(f_path, fname):
 
                     control_next_tally_connection = content[last + 2].split()
                     # print(control_next_tally_connection)
-                    if len(control_next_tally_connection) != 0 and control_next_tally_connection[0] == surface_or_cell[
-                        0] and control_next_tally_connection[
-                        1].isdigit():  # second word must be digit, for point detector (tally5) there is dvo data file for one tally - collide and uncolide results, first world is the same, but second is not digit!
+                    if len(control_next_tally_connection) != 0 and control_next_tally_connection[0] == surface_or_cell[0] and control_next_tally_connection[1].isdigit():  # second word must be digit, for point detector (tally5) there is dvo data file for one tally - collide and uncolide results, first world is the same, but second is not digit!
                         print(str(surface_or_cell[0]) + str(surface_or_cell[1]) + "  ---  line" + str(last + 2))
                         next_tally = last + 4
                         more_items_in_one_tally = True
@@ -153,10 +167,7 @@ def read_file(f_path, fname):
                         more_items_in_one_tally = False
 
                     while more_items_in_one_tally == True:
-                        config_mod.tallies[
-                            fname.name + '_' + str(tally_num) + "_" + str(surface_or_cell[0]) + "_" + str(
-                                surface_or_cell[1])] = [tally_num, tally_type, tally_ptc, energy, flux, error,
-                                                        cutoff_en, flux_n, com_loaded]
+                        config_mod.tallies[fname.stem + '_' + str(tally_num) + "_" + str(surface_or_cell[0]) + "_" + str(surface_or_cell[1])] = [tally_num, tally_type, tally_ptc, energy, flux, error, cutoff_en, flux_n, com_loaded]
                         # print("vice tallies",config_mod.tallies.keys())
                         energy = []
                         flux = [0]
@@ -192,15 +203,10 @@ def read_file(f_path, fname):
                         if len(control_next_tally_connection) > 1 and save_talies == control_next_tally_connection[1]:
                             print("--------> next tally included...")
                             print(str(surface_or_cell[0]) + str(surface_or_cell[1]) + "  ---  line" + str(last + 4))
-                            config_mod.tallies[
-                                fname.name + '_' + str(tally_num) + "_" + str(surface_or_cell[0]) + "_" + str(
-                                    surface_or_cell[1])] = [tally_num, tally_type, tally_ptc, energy, flux, error,
-                                                            cutoff_en, flux_n, com_loaded]
+                            config_mod.tallies[fname.stem + '_' + str(tally_num) + "_" + str(surface_or_cell[0]) + "_" + str(surface_or_cell[1])] = [tally_num, tally_type, tally_ptc, energy, flux, error,cutoff_en, flux_n, com_loaded, None]
                             # print("last_tallies.....")
                         else:
-                            config_mod.tallies[fname.name + '_' + str(tally_num)] = [tally_num, tally_type, tally_ptc,
-                                                                                     energy, flux, error, cutoff_en,
-                                                                                     flux_n, com_loaded]
+                            config_mod.tallies[fname.stem + '_' + str(tally_num)] = [tally_num, tally_type, tally_ptc, energy, flux, error, cutoff_en, flux_n, com_loaded, None]
                             print("---> This file does not contain more items per tally\n\n\n")
 
                         # josef20220202-end

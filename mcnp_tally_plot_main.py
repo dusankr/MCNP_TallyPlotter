@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
+# TODO osetrit aby neslo zvolit update pred tím než bude nactena slozka
 
 # LIBRARIES
 from modules import read_mod, plot_mod
@@ -105,14 +106,24 @@ treeview_files.configure(xscrollcommand=tree_x_scroll.set)
 treeview_files.configure(yscrollcommand=tree_y_scroll.set)
 
 # widgets in DOWN frame in GUI -----------------------------------------------------------------------------------------
-button_file = tk.ttk.Button(down_frame, text='Work directory', command=lambda: read_mod.open_folder(treeview_files), width=20)
+button_frame = tk.Frame(down_frame)
+button_frame.grid(column=0, row=0, sticky='ws')
+
+button_file = tk.ttk.Button(button_frame, text='Chose directory', command=lambda: read_mod.open_folder(treeview_files, workdir_label, button_update), width=20)
 button_file.grid(column=0, row=0, sticky='ws')
 
-button_solve = tk.ttk.Button(down_frame, text='Plot data', command=lambda: open_plot_win(), width=20)
-button_solve.grid(column=1, row=0, sticky='ws')
+button_update = tk.ttk.Button(button_frame, text='Update directory', state='disabled', command=lambda: read_mod.read_folder(treeview_files), width=20)
+button_update.grid(column=1, row=0, sticky='ws')
 
-button_export = tk.ttk.Button(down_frame, text='Export tally to CSV', width=20)
-button_export.grid(column=2, row=0, sticky='ws')
+button_solve = tk.ttk.Button(button_frame, text='Plot data', command=lambda: open_plot_win(), width=20)
+button_solve.grid(column=2, row=0, sticky='ws')
+
+button_export = tk.ttk.Button(button_frame, text='Export tally to CSV', width=20)
+button_export.grid(column=3, row=0, sticky='ws')
+
+# -----------------------------------
+workdir_label = tk.Label(down_frame, text='Work directory: ')
+workdir_label.grid(column=0, row=1, sticky='ws')
 
 # ----------------------------------------------------------------------------------------------------------------------
 # run UI
