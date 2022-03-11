@@ -270,7 +270,7 @@ def plot_window(root, tally_to_plot):
     replot_frame = tk.LabelFrame(plot_option_frame, text='Replot')
     replot_frame.grid(column=0, row=7, sticky='nswe', padx=5, pady=5)
 
-    chk_replot = tk.Checkbutton(replot_frame, text='disable on change replot', var=replot_var, command=lambda: turn_off_replot())
+    chk_replot = tk.Checkbutton(replot_frame, text='disable immediate changes', var=replot_var, command=lambda: turn_off_replot())
     chk_replot.grid(column=0, columnspan=2, row=0, sticky='nswe', padx=5, pady=5)
 
     button_settings = tk.ttk.Button(replot_frame, text='Export settings', state='disabled', command=lambda: export_win(tally_to_plot))
