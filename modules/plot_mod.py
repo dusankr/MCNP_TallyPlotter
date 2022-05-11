@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
 
-# Dlouhodobe:
-# TODO nacteni jinych dat na dalsi osy Y (pro mě občas XS hodnoty, např. z Talys nebo ENDF formatu)
-# TODO umisteni do stejneho okna jako je je vyber tally?
-# TODO excel export
-# Provozni/vylepseni kodu:
-# Nastavení grafu:
-# TODO nové názvy os, legendy v novém okně
-# TODO vyřešit reaktivaci root okna při zavření export settings .grab_set()
-# TODO volba fontu pro export v novém okně
-# TODO aktivace LaTeX v novém okně
+# Long term tasks:
+# TODO read different data on show them in tally plot with second Y axis (Cross section values from ENDF file structure, Talys output)
+# TODO put plot window into the tally read window ???
+# Code improvements:
+# Plot settings:
+# TODO change axis names, description in legend (new window?)
+# TODO problem with plot window reactivation after export settings is closed ( .grab_set() ?)
+# TODO change font in export settings window
+# TODO turn on/off LaTeX in export settings window
 
 # libraries
 import matplotlib

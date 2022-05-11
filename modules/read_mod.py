@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
-# TODO pokud je cut off vetsi nez E_min???
-# TODO test MCTAL
+# TODO what happens if cut off is higher than E_min???
+# TODO test MCTAL (compile python library from MCNP)
 
 # TODO open output in new window
 # TODO save input from output?
 # TODO change structure of tallies dictionary? -> tallies dict. only for file names, inside it create dict for every single tally -> structured treeview for better orientation?
+# TODO create own class for tally results?
 
 
 # libraries
@@ -64,6 +65,9 @@ def read_tallies(treeview_files):
 
     for fname in config_mod.output_files:
         read_tally(config_mod.folder_path, fname)  # read tallies from output files
+
+    if len(config_mod.tallies.keys()) != len(config_mod.output_files):
+        print('Some fiels are not MCNP output files.')
 
     # fill treeview part
     x = treeview_files.get_children()  # get id of all items in treeview
