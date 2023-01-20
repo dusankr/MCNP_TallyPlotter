@@ -57,6 +57,7 @@ def read_folder(treeview_files):
         else:
             config_mod.output_files.append(file)
 
+    # run function for separating tally data from output files
     read_tallies(treeview_files)
 
 
@@ -66,8 +67,8 @@ def read_tallies(treeview_files):
     for fname in config_mod.output_files:
         read_tally(config_mod.folder_path, fname)  # read tallies from output files
 
-    if len(config_mod.tallies.keys()) != len(config_mod.output_files):
-        print('Some fiels are not MCNP output files.')
+    #if len(config_mod.tallies.keys()) != len(config_mod.output_files):
+    #    print('Some files are not MCNP output files.')      # TODO is not possible to compare tallies keys and output files!!!!
 
     # fill treeview part
     x = treeview_files.get_children()  # get id of all items in treeview
@@ -87,7 +88,7 @@ def read_tally(f_path, fname):
     with open(f_path / fname, 'r', encoding='utf-8') as temp_file:  # open MCNP output file
         content = temp_file.readlines()
 
-        cutoff_dict = cutoff_func(content)
+        cutoff_dict = cutoff_func(content)      # read cut-off table from output file, if does not exist then use default values TODO update table (use all particles from table Table 2-2. MCNP6 Particles c850
 
         energy = []
         flux = [0]
@@ -171,8 +172,8 @@ def read_tally(f_path, fname):
                         more_items_in_one_tally = False
 
                     while more_items_in_one_tally == True:
-                        config_mod.tallies[fname.stem + '_' + str(tally_num) + "_" + str(surface_or_cell[0]) + "_" + str(surface_or_cell[1])] = [tally_num, tally_type, tally_ptc, energy, flux, error, cutoff_en, flux_n, com_loaded]
-                        # print("vice tallies",config_mod.tallies.keys())
+                        config_mod.tallies[fname.stem + '_' + str(tally_num) + "_" + str(surface_or_cell[0]) + "_" + str(surface_or_cell[1])] = [tally_num, tally_type, tally_ptc, energy, flux, error, cutoff_en, flux_n, com_loaded, None]
+
                         energy = []
                         flux = [0]
                         error = [0]
@@ -218,6 +219,10 @@ def read_tally(f_path, fname):
                         flux = [0]
                         error = [0]
             i += 1
+
+"""    print(len(config_mod.tallies["o15n_114_cell_88088"][7]))
+    print(len(config_mod.tallies["o15n_114_cell_88090"][7]))
+    print(len(config_mod.tallies["o15n_191_surface_88014"][7]))"""
 
 
 # return cutoff values from output

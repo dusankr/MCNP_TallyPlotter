@@ -141,6 +141,7 @@ def plot_window(root, tally_to_plot):
                     x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4][:], config_mod.tallies[name][5][:]  # original data
                     y_label = 'Tally / particle'
 
+                print(name)
                 config_mod.tallies[name][9] = name
 
                 # return ration values

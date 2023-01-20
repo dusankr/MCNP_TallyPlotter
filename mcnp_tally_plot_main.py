@@ -34,7 +34,7 @@ def selected_tally():
 
 # save selected tallies
 def save_to_xlsx():
-    # create new directory if doesn't exists
+    # create new directory if doesn't exist
     result_path = config_mod.folder_path / 'export'
     result_path.mkdir(parents=True, exist_ok=True)
 
@@ -74,7 +74,7 @@ style = tk.ttk.Style()
 root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
 
-root.protocol('WM_DELETE_WINDOW', ask_quit)  # program end
+root.protocol('WM_DELETE_WINDOW', ask_quit)  # program end TODO cause kernel crash at Mac
 
 # ----------------------------------------------------------------------------------------------------------------------
 '''
