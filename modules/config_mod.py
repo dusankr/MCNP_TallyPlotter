@@ -9,3 +9,4 @@ ax = None
 
 folder_path = None
 output_files = []
+non_output = []

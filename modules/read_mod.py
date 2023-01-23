@@ -3,11 +3,14 @@
 # TODO what happens if cut off is higher than E_min???
 # TODO test MCTAL (compile python library from MCNP)
 
-# TODO open output in new window
+# TODO open output in new window?
 # TODO save input from output?
+
 # TODO change structure of tallies dictionary? -> tallies dict. only for file names, inside it create dict for every single tally -> structured treeview for better orientation?
+# OR
 # TODO create own class for tally results?
 
+# TODO add text box to print all error and info
 
 # libraries
 from modules import config_mod
@@ -49,13 +52,21 @@ def open_folder(treeview_files, workdir_label, button_update):
 # read files from folder
 def read_folder(treeview_files):
     config_mod.tallies.clear()  # clear tallies dict before read new directory
+    config_mod.non_output.clear()
+
 
     config_mod.output_files = []
     for file in pathlib.Path.iterdir(config_mod.folder_path):
         if file.is_dir() or (file.stem[0] == '.') or file_is_hidden(file):  # UNIX/Mac/Windows hidden files and directories are skipped
+            config_mod.non_output.append(file)
             continue  # skip to next iteration
         else:
             config_mod.output_files.append(file)
+
+    # print list of non MCNP files
+    print('List of non MCNP output files:')
+    for file in config_mod.non_output:
+        print("\t" + file.name)
 
     # run function for separating tally data from output files
     read_tallies(treeview_files)
@@ -66,9 +77,6 @@ def read_tallies(treeview_files):
 
     for fname in config_mod.output_files:
         read_tally(config_mod.folder_path, fname)  # read tallies from output files
-
-    #if len(config_mod.tallies.keys()) != len(config_mod.output_files):
-    #    print('Some files are not MCNP output files.')      # TODO is not possible to compare tallies keys and output files!!!!
 
     # fill treeview part
     x = treeview_files.get_children()  # get id of all items in treeview
@@ -88,7 +96,7 @@ def read_tally(f_path, fname):
     with open(f_path / fname, 'r', encoding='utf-8') as temp_file:  # open MCNP output file
         content = temp_file.readlines()
 
-        cutoff_dict = cutoff_func(content)      # read cut-off table from output file, if does not exist then use default values TODO update table (use all particles from table Table 2-2. MCNP6 Particles c850
+        cutoff_dict = cutoff_func(content)      # read cut-off table from output file, if does not exist then use default values
 
         energy = []
         flux = [0]
@@ -146,6 +154,7 @@ def read_tally(f_path, fname):
                         elif tally_ptc == particle:
                             cutoff_en = cutoff_dict[particle]
 
+                    # TODO does not work if 1tally is empty => add WARNING
                     i = data_start
                     line = content[i].split()
                     while line[0] != 'total':
@@ -225,9 +234,47 @@ def read_tally(f_path, fname):
     print(len(config_mod.tallies["o15n_191_surface_88014"][7]))"""
 
 
-# return cutoff values from output
+# return cutoff values from output or use a default value from manual
 def cutoff_func(content):
-    cutoff_dict = {"neutron": 1e-9, "proton": 1e0, "electron": 1e-3, "photon": 1e-3, "pi_+": 0, "pi_0": 0}
+    # default values table (MeV):
+    cutoff_dict = {
+        "neutron": 0.0000E+00,
+        "photon": 1.0000E-03,
+        "electron": 1.0000E-03,
+        "mu_minus": 1.1261E-01,
+        "Aneutron": 0.0000E+00,
+        "nu_e": 0.0000E+00,
+        "nu_m": 0.0000E+00,
+        "proton": 1.0000E+00,
+        "lambda0": 1.0000E+00,
+        "sigma+": 1.2676E+00,
+        "sigma-": 1.2762E+00,
+        "xi0": 1.0000E+00,
+        "xi_minus": 1.4082E+00,
+        "omega-": 1.7825E+00,
+        "mu_plus": 1.1261E-01,
+        "Anu_e": 0.0000E+00,
+        "Anu_m": 0.0000E+00,
+        "Aproton": 1.0000E+00,
+        "pi_plus": 1.4875E-01,
+        "pi_zero": 0.0000E+00,
+        "k_plus": 5.2614E-01,
+        "k0_short": 0.0000E+00,
+        "k0_long": 0.0000E+00,
+        "Alambda0": 1.0000E+00,
+        "Asigma+": 1.2676E+00,
+        "Asigma-": 1.2762E+00,
+        "Axi0": 1.0000E+00,
+        "xi_plus": 1.4082E+00,
+        "Aomega-": 1.7825E+00,
+        "deuteron": 2.0000E+00,
+        "triton": 3.0000E+00,
+        "helion": 3.0000E+00,
+        "alpha": 4.0000E+00,
+        "pi_minus": 1.4875E-01,
+        "k_minus": 5.2614E-01,
+        "heavyion": 5.0000E+00
+    }
 
     for k in range(0, len(content)):
         if "print table 101" in str(content[k]):
