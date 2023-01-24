@@ -2,10 +2,9 @@
 # TODO_list:
 
 # Long term tasks:
+# TODO turn off error bars
 # TODO read different data on show them in tally plot with second Y axis (Cross section values from ENDF file structure, Talys output)
 # TODO put plot window into the tally read window ???
-# Code improvements:
-# Plot settings:
 # TODO change axis names, description in legend (new window?)
 # TODO problem with plot window reactivation after export settings is closed ( .grab_set() ?)
 # TODO change font in export settings window
