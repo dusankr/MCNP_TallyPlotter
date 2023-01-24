@@ -49,14 +49,15 @@ def open_folder(treeview_files, workdir_label, button_update):
     read_folder(treeview_files)
 
 
-# read files from folder
+# read file names in chosen folder and skip hidden files and subdirectories
+# TODO maybe this one could be deleted and work only with try-except...
 def read_folder(treeview_files):
     config_mod.tallies.clear()  # clear tallies dict before read new directory
 
     config_mod.output_files = []
     for file in pathlib.Path.iterdir(config_mod.folder_path):
         if file.is_dir() or (file.stem[0] == '.') or file_is_hidden(file):  # UNIX/Mac/Windows hidden files and directories are skipped
-            config_mod.non_output.append(file)
+            config_mod.non_output.append(file.name)
             continue  # skip to next iteration
         else:
             config_mod.output_files.append(file)
@@ -65,16 +66,16 @@ def read_folder(treeview_files):
     read_tallies(treeview_files)
 
 
-# read outputs from chosen directory
+# read outputs from directory (go through all relevant outputs and read tallies via next function)
 def read_tallies(treeview_files):
 
     for fname in config_mod.output_files:
         read_tally(config_mod.folder_path, fname)  # read tallies from output files
 
     # print list of non MCNP files OR empty outputs
-    print('List of non MCNP output files OR empty outputs:')
+    print('\nList of non MCNP output files OR empty outputs:')
     for file in config_mod.non_output:
-        print("\t" + file.name)
+        print("\t" + file)
 
 
     # fill treeview part
@@ -98,11 +99,16 @@ def read_tally(f_path, fname):
 
             cutoff_dict = cutoff_func(content)      # read cut-off table from output file, if does not exist then use default values
 
+            # local variables for temporary storing of energy, flux and error from one tally
             energy = []
             flux = [0]
             error = [0]
             # josef20220202-1line
             save_talies = None  # new variable for separate more items(cells or surfaces) in one tally
+
+            # print name of current OUTPUT file
+            print("Name off processed file: ", fname.name)
+
             i = 0
             while i < len(content):
                 line = content[i].split()
@@ -111,12 +117,10 @@ def read_tally(f_path, fname):
                     if '1tally' == line[0] and line[1].isdigit():
                         tally_num = line[1]
                         line = content[i + 1].split()
-                        print("\n", fname.name)
 
                         comment_loading = []
                         if line[0] == "+":
                             comment_loading = [line[1]]
-                            # print(line[1])
                             for comment in range(2, len(line)):
                                 comment_loading.append(line[comment])
                             comment_int = 1
@@ -154,7 +158,6 @@ def read_tally(f_path, fname):
                             elif tally_ptc == particle:
                                 cutoff_en = cutoff_dict[particle]
 
-                        # TODO does not work if 1tally is empty => add WARNING
                         i = data_start
                         line = content[i].split()
                         while line[0] != 'total':
@@ -177,7 +180,7 @@ def read_tally(f_path, fname):
                             more_items_in_one_tally = True
                         else:
                             print(str(surface_or_cell[0]) + str(surface_or_cell[1]) + "  ---  line" + str(i + walking - 2))
-                            print("---> no more items in this tally !")
+                            print("---> no more items in this tally !\n")
                             more_items_in_one_tally = False
 
                         while more_items_in_one_tally == True:
@@ -196,14 +199,14 @@ def read_tally(f_path, fname):
                                 next_tally += 1
                                 line = content[next_tally].split()
                                 last = next_tally
-                            energy = [cutoff_en] + energy  # neutron cut off E=1E-9 MeV, default photon and e- cut off 0.001 MeV
+                            energy = [cutoff_en] + energy
                             flux_n = flux_norm(energy, flux)
 
                             control_next_tally_connection = content[last + 2].split()
                             # print("control",control_next_tally_connection)
                             # print(control_next_tally_connection)
                             if control_next_tally_connection[0] == surface_or_cell[0]:
-                                print("--------> next tally included...")
+                                print("---> next tally included...")
                                 print(str(surface_or_cell[0]) + str(surface_or_cell[1]) + "  ---  line" + str(last + 4))
                                 next_tally = last + 4
                                 save_talies = control_next_tally_connection[1]
@@ -214,13 +217,13 @@ def read_tally(f_path, fname):
 
                         else:
                             if len(control_next_tally_connection) > 1 and save_talies == control_next_tally_connection[1]:
-                                print("--------> next tally included...")
+                                print("---> next tally included...")
                                 print(str(surface_or_cell[0]) + str(surface_or_cell[1]) + "  ---  line" + str(last + 4))
                                 config_mod.tallies[fname.stem + '_' + str(tally_num) + "_" + str(surface_or_cell[0]) + "_" + str(surface_or_cell[1])] = [tally_num, tally_type, tally_ptc, energy, flux, error,cutoff_en, flux_n, com_loaded, None]
                                 # print("last_tallies.....")
                             else:
                                 config_mod.tallies[fname.stem + '_' + str(tally_num)] = [tally_num, tally_type, tally_ptc, energy, flux, error, cutoff_en, flux_n, com_loaded, None]
-                                print("---> This file does not contain more items per tally\n\n\n")
+                                print("---> This file does not contain more items per tally\n")
 
                             # josef20220202-end
                             energy = []
@@ -228,7 +231,8 @@ def read_tally(f_path, fname):
                             error = [0]
                 i += 1
     except:
-        config_mod.non_output.append(fname)
+        config_mod.non_output.append(fname.name)
+        print('Read process crash for this file: ' + fname.name)
 
 
 # return cutoff values from output or use a default value from manual
