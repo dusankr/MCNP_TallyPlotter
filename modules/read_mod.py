@@ -71,8 +71,8 @@ def read_tallies(treeview_files):
     for fname in config_mod.output_files:
         read_tally(config_mod.folder_path, fname)  # read tallies from output files
 
-    # print list of non MCNP files
-    print('List of non MCNP output files:')
+    # print list of non MCNP files OR empty outputs
+    print('List of non MCNP output files OR empty outputs:')
     for file in config_mod.non_output:
         print("\t" + file.name)
 
