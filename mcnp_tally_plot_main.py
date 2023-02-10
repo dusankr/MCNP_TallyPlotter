@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
-# something very important (commit and push test at GitHub)
+# comment deleted
 
 # LIBRARIES
 from modules import read_mod, plot_mod, config_mod
