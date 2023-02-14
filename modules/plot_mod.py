@@ -2,6 +2,7 @@
 # TODO_list:
 
 # Long term tasks:
+#    
 # TODO turn off error bars
 # TODO read different data on show them in tally plot with second Y axis (Cross section values from ENDF file structure, Talys output)
 # TODO put plot window into the tally read window ???
