@@ -36,7 +36,7 @@ def file_is_hidden(p):
 
 # chose folder with MCNP outputs, read all files
 def open_folder(treeview_files, workdir_label, button_update):
-    config_mod.folder_path = pathlib.Path(tk.filedialog.askdirectory(title='Choose directory with MCNP output files', initialdir=pathlib.Path.cwd()))
+    config_mod.folder_path = pathlib.Path(tk.filedialog.askdirectory(title='Choose directory with MCNP output files', initialdir=config_mod.folder_path))
 
     # return in case user do not chose any directory <- TODO does it work on MAC/LINUX?
     if str(config_mod.folder_path) == '.':

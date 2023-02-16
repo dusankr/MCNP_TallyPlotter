@@ -45,17 +45,25 @@ def save_to_xlsx():
 
     wb = openpyxl.Workbook()
     del wb['Sheet']
-
+    
     # create new sheets
     for tally in selected_tally():
-        wb.create_sheet(tally)
-        wb[tally].append(['Tally number', config_mod.tallies[tally][0]])
-        wb[tally].append(['Tally type', config_mod.tallies[tally][1]])
-        wb[tally].append(['Tally particle', config_mod.tallies[tally][2]])
-        wb[tally].append(['Comment', config_mod.tallies[tally][8]])
-        wb[tally].append(['energy', 'flux', 'flux normalized per 1 MeV','error'])
+        # solve problem with too long output+tally names
+        if len(tally) > 31:
+            tk.messagebox.showerror('Output error', 'XLSX sheet name has 31 characters limit. Tally name was modified, the first characters were deleted to prevent duplicity in naming.')
+            tally_m = tally[len(tally)-31:]
+        else:
+            tally_m = tally
+        
+        wb.create_sheet(tally_m)
+        wb[tally_m].append(['Tally number', config_mod.tallies[tally][0]])
+        wb[tally_m].append(['Tally type', config_mod.tallies[tally][1]])
+        wb[tally_m].append(['Tally particle', config_mod.tallies[tally][2]])
+        wb[tally_m].append(['Comment', config_mod.tallies[tally][8]])
+        
+        wb[tally_m].append(['energy', 'flux', 'flux normalized per 1 MeV','error'])
         for i in range(0, len(config_mod.tallies[tally][3])):
-            wb[tally].append((config_mod.tallies[tally][3][i], config_mod.tallies[tally][4][i], config_mod.tallies[tally][7][i], config_mod.tallies[tally][5][i]))
+            wb[tally_m].append((config_mod.tallies[tally][3][i], config_mod.tallies[tally][4][i], config_mod.tallies[tally][7][i], config_mod.tallies[tally][5][i]))
 
     wb.save(filename= str(result_path / pathlib.Path(filename)) + '.xlsx')
     tk.messagebox.showinfo(title='Export to XLSX', message='Tally export has been completed.')
