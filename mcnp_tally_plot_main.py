@@ -4,7 +4,7 @@
 # comments
 
 # LIBRARIES
-from modules import read_mod, plot_mod, config_mod
+from modules import read_mod, plot_mod, config_mod, settings_mod
 # GUI libraries
 import tkinter as tk
 import ttkwidgets
@@ -85,8 +85,12 @@ root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
 
 root.protocol('WM_DELETE_WINDOW', ask_quit)  # program end TODO cause kernel crash at Mac
+# ----------------------------------------------------------------------------------------------------------------------
+# modules executed at startup
+settings_mod.config_file()
 
 # ----------------------------------------------------------------------------------------------------------------------
+# does NOT work at MAC devices...
 '''
 # widget MENU
 

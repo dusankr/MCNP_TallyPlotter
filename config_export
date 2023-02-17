@@ -1,0 +1,9 @@
+# export and import setting for STEP plot SW
+# hashtag is used for commenting
+# = is used as separator, spaces are not allowed between setting and value!
+#
+# initial directory
+#work_dir_path=none
+work_dir_path=/Users/kral/Desktop/OneDrive_2_2-16-2023
+# figure resolution in DPI
+fig_dpi=300
