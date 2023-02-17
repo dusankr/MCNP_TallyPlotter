@@ -17,6 +17,7 @@ import pathlib
 # GUI exit from program
 def ask_quit():
     if tk.messagebox.askokcancel('Quit', 'Do you want to quit now?'):
+        settings_mod.save_config()
         root.destroy()
 
 

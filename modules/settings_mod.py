@@ -52,3 +52,15 @@ def read_config():
     
     print("Work directory from config file is: " ,config_mod.folder_path)
 
+
+# save config values
+def save_config():
+    with open("config_export", "rw", encoding='utf-8') as temp_file:
+        content = temp_file.readlines()
+        
+        for lines in content:
+            if lines[0] != "#":
+                line = lines.split("=", 1)
+                
+        
+        
