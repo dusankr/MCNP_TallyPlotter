@@ -24,6 +24,75 @@ if os.name == 'nt':  # return OS system name
 
 
 #  Functions  ##########################################################################################################
+# return cutoff value from output or use a default value
+def cutoff_func(content):
+    # default values table 2-2. in MCNP6.2 manual (MeV):
+    cutoff_dict = {
+        "neutron": 0.0000E+00,
+        "photon": 1.0000E-03,
+        "electron": 1.0000E-03,
+        "mu_minus": 1.1261E-01,
+        "Aneutron": 0.0000E+00,
+        "nu_e": 0.0000E+00,
+        "nu_m": 0.0000E+00,
+        "proton": 1.0000E+00,
+        "lambda0": 1.0000E+00,
+        "sigma+": 1.2676E+00,
+        "sigma-": 1.2762E+00,
+        "xi0": 1.0000E+00,
+        "xi_minus": 1.4082E+00,
+        "omega-": 1.7825E+00,
+        "mu_plus": 1.1261E-01,
+        "Anu_e": 0.0000E+00,
+        "Anu_m": 0.0000E+00,
+        "Aproton": 1.0000E+00,
+        "pi_plus": 1.4875E-01,
+        "pi_zero": 0.0000E+00,
+        "k_plus": 5.2614E-01,
+        "k0_short": 0.0000E+00,
+        "k0_long": 0.0000E+00,
+        "Alambda0": 1.0000E+00,
+        "Asigma+": 1.2676E+00,
+        "Asigma-": 1.2762E+00,
+        "Axi0": 1.0000E+00,
+        "xi_plus": 1.4082E+00,
+        "Aomega-": 1.7825E+00,
+        "deuteron": 2.0000E+00,
+        "triton": 3.0000E+00,
+        "helion": 3.0000E+00,
+        "alpha": 4.0000E+00,
+        "pi_minus": 1.4875E-01,
+        "k_minus": 5.2614E-01,
+        "heavyion": 5.0000E+00
+    }
+
+    for k in range(0, len(content)):
+        if "print table 101" in str(content[k]):
+            y = k + 6
+            line = content[y].split()
+            while len(line) != 0:
+                cutoff_dict[line[2]] = float(line[3])
+                y += 1
+                line = content[y].split()
+            # print(cutoff_dict)    # print cut off dict
+            return cutoff_dict
+        if k == len(content) - 1:
+            # print(cutoff_dict)    # print cut off dict
+            return cutoff_dict
+
+
+# calculate flux bin normalization per 1 MeV
+def flux_norm(energy, flux):
+    fl_n = [0]
+    for i in range(1, len(flux)):
+        if (energy[i] - energy[i - 1]) == 0:
+            fl_n.append(0)
+        else:
+            fl_n.append(flux[i] / (energy[i] - energy[i - 1]))
+
+    return fl_n
+
+
 # check if file is hidden in Windows folder
 def file_is_hidden(p):
     if os.name != 'nt':
@@ -36,14 +105,14 @@ def file_is_hidden(p):
 
 # chose folder with MCNP outputs, read all files
 def open_folder(treeview_files, workdir_label, button_update):
-    config_mod.folder_path = pathlib.Path(tk.filedialog.askdirectory(title='Choose directory with MCNP output files', initialdir=config_mod.folder_path))
+    config_mod.plot_settings["work_dir_path"] = pathlib.Path(tk.filedialog.askdirectory(title='Choose directory with MCNP output files', initialdir=config_mod.plot_settings["work_dir_path"]))
 
     # return in case user do not chose any directory <- TODO does it work on MAC/LINUX?
-    if str(config_mod.folder_path) == '.':
+    if str(config_mod.plot_settings["work_dir_path"]) == '.':
         tk.messagebox.showerror('Input error', 'No directory was selected.')
         return
 
-    workdir_label['text'] = 'Work directory: ' + str(config_mod.folder_path)
+    workdir_label['text'] = 'Work directory: ' + str(config_mod.plot_settings["work_dir_path"])
     button_update['state'] = 'normal'
 
     read_folder(treeview_files)
@@ -55,7 +124,7 @@ def read_folder(treeview_files):
     config_mod.tallies.clear()  # clear tallies dict before read new directory
 
     config_mod.output_files = []
-    for file in pathlib.Path.iterdir(config_mod.folder_path):
+    for file in pathlib.Path.iterdir(config_mod.plot_settings["work_dir_path"]):
         if file.is_dir() or (file.stem[0] == '.') or file_is_hidden(file):  # UNIX/Mac/Windows hidden files and directories are skipped
             config_mod.non_output.append(file.name)
             continue  # skip to next iteration
@@ -70,7 +139,7 @@ def read_folder(treeview_files):
 def read_tallies(treeview_files):
 
     for fname in config_mod.output_files:
-        read_tally(config_mod.folder_path, fname)  # read tallies from output files
+        read_tally(config_mod.plot_settings["work_dir_path"], fname)  # read tallies from output files
 
     # print list of non MCNP files OR empty outputs
     print('\nList of non MCNP output files OR empty outputs:')
@@ -233,72 +302,3 @@ def read_tally(f_path, fname):
     except:
         config_mod.non_output.append(fname.name)
         print('Read process crash for this file: ' + fname.name)
-
-
-# return cutoff values from output or use a default value from manual
-def cutoff_func(content):
-    # default values table (MeV):
-    cutoff_dict = {
-        "neutron": 0.0000E+00,
-        "photon": 1.0000E-03,
-        "electron": 1.0000E-03,
-        "mu_minus": 1.1261E-01,
-        "Aneutron": 0.0000E+00,
-        "nu_e": 0.0000E+00,
-        "nu_m": 0.0000E+00,
-        "proton": 1.0000E+00,
-        "lambda0": 1.0000E+00,
-        "sigma+": 1.2676E+00,
-        "sigma-": 1.2762E+00,
-        "xi0": 1.0000E+00,
-        "xi_minus": 1.4082E+00,
-        "omega-": 1.7825E+00,
-        "mu_plus": 1.1261E-01,
-        "Anu_e": 0.0000E+00,
-        "Anu_m": 0.0000E+00,
-        "Aproton": 1.0000E+00,
-        "pi_plus": 1.4875E-01,
-        "pi_zero": 0.0000E+00,
-        "k_plus": 5.2614E-01,
-        "k0_short": 0.0000E+00,
-        "k0_long": 0.0000E+00,
-        "Alambda0": 1.0000E+00,
-        "Asigma+": 1.2676E+00,
-        "Asigma-": 1.2762E+00,
-        "Axi0": 1.0000E+00,
-        "xi_plus": 1.4082E+00,
-        "Aomega-": 1.7825E+00,
-        "deuteron": 2.0000E+00,
-        "triton": 3.0000E+00,
-        "helion": 3.0000E+00,
-        "alpha": 4.0000E+00,
-        "pi_minus": 1.4875E-01,
-        "k_minus": 5.2614E-01,
-        "heavyion": 5.0000E+00
-    }
-
-    for k in range(0, len(content)):
-        if "print table 101" in str(content[k]):
-            y = k + 6
-            line = content[y].split()
-            while len(line) != 0:
-                cutoff_dict[line[2]] = float(line[3])
-                y += 1
-                line = content[y].split()
-            # print(cutoff_dict)    # print cut off dict
-            return cutoff_dict
-        if k == len(content) - 1:
-            # print(cutoff_dict)    # print cut off dict
-            return cutoff_dict
-
-
-# flux bin normalization per 1 MeV
-def flux_norm(energy, flux):
-    fl_n = [0]
-    for i in range(1, len(flux)):
-        if (energy[i] - energy[i - 1]) == 0:
-            fl_n.append(0)
-        else:
-            fl_n.append(flux[i] / (energy[i] - energy[i - 1]))
-
-    return fl_n

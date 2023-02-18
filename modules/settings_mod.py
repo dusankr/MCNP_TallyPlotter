@@ -46,21 +46,39 @@ def read_config():
                     config_mod.plot_settings[line[0]] = line[1].rstrip()
                 
     if config_mod.plot_settings["work_dir_path"]  == "none":
-        config_mod.folder_path = pathlib.Path.cwd()
+        config_mod.plot_settings["work_dir_path"] = pathlib.Path.cwd()
     else:
-        config_mod.folder_path = pathlib.Path(config_mod.plot_settings["work_dir_path"])
+        config_mod.plot_settings["work_dir_path"] = pathlib.Path(config_mod.plot_settings["work_dir_path"])
     
-    print("Work directory from config file is: " ,config_mod.folder_path)
+    print("Old work directory from config file is: " , config_mod.plot_settings["work_dir_path"])
 
 
 # save config values
 def save_config():
-    with open("config_export", "rw", encoding='utf-8') as temp_file:
+    with open("config_export", "r+", encoding='utf-8') as temp_file:
         content = temp_file.readlines()
-        
-        for lines in content:
-            if lines[0] != "#":
-                line = lines.split("=", 1)
-                
-        
-        
+        content_n = []
+
+        for key, val in zip(config_mod.plot_settings.keys(), config_mod.plot_settings.values()):
+            i = 0
+            while i < len(content):
+                if (content[i][0] != "#"):
+                    line = content[i].split("=")
+                    if key == line[0]:
+                        content[i] = str(key) + "=" + str(val) + "\n"
+                        break
+                    else:
+                        i += 1
+                else:
+                    i += 1
+
+                # if there is end of content cycle and key wasn't find, then add it to end of file
+                if i == (len(content)):
+                    content_n.append(key + '=' + str(val) + '\n')
+
+        # instead of reopen in write mode:
+        temp_file.seek(0)
+        temp_file.truncate()
+        temp_file.writelines(content + content_n)
+
+

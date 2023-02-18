@@ -38,7 +38,7 @@ def selected_tally():
 # save selected tallies
 def save_to_xlsx():
     # create new directory if doesn't exist
-    result_path = config_mod.folder_path / 'export'
+    result_path = config_mod.plot_settings["work_dir_path"] / 'export'
     result_path.mkdir(parents=True, exist_ok=True)
 
     # ask xlsx file name
@@ -85,12 +85,12 @@ style = tk.ttk.Style()
 root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
 
-root.protocol('WM_DELETE_WINDOW', ask_quit)  # program end TODO cause kernel crash at Mac
+root.protocol('WM_DELETE_WINDOW', ask_quit)  # program end TODO cause kernel crash in Spyder...
 # ----------------------------------------------------------------------------------------------------------------------
 # modules executed at startup
 settings_mod.config_file()
 
-# ----------------------------------------------------------------------------------------------------------------------
+# MENU (not used due to problems on Mac devices) -----------------------------------------------------------------------
 # does NOT work at MAC devices...
 '''
 # widget MENU
