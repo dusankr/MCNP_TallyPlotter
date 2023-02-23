@@ -4,7 +4,7 @@
 # at the end of file must be empty line
 #
 # initial directory
-work_dir_path=/Users/kral/Desktop/mcnp_output/PE+PEpos results
+work_dir_path=/Users/kral/Desktop/all_results
 # figure resolution in DPI
 fig_dpi=300
 fig_x_dimension=None

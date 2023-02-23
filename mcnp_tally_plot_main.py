@@ -57,6 +57,7 @@ def save_to_xlsx():
             tally_m = tally
         
         wb.create_sheet(tally_m)
+        wb[tally_m].append(['Filename', tally])
         wb[tally_m].append(['Tally number', config_mod.tallies[tally][0]])
         wb[tally_m].append(['Tally type', config_mod.tallies[tally][1]])
         wb[tally_m].append(['Tally particle', config_mod.tallies[tally][2]])
