@@ -14,7 +14,7 @@
 # libraries
 import matplotlib
 import matplotlib.pyplot as plt     # ploting in matlab style
-from modules import config_mod
+from modules import config_mod, editor_mod
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 import math
 
@@ -273,7 +273,7 @@ def plot_window(root, tally_to_plot):
     chk_replot = tk.Checkbutton(replot_frame, text='disable immediate changes', var=replot_var, command=lambda: turn_off_replot())
     chk_replot.grid(column=0, columnspan=2, row=0, sticky='nswe', padx=5, pady=5)
 
-    button_settings = tk.ttk.Button(replot_frame, text='Export settings', state='disabled', command=lambda: export_win(tally_to_plot))
+    button_settings = tk.ttk.Button(replot_frame, text='Export settings', command=lambda: editor_mod.open_lib())
     button_settings.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=5, pady=5)
 
     button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: plot_function(), state='disabled')
@@ -352,102 +352,3 @@ def interval_mid(x):
 
     return x_center
 
-
-# Export settings menu
-def export_win(tally_to_plot):
-    exp_win = tk.Toplevel()
-    exp_win.grab_set()  # the main window is locked until the new window is closed
-    exp_win.title('Export settings menu')
-
-    # Variables
-    # Axis entry variables
-    xlabel_var = tk.StringVar()
-    ylabel_var = tk.StringVar()
-
-    # font variables
-    font_family_options = ['sans-serif']
-    font_options = ['Tahoma', 'DejaVu Sans', 'Lucida Grande', 'Verdana']
-    font_f_var = tk.StringVar()
-    font_var = tk.StringVar()
-
-    # window size variables
-    xfig_var = tk.StringVar(value=20)
-    yfig_var = tk.StringVar(value=15)
-
-    # Export window definition -----------------------------------------------------------------------------------------
-
-    # layout all of the main containers
-    exp_win.columnconfigure(0, weight=1)
-    exp_win.rowconfigure(0, weight=1)
-
-    # MAIN frames ------------------------------------------------------------------------------------------------------
-
-    # plot dimensions settings
-    size_frame = tk.LabelFrame(exp_win, text='Plot dimensions in cm')
-    size_frame.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
-
-    size_label = tk.Label(size_frame, text='Width × Height')
-    size_label.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
-    width_spinbox = tk.ttk.Spinbox(size_frame, from_=5, to=30, increment=.1,textvariable=xfig_var, wrap=True, width=4)
-    width_spinbox.grid(column=1, row=0, sticky='sn', padx=5, pady=5)
-    height_spinbox = tk.ttk.Spinbox(size_frame, from_=5, to=30, increment=.1, textvariable=yfig_var, wrap=True, width=4)
-    height_spinbox.grid(column=2, row=0, sticky='sn', padx=5, pady=5)
-
-    # plot Axis titles settings
-    title_frame = tk.LabelFrame(exp_win, text='Axis titles')
-    title_frame.grid(column=0, row=1, sticky='nswe', padx=5, pady=5)
-
-    x_title = tk.Label(title_frame, text='X:')
-    x_title.grid(column=0, row=0, sticky='nwse', padx=5, pady=5)
-    x_entry = tk.Entry(title_frame, textvariable=xlabel_var)
-    x_entry.grid(column=1, row=0, sticky='nwse', padx=5, pady=5)
-
-    y_title = tk.Label(title_frame, text='Y:')
-    y_title.grid(column=0, row=1, sticky='nwse', padx=5, pady=5)
-    y_entry = tk.Entry(title_frame, textvariable=ylabel_var)
-    y_entry.grid(column=1, row=1, sticky='nwse', padx=5, pady=5)
-
-    # plot legend lables
-    legend_frame = tk.LabelFrame(exp_win, text='Labels in legend')
-    legend_frame.grid(column=0, row=2, sticky='nswe', padx=5, pady=5)
-
-    legend_label = []
-    legend_entry = []
-    legend_entry_var = []
-    for i in range(0, len(tally_to_plot)):
-        legend_label.append(tk.Label(legend_frame, text=config_mod.tallies[tally_to_plot[i]][9]))
-        legend_label[-1].grid(column=0, row=i, sticky='nswe', padx=5, pady=5)
-
-        legend_entry_var.append(tk.StringVar(value=config_mod.tallies[tally_to_plot[i]][9]))
-        legend_entry.append(tk.Entry(legend_frame, textvariable=legend_entry_var[-1]))
-        legend_entry[-1].grid(column=1, row=i, sticky='nswe', padx=5, pady=5)
-
-    # plot font and Tex settings
-    font_frame = tk.LabelFrame(exp_win, text='Font setting')
-    font_frame.grid(column=0, row=3, sticky='nswe', padx=5, pady=5)
-
-    font_f_menu = tk.OptionMenu(font_frame, font_f_var, *font_family_options)
-    font_f_menu.grid(column=0, row=0, sticky='nwse', padx=5, pady=5)
-    font_menu = tk.OptionMenu(font_frame, font_var, *font_options)
-    font_menu.grid(column=0, row=1,sticky='nwse', padx=5, pady=5)
-
-    # buttons
-    button_frame = tk.Frame(exp_win)
-    button_frame.grid(column=0, row=4, sticky='nswe', padx=5, pady=5)
-
-    ok_button = tk.Button(button_frame, text='Ok', width=10, command=lambda: [update_values(), exp_win.destroy()])
-    ok_button.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
-
-    cancel_button = tk.Button(button_frame, text='Cancel', width=10, command=lambda: update_values())
-    cancel_button.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
-
-    apply_button = tk.Button(button_frame, text='Apply', width=10, command=lambda: update_values())
-    apply_button.grid(column=2, row=0, sticky='nswe', padx=5, pady=5)
-
-
-    def update_values():
-        i = 0
-        for name in tally_to_plot:
-            config_mod.tallies[name][9] = legend_entry_var[i].get()
-            i += 1
-            print(config_mod.tallies[name][9])
