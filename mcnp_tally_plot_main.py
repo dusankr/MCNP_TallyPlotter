@@ -37,10 +37,15 @@ def selected_tally():
 
 # save selected tallies
 def save_to_xlsx():
+    
+    config_mod.plot_settings["export_dir_path"] = pathlib.Path(tk.filedialog.askdirectory(title='Choose directory for export file', initialdir=config_mod.plot_settings["export_dir_path"]))
+    
     # create new directory if doesn't exist
+    """
     result_path = config_mod.plot_settings["work_dir_path"] / 'export'
     result_path.mkdir(parents=True, exist_ok=True)
-
+    """
+    
     # ask xlsx file name
     filename = tk.simpledialog.askstring(title='Export to XLSX', prompt='Choose a name for export without extension:')
 
@@ -67,8 +72,8 @@ def save_to_xlsx():
         for i in range(0, len(config_mod.tallies[tally][3])):
             wb[tally_m].append((config_mod.tallies[tally][3][i], config_mod.tallies[tally][4][i], config_mod.tallies[tally][7][i], config_mod.tallies[tally][5][i]))
 
-    wb.save(filename= str(result_path / pathlib.Path(filename)) + '.xlsx')
-    tk.messagebox.showinfo(title='Export to XLSX', message='Tally export has been completed.')
+    wb.save(filename= str(config_mod.plot_settings["export_dir_path"] / pathlib.Path(filename)) + '.xlsx')
+    #tk.messagebox.showinfo(title='Export to XLSX', message='Tally export has been completed.')
 
 #  MAIN CODE  ##########################################################################################################
 

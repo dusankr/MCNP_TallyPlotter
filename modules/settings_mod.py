@@ -28,8 +28,10 @@ def create_config():
         temp_file.write("# hashtag is used for commenting\n")
         temp_file.write("# = is used as separator, spaces are not allowed between setting and value!\n")
         temp_file.write("#\n")
-        temp_file.write("# initial directory\n")
+        temp_file.write("# work directory from last sesion\n")
         temp_file.write("work_dir_path=none\n")
+        temp_file.write("# export directory from last session\n")
+        temp_file.write("export_dir_path=none\n")
 
 
 # read values from config file to program variables
@@ -51,6 +53,7 @@ def read_config():
         config_mod.plot_settings["work_dir_path"] = pathlib.Path(config_mod.plot_settings["work_dir_path"])
     
     print("Old work directory from config file is: " , config_mod.plot_settings["work_dir_path"])
+    print("Old export directory from config file is: " , config_mod.plot_settings["export_dir_path"], "\n")
 
 
 # save config values

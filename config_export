@@ -5,10 +5,10 @@
 #
 # initial directory
 work_dir_path=/Users/kral/Desktop/p0
+# initial directory
+export_dir_path=/Users/kral/Desktop/p0/export
 # figure resolution in DPI
 fig_dpi=300
 fig_x_dimension=None
 fig_y_dimension=None
 fig_format=None
-
-
