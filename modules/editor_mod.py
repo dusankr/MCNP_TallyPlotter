@@ -6,6 +6,8 @@
 
 # libraries
 from modules import config_mod
+import pathlib
+import os
 
 # GUI libraries
 import tkinter as tk
@@ -30,7 +32,7 @@ def open_lib():
     saveas_button = tk.Button(button_frame, text='Save as library', command=lambda: save_as_lib())
     saveas_button.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
 
-    file_path = config_mod.plot_settings["work_dir_path"]
+    file_path = pathlib.Path("config_export")
 
 #    editor_win.protocol('WM_DELETE_WINDOW', editor_win.destroy())  # program end
 
