@@ -65,7 +65,7 @@ def plot_window(root, tally_to_plot):
     # NEW Window definition---------------------------------------------------------------------------------------------
     new_win = tk.Toplevel(root)
     new_win.grab_set()      # the main window is locked until the new window is closed
-    new_win.minsize(1200, 500)
+    new_win.geometry('1200x500')
 
     new_win.title('Plotting window')
 

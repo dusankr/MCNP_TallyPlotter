@@ -12,6 +12,7 @@ import os
 # GUI libraries
 import tkinter as tk
 
+
 # open library or any ascii file in text editor TODO grab_set() pri zavreni editoru zpet na plot window
 def open_lib():
     editor_win = tk.Toplevel()
@@ -49,6 +50,8 @@ def open_lib():
         with open(file_path, 'w') as output_file:
             text_s = txt_edit.get(1.0, tk.END)
             output_file.write(text_s)
+        
+        tk.messagebox.showinfo(title='Config file', message='Config file was modified and saved.')
 
 
     def save_as_lib():
