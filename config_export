@@ -4,9 +4,9 @@
 # at the end of file must be empty line
 #
 # initial directory
-work_dir_path=/Users/kral/Desktop/p0
+work_dir_path=/Users/kral/Desktop/all_results
 # initial directory
-export_dir_path=/Users/kral/Desktop/p0/export
+export_dir_path=/Users/kral/Desktop/all_results/export
 # figure resolution in DPI
 fig_dpi=300
 fig_x_dimension=None

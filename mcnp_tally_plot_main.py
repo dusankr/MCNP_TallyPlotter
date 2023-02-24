@@ -1,16 +1,12 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
 # comments
-# comments
 
 # LIBRARIES
-from modules import read_mod, plot_mod, config_mod, settings_mod
+from modules import read_mod, plot_mod, settings_mod, export_mod
 # GUI libraries
 import tkinter as tk
 import ttkwidgets
-
-import openpyxl
-import pathlib
 
 
 #  FUNCTIONS  ##########################################################################################################
@@ -34,46 +30,6 @@ def selected_tally():
 
     return selection
 
-
-# save selected tallies
-def save_to_xlsx():
-    
-    config_mod.plot_settings["export_dir_path"] = pathlib.Path(tk.filedialog.askdirectory(title='Choose directory for export file', initialdir=config_mod.plot_settings["export_dir_path"]))
-    
-    # create new directory if doesn't exist
-    """
-    result_path = config_mod.plot_settings["work_dir_path"] / 'export'
-    result_path.mkdir(parents=True, exist_ok=True)
-    """
-    
-    # ask xlsx file name
-    filename = tk.simpledialog.askstring(title='Export to XLSX', prompt='Choose a name for export without extension:')
-
-    wb = openpyxl.Workbook()
-    del wb['Sheet']
-    
-    # create new sheets
-    for tally in selected_tally():
-        # solve problem with too long output+tally names
-        if len(tally) > 31:
-            tk.messagebox.showerror('Output error', 'XLSX sheet name has 31 characters limit. Tally name was modified, the first characters were deleted to prevent duplicity in naming.')
-            tally_m = tally[len(tally)-31:]
-        else:
-            tally_m = tally
-        
-        wb.create_sheet(tally_m)
-        wb[tally_m].append(['Filename', tally])
-        wb[tally_m].append(['Tally number', config_mod.tallies[tally][0]])
-        wb[tally_m].append(['Tally type', config_mod.tallies[tally][1]])
-        wb[tally_m].append(['Tally particle', config_mod.tallies[tally][2]])
-        wb[tally_m].append(['Comment', config_mod.tallies[tally][8]])
-        
-        wb[tally_m].append(['energy', 'flux', 'flux normalized per 1 MeV','error'])
-        for i in range(0, len(config_mod.tallies[tally][3])):
-            wb[tally_m].append((config_mod.tallies[tally][3][i], config_mod.tallies[tally][4][i], config_mod.tallies[tally][7][i], config_mod.tallies[tally][5][i]))
-
-    wb.save(filename= str(config_mod.plot_settings["export_dir_path"] / pathlib.Path(filename)) + '.xlsx')
-    #tk.messagebox.showinfo(title='Export to XLSX', message='Tally export has been completed.')
 
 #  MAIN CODE  ##########################################################################################################
 
@@ -168,7 +124,7 @@ button_update.grid(column=1, row=0, sticky='ws')
 button_solve = tk.ttk.Button(button_frame, text='Plot data', command=lambda: plot_mod.plot_window(root, selected_tally()), width=20)
 button_solve.grid(column=2, row=0, sticky='ws')
 
-button_export = tk.ttk.Button(button_frame, text='Export tally to xlsx', command=lambda: save_to_xlsx(), width=20)
+button_export = tk.ttk.Button(button_frame, text='Export tally to xlsx', command=lambda: export_mod.save_to_xlsx(selected_tally()), width=20)
 button_export.grid(column=3, row=0, sticky='ws')
 
 # -----------------------------------
