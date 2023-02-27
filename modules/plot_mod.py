@@ -65,7 +65,7 @@ def plot_window(root, tally_to_plot):
     # NEW Window definition---------------------------------------------------------------------------------------------
     new_win = tk.Toplevel(root)
     new_win.grab_set()      # the main window is locked until the new window is closed
-    new_win.geometry('1200x500')
+    new_win.geometry('1200x700')
 
     new_win.title('Plotting window')
 
@@ -176,8 +176,17 @@ def plot_window(root, tally_to_plot):
         config_mod.ax.set_xscale(x_axis_var.get())
         config_mod.ax.set_yscale(y_axis_var.get())
         config_mod.ax.grid(visible=grid_on_var.get(), which=grid_var.get(), axis=grid_axis_var.get())
-        config_mod.ax.set_xlabel('energy (MeV)', fontsize=axis_var.get())
-        config_mod.ax.set_ylabel(y_label, fontsize=axis_var.get())
+
+        if config_mod.plot_settings["x_title"] != "None":
+            config_mod.ax.set_xlabel(config_mod.plot_settings["x_title"], fontsize=axis_var.get())
+        else:
+            config_mod.ax.set_xlabel('energy (MeV)', fontsize=axis_var.get())
+
+        if config_mod.plot_settings["y_title"] != "None":
+            config_mod.ax.set_ylabel(config_mod.plot_settings["y_title"], fontsize=axis_var.get())
+        else:
+            config_mod.ax.set_ylabel(y_label, fontsize=axis_var.get())
+
         config_mod.ax.tick_params(axis='both', labelsize=ticks_var.get())
         if y_axis_var.get() == 'linear':
             config_mod.ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True)  # does not work in log scale with this setting

@@ -7,11 +7,8 @@
 # libraries
 from modules import config_mod
 import pathlib
-import os
-
-# GUI libraries
 import tkinter as tk
-
+from modules import plot_mod, settings_mod
 
 # open library or any ascii file in text editor TODO grab_set() pri zavreni editoru zpet na plot window
 def open_lib():
@@ -30,12 +27,12 @@ def open_lib():
     button_frame.grid(column=0, row=1, sticky='nswe', padx=5, pady=5)
     save_button = tk.Button(button_frame, text='Save library', command=lambda: save_lib() )
     save_button.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
-    saveas_button = tk.Button(button_frame, text='Save as library', command=lambda: save_as_lib())
-    saveas_button.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
+    #saveas_button = tk.Button(button_frame, text='Save as library', command=lambda: save_as_lib())
+    #saveas_button.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
+    button_quit = tk.ttk.Button(button_frame, text='Quit', command=editor_win.destroy)
+    button_quit.grid(column=1, row=0, sticky='we', padx=5, pady=5)
 
     file_path = pathlib.Path("config_export")
-
-#    editor_win.protocol('WM_DELETE_WINDOW', editor_win.destroy())  # program end
 
     def read_lib():
         with open(file_path, 'r') as lib_file:
@@ -53,7 +50,14 @@ def open_lib():
         
         tk.messagebox.showinfo(title='Config file', message='Config file was modified and saved.')
 
+        # read again config file
+        settings_mod.read_config()
+        editor_win.destroy()
 
+
+
+
+    """
     def save_as_lib():
         file_path_new = tk.filedialog.asksaveasfilename(
             initialdir=os.getcwd(),
@@ -66,3 +70,4 @@ def open_lib():
         with open(file_path_new, 'w') as output_file:
             text_s = txt_edit.get(1.0, tk.END)
             output_file.write(text_s)
+    """
