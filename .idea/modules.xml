@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/Step plot for MCNP_GUI.iml" filepath="$PROJECT_DIR$/.idea/Step plot for MCNP_GUI.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/MCNP_TallyPlotter.iml" filepath="$PROJECT_DIR$/.idea/MCNP_TallyPlotter.iml" />
     </modules>
   </component>
 </project>

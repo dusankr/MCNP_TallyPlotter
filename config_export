@@ -5,7 +5,7 @@
 # for the return of default value type <none>
 #
 # initial directory
-work_dir_path=C:\Users\dusan\Desktop\all_results\p0
+work_dir_path=C:\Users\dusan\Desktop\test_plotter
 # initial directory
 export_dir_path=C:\Users\dusan\Desktop\TAMU_NaITl\p0_pos
 # figure resolution in DPI

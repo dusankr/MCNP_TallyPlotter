@@ -17,6 +17,7 @@ from modules import config_mod
 import pathlib  # better and easier work with file and directory paths
 import tkinter as tk
 import os
+import traceback
 
 # lib for Windows API (nt is name for win OS)
 if os.name == 'nt':  # return OS system name
@@ -127,7 +128,7 @@ def read_folder(treeview_files):
     for file in pathlib.Path.iterdir(config_mod.plot_settings["work_dir_path"]):
         if file.is_dir() or (file.stem[0] == '.') or file_is_hidden(file):  # UNIX/Mac/Windows hidden files and directories are skipped
             config_mod.non_output.append(file.name)
-            continue  # skip to next iteration
+            continue  # skip to the next iteration
         else:
             config_mod.output_files.append(file)
 
@@ -135,7 +136,7 @@ def read_folder(treeview_files):
     read_tallies(treeview_files)
 
 
-# read outputs from directory (go through all relevant outputs and read tallies via next function)
+# read outputs from a directory (go through all relevant outputs and read tallies via the next function)
 def read_tallies(treeview_files):
 
     for fname in config_mod.output_files:
@@ -160,7 +161,7 @@ def read_tallies(treeview_files):
                                       config_mod.tallies[i][8]])
 
 
-# read data from all tally in one output file and add them into global dictionary
+# read data from all tallies in one output file and add them into global dictionary
 def read_tally(f_path, fname):
     try:
         with open(f_path / fname, 'r', encoding='utf-8') as temp_file:  # open MCNP output file
@@ -300,5 +301,6 @@ def read_tally(f_path, fname):
                             error = [0]
                 i += 1
     except:
+        traceback.print_exc()
         config_mod.non_output.append(fname.name)
         print('Read process crash for this file: ' + fname.name)
