@@ -183,7 +183,7 @@ def read_tally(f_path, fname):
             while i < len(content):
                 line = content[i].split()
 
-                if len(line) != 0:  # skip empty lines (try to find better solution?)
+                if len(line) != 0:  # skip empty lines (try to find a better solution?)
                     if '1tally' == line[0] and line[1].isdigit():
                         tally_num = line[1]
                         line = content[i + 1].split()
@@ -228,7 +228,15 @@ def read_tally(f_path, fname):
                             elif tally_ptc == particle:
                                 cutoff_en = cutoff_dict[particle]
 
-                        i = data_start
+                        # for tally F8 are the first two lines skipped:
+                        # first value is a non-analog knock-on e- negativ scores
+                        # epsilon bin (more details in manual)
+                        if tally_type == 8:
+                            print("TED je to 8")
+                            i = data_start + 2
+                        else:
+                            i = data_start
+
                         line = content[i].split()
                         while line[0] != 'total':
                             energy.append(float(line[0]))
@@ -243,7 +251,7 @@ def read_tally(f_path, fname):
                         flux_n = flux_norm(energy, flux)
 
                         control_next_tally_connection = content[last + 2].split()
-                        # print(control_next_tally_connection)
+                        #print("control prirazeni", control_next_tally_connection)
                         if len(control_next_tally_connection) != 0 and control_next_tally_connection[0] == surface_or_cell[0] and control_next_tally_connection[1].isdigit():  # second word must be digit, for point detector (tally5) there is dvo data file for one tally - collide and uncolide results, first world is the same, but second is not digit!
                             print(str(surface_or_cell[0]) + str(surface_or_cell[1]) + "  ---  line" + str(last + 2))
                             next_tally = last + 4
@@ -261,6 +269,12 @@ def read_tally(f_path, fname):
                             error = [0]
                             surface_or_cell = control_next_tally_connection
 
+                            # for tally F8 are the first two lines skipped:
+                            # first value is a non-analog knock-on e- negative scores
+                            # epsilon bin (more details in manual)
+                            if tally_type == 8:
+                                next_tally += 2
+
                             line = content[next_tally].split()
                             while line[0] != 'total':
                                 energy.append(float(line[0]))
@@ -273,8 +287,8 @@ def read_tally(f_path, fname):
                             flux_n = flux_norm(energy, flux)
 
                             control_next_tally_connection = content[last + 2].split()
-                            # print("control",control_next_tally_connection)
-                            # print(control_next_tally_connection)
+                            print("control ", control_next_tally_connection)
+                            print("surf or cell ", surface_or_cell)
                             if control_next_tally_connection[0] == surface_or_cell[0]:
                                 print("---> next tally included...")
                                 print(str(surface_or_cell[0]) + str(surface_or_cell[1]) + "  ---  line" + str(last + 4))
