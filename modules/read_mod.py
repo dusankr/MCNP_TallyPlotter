@@ -232,7 +232,6 @@ def read_tally(f_path, fname):
                         # first value is a non-analog knock-on e- negativ scores
                         # epsilon bin (more details in manual)
                         if tally_type == 8:
-                            print("TED je to 8")
                             i = data_start + 2
                         else:
                             i = data_start
@@ -287,8 +286,11 @@ def read_tally(f_path, fname):
                             flux_n = flux_norm(energy, flux)
 
                             control_next_tally_connection = content[last + 2].split()
-                            print("control ", control_next_tally_connection)
-                            print("surf or cell ", surface_or_cell)
+
+                            # temporary bug fix, solve an empty list if there is not a next tally
+                            if not control_next_tally_connection:
+                                control_next_tally_connection.extend(["empty", 0])
+
                             if control_next_tally_connection[0] == surface_or_cell[0]:
                                 print("---> next tally included...")
                                 print(str(surface_or_cell[0]) + str(surface_or_cell[1]) + "  ---  line" + str(last + 4))
