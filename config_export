@@ -7,7 +7,7 @@
 # initial directory
 work_dir_path=C:\Users\dusan\Desktop\test_plotter
 # initial directory
-export_dir_path=C:\Users\dusan\Desktop\test_plotter
+export_dir_path=C:\Users\dusan\Desktop\test_plotter\export3
 # figure resolution in DPI
 fig_dpi=300
 # figure x dimensions
