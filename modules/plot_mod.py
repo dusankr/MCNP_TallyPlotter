@@ -56,9 +56,11 @@ def plot_window(root, tally_to_plot):
     grid_axis_var = tk.StringVar(value='both')  # Option Menu variable
     grid_on_var = tk.BooleanVar(value=True)  # Check box variable
 
+    """ This is not more used - make problems if replot button is activated
     # figure size
     xfig_var = tk.StringVar(value=20)  # SpinBox variable
     yfig_var = tk.StringVar(value=15)  # SpinBox variable
+    """
 
     # endregion
 
@@ -115,12 +117,14 @@ def plot_window(root, tally_to_plot):
 
         config_mod.ax.clear()
 
+        config_mod.canvas_id.get_tk_widget().grid(column=0, row=0, sticky='nswe')
+        """
         if replot_var.get():
             config_mod.canvas_id.get_tk_widget().grid(column=0, row=0)
             config_mod.fig_id.set_size_inches(float(xfig_var.get()) / 2.54, float(yfig_var.get()) / 2.54)
         else:
             config_mod.canvas_id.get_tk_widget().grid(column=0, row=0, sticky='nswe')
-
+        """
         # read reference data for ratio plot
         if (ratio_sel.get() != 'no ratio') and (data_var.get() == 'non'):
             x_ratio, y_ratio, y_err_ratio = config_mod.tallies[ratio_sel.get()][3], config_mod.tallies[ratio_sel.get()][4], config_mod.tallies[ratio_sel.get()][5]
