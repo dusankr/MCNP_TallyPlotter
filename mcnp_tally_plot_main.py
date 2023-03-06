@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
-# comments
+#
 
 # LIBRARIES
 from modules import read_mod, plot_mod, settings_mod, export_mod
@@ -54,18 +54,6 @@ settings_mod.config_file()
 
 # MENU (not used due to problems on Mac devices) -----------------------------------------------------------------------
 # does NOT work at MAC devices...
-'''
-# widget MENU
-
-# widget definition
-menu_bar = tk.Menu(root)
-root.config(menu=menu_bar)
-
-# File in MENU definition
-file_menu = tk.Menu(menu_bar, tearoff=0)
-menu_bar.add_cascade(label='File', menu=file_menu)
-file_menu.add_command(label='Work directory', underline=0, command=lambda: read_mod.open_folder(treeview_files))
-'''
 
 # FRAMES ---------------------------------------------------------------------------------------------------------------
 up_frame = tk.ttk.Frame(root)

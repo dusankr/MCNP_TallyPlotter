@@ -3,14 +3,9 @@
 # TODO what happens if cut off is higher than E_min???
 # TODO test MCTAL (compile python library from MCNP)
 
-# TODO open output in new window?
-# TODO save input from output?
-
-# TODO change structure of tallies dictionary? -> tallies dict. only for file names, inside it create dict for every single tally -> structured treeview for better orientation?
-# OR
 # TODO create own class for tally results?
 
-# TODO add text box to print all error and info
+# TODO create log file!
 
 # libraries
 from modules import config_mod

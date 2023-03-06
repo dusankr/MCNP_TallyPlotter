@@ -3,6 +3,7 @@
 # = is used as separator, spaces are not allowed between setting and value!
 # at the end of file must be empty line
 # for the return of default value type <none>
+# upper/lower index in plot labels $text_{lower}$ $text^{upper}$
 #
 # initial directory
 work_dir_path=C:\Users\dusan\Desktop\test_plotter
@@ -19,7 +20,4 @@ fig_format=None
 # x ax title
 x_title=Energy (MeV)
 # y ax title
-y_title= Flux (cm-2)
-
-
-fig_dpi,=None
+y_title= Flux (cm$^{-2}$)

@@ -1,9 +1,6 @@
 # project global variables shared across all modules
 
-# libraries:
-
-
-# main variabel for tally values and parameters
+# main variable for tally values and parameters
 tallies = {}
 
 # matplotlib variables
@@ -22,10 +19,12 @@ plot_settings = dict.fromkeys([
     "fig_x_dimension",
     "fig_y_dimension",
     "fig_format",
-    "fig_dpi,",
+    "fig_dpi",
     "x_title",
     "y_title"
 ])
+
+# second option how to create dict:
 #plot_settings = {"work_dir_path":None, "fig_x_dimension":None, "fig_y_dimension":None, "fig_format":None, "fig_dpi":None}
 
 # path to work directory

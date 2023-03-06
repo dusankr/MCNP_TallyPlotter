@@ -2,12 +2,13 @@
 # TODO_list:
 
 # Long term tasks:
-#    
+#
+# TODO save all plot settings to config file - use config_dict to store setting when code run
 # TODO turn off error bars
-# TODO read different data on show them in tally plot with second Y axis (Cross section values from ENDF file structure, Talys output)
-# TODO put plot window into the tally read window ???
-# TODO change axis names, description in legend (new window?)
+# TODO read different data and show them in tally plot with second Y axis (Cross section values from ENDF file structure, Talys output) => PyNE test (pak to bude fungovat jen na Linux/macOS)
+# TODO change axis names, description in legend (text file vs. new window?)
 # TODO problem with plot window reactivation after export settings is closed ( .grab_set() ?)
+# far future:
 # TODO change font in export settings window
 # TODO turn on/off LaTeX in export settings window
 
@@ -117,21 +118,13 @@ def plot_window(root, tally_to_plot):
 
         config_mod.ax.clear()
 
-        config_mod.canvas_id.get_tk_widget().grid(column=0, row=0, sticky='nswe')
-        """
-        if replot_var.get():
-            config_mod.canvas_id.get_tk_widget().grid(column=0, row=0)
-            config_mod.fig_id.set_size_inches(float(xfig_var.get()) / 2.54, float(yfig_var.get()) / 2.54)
-        else:
-            config_mod.canvas_id.get_tk_widget().grid(column=0, row=0, sticky='nswe')
-        """
         # read reference data for ratio plot
         if (ratio_sel.get() != 'no ratio') and (data_var.get() == 'non'):
             x_ratio, y_ratio, y_err_ratio = config_mod.tallies[ratio_sel.get()][3], config_mod.tallies[ratio_sel.get()][4], config_mod.tallies[ratio_sel.get()][5]
         elif (ratio_sel.get() != 'no ratio') and (data_var.get() == 'norm'):
             x_ratio, y_ratio, y_err_ratio = config_mod.tallies[ratio_sel.get()][3], config_mod.tallies[ratio_sel.get()][7], config_mod.tallies[ratio_sel.get()][5]
 
-        # create new list in case the ratio plot is chosen and delete reference tally
+        # create a new list in case the ratio plot is chosen and delete reference tally
         tally_to_plot_mod = tally_to_plot[:]
         if ratio_sel.get() in tally_to_plot_mod:
             tally_to_plot_mod.remove(ratio_sel.get())
@@ -145,7 +138,7 @@ def plot_window(root, tally_to_plot):
                 x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4][:], config_mod.tallies[name][5][:]  # original data
                 y_label = 'Tally / particle'
 
-            # created to solve a problem with names in legend (not finished)
+            # temporary name
             config_mod.tallies[name][9] = name
 
             # return ration values
@@ -193,13 +186,6 @@ def plot_window(root, tally_to_plot):
         config_mod.ax.tick_params(axis='both', labelsize=ticks_var.get())
         if y_axis_var.get() == 'linear':
             config_mod.ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True)  # does not work in log scale with this setting
-
-        '''print(config_mod.ax.get_lines())
-        for i in config_mod.ax.get_lines():
-            print(i)
-        print(config_mod.ax)
-        print(linestep)
-        print(lineerr)'''
 
         # Canvas for plot
         config_mod.canvas_id.draw()

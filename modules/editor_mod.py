@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # TODO_list:
-# 
 
 
 # libraries
@@ -53,8 +52,6 @@ def open_lib():
         # read again config file
         settings_mod.read_config()
         editor_win.destroy()
-
-
 
 
     """
