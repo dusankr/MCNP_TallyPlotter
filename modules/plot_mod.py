@@ -137,43 +137,42 @@ def plot_window(root, tally_to_plot):
             tally_to_plot_mod.remove(ratio_sel.get())
 
         # plot all chosen values
-        for name in config_mod.tallies.keys():
-            if name in tally_to_plot_mod:
-                if data_var.get() == 'norm':
-                    x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][7][:], config_mod.tallies[name][5][:]  # normalized data
-                    y_label = 'Tally / MeV / particle'
-                elif data_var.get() == 'non':
-                    x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4][:], config_mod.tallies[name][5][:]  # original data
-                    y_label = 'Tally / particle'
+        for name in tally_to_plot_mod:
+            if data_var.get() == 'norm':
+                x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][7][:], config_mod.tallies[name][5][:]  # normalized data
+                y_label = 'Tally / MeV / particle'
+            elif data_var.get() == 'non':
+                x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4][:], config_mod.tallies[name][5][:]  # original data
+                y_label = 'Tally / particle'
 
-                print(name)
-                config_mod.tallies[name][9] = name
+            # created to solve a problem with names in legend (not finished)
+            config_mod.tallies[name][9] = name
 
-                # return ration values
-                if ratio_sel.get() != 'no ratio':
-                    y_label = 'Tally to Tally ratio (-)'
-                    if x_data != x_ratio:
-                        continue        # skip this cycle step if energy bins in current tally have different step from reference tally
+            # return ration values
+            if ratio_sel.get() != 'no ratio':
+                y_label = 'Tally to Tally ratio (-)'
+                if x_data != x_ratio:
+                    continue        # skip this cycle step if energy bins in current tally have different step from reference tally
 
-                    for i in range(0, len(y_data)):     # calculate ratio values and their errors
-                        if (y_data[i] != 0) and (y_ratio[i] != 0):      # only for non zero values
-                            y_data_err[i] = math.sqrt(y_data_err[i]**2 + y_err_ratio[i]**2)
-                            y_data[i] = y_data[i] / y_ratio[i]
-                        else:
-                            y_data[i] = 0
-                            y_data_err[i] = 0
-                    # return new curve title for ratio plot
-                    config_mod.tallies[name][9] = name + '/' + ratio_sel.get()
+                for i in range(0, len(y_data)):     # calculate ratio values and their errors
+                    if (y_data[i] != 0) and (y_ratio[i] != 0):      # only for non zero values
+                        y_data_err[i] = math.sqrt(y_data_err[i]**2 + y_err_ratio[i]**2)
+                        y_data[i] = y_data[i] / y_ratio[i]
+                    else:
+                        y_data[i] = 0
+                        y_data_err[i] = 0
+                # return new curve title for ratio plot
+                config_mod.tallies[name][9] = name + '/' + ratio_sel.get()
 
-                # calculate interval centers
-                x_data_center = interval_mid(x_data)
+            # calculate interval centers
+            x_data_center = interval_mid(x_data)
 
-                # plots
-                p_color = next(config_mod.ax._get_lines.prop_cycler)['color']      # same color for step and errorbar plot
-                linestep, = config_mod.ax.step(x_data, y_data, color=p_color, label=config_mod.tallies[name][9])
+            # plots
+            p_color = next(config_mod.ax._get_lines.prop_cycler)['color']      # same color for step and errorbar plot
+            linestep, = config_mod.ax.step(x_data, y_data, color=p_color, label=config_mod.tallies[name][9])
 
-                err = [a*b for a,b in zip(y_data_err, y_data)]          # abs error
-                lineerr = config_mod.ax.errorbar(x_data_center, y_data[1:], yerr=err[1:], xerr=0, color=p_color, marker='None',  linestyle='None', capthick=0.7, capsize=2)
+            err = [a*b for a,b in zip(y_data_err, y_data)]          # abs error
+            lineerr = config_mod.ax.errorbar(x_data_center, y_data[1:], yerr=err[1:], xerr=0, color=p_color, marker='None',  linestyle='None', capthick=0.7, capsize=2)
 
         # plot settings
         config_mod.ax.legend(loc=legend_pos.get(), fontsize=leg_var.get())
