@@ -8,9 +8,9 @@
 # initial mcnp output directory
 work_dir_path=C:\Users\dusan\Desktop\test_plotter
 # initial export directory
-export_dir_path=C:\Users\dusan\Desktop\export\try5.xlsx
+export_dir_path=C:\Users\dusan\Desktop\export
 # initial XS dir
-xs_dir_path=C:\Users\dusan\Desktop\test_plotter
+xs_dir_path=C:\Users\dusan\Desktop\test_plotter\plot_format.txt
 # figure resolution in DPI
 fig_dpi=300
 # figure x dimensions

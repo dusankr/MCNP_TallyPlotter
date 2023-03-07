@@ -62,7 +62,7 @@ def plot_to_canvas(tally_to_plot):
         err = [a * b for a, b in zip(y_data_err, y_data)]  # abs error
         lineerr = config_mod.ax.errorbar(x_data_center, y_data[1:], yerr=err[1:], xerr=0, color=p_color, marker='None', linestyle='None', capthick=0.7, capsize=2)
 
-    # XS plot (if true, run)
+    # XS plot (if true, run) -------------------------------------------------------------------------------------------
     if config_mod.plot_settings["xs_switch"]:
         config_mod.ax2 = config_mod.ax.twinx()
 
@@ -79,9 +79,16 @@ def plot_to_canvas(tally_to_plot):
         for name in config_mod.xs_data.keys():
             config_mod.ax2.plot(config_mod.xs_data[name][0], config_mod.xs_data[name][1], ls="--", label=name)
 
+        config_mod.ax2.legend(loc=config_mod.plot_settings["leg_pos"], fontsize=config_mod.plot_settings["leg_size"])
 
-    # plot settings
+    # plot settings ----------------------------------------------------------------------------------------------------
     config_mod.ax.legend(loc=config_mod.plot_settings["leg_pos"], fontsize=config_mod.plot_settings["leg_size"])
+
+    if config_mod.plot_settings["xs_switch"]:
+        lines, labels = config_mod.ax.get_legend_handles_labels()
+        lines2, labels2 = config_mod.ax2.get_legend_handles_labels()
+        config_mod.ax2.legend(lines + lines2, labels + labels2, loc=config_mod.plot_settings["leg_pos"], fontsize=config_mod.plot_settings["leg_size"])
+
     config_mod.ax.set_xscale(config_mod.plot_settings["x_scale"])
     config_mod.ax.set_yscale(config_mod.plot_settings["y_scale"])
     config_mod.ax.grid(visible=config_mod.plot_settings["grid_switch"], which=config_mod.plot_settings["grid_opt"], axis=config_mod.plot_settings["grid_ax"])

@@ -16,6 +16,7 @@
 import matplotlib
 from modules import config_mod, editor_mod, plot_core, read_mod
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
+import matplotlib.pyplot as plt     # MUST stay here!!!
 import tkinter as tk
 
 
