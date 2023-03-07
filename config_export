@@ -10,7 +10,7 @@ work_dir_path=C:\Users\dusan\Desktop\test_plotter
 # initial export directory
 export_dir_path=C:\Users\dusan\Desktop\export
 # initial XS dir
-xs_dir_path=C:\Users\dusan\Desktop\test_plotter
+xs_dir_path=C:\Users\dusan\Desktop\test_plotter\plot_format.txt
 # figure resolution in DPI
 fig_dpi=300
 # figure x dimensions
@@ -18,7 +18,7 @@ fig_x_dimension=None
 # figure y dimensions
 fig_y_dimension=None
 # figure output formats (png, pdf, ps, eps and svg)
-fig_format=png
+fig_format=pdf
 # x ax title
 x_title=Energy (MeV)
 # y ax title
@@ -33,8 +33,10 @@ grid_ax=both
 ax_label_size=12
 tics_size=10
 x_scale=log
-y_scale=log
-xs_switch=False
+y_scale=linear
+xs_switch=True
 y2_title=Cross Section (barns)
-save_fig=False
+save_fig=True
+
+error_bar=False
 

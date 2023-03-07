@@ -56,6 +56,7 @@ def plot_window(root, tally_to_plot):
     grid_axis_var = tk.StringVar(value='both')  # Option Menu variable
     grid_on_var = tk.BooleanVar(value=True)  # Check box variable
     save_var = tk.BooleanVar(value=False)  # Check box variable - save figure
+    error_var = tk.BooleanVar(value=True)  # Turn on error bars
 
     xs_var = tk.BooleanVar(value=False)  # Check box variable - show XS data
     """ This is not more used - make problems if replot button is activated
@@ -129,6 +130,7 @@ def plot_window(root, tally_to_plot):
         config_mod.plot_settings["tics_size"] = ticks_var.get()
         config_mod.plot_settings["xs_switch"] = xs_var.get()
         config_mod.plot_settings["save_fig"] = save_var.get()
+        config_mod.plot_settings["error_bar"] = error_var.get()
 
         # fill ax and fig with all curves and return it to the canvas
         plot_core.plot_to_canvas(tally_to_plot)
@@ -169,9 +171,12 @@ def plot_window(root, tally_to_plot):
     data_inp_radio = tk.Radiobutton(data_inp_frame, text='non', variable=data_var, value='non', tristatevalue="z")
     data_inp_radio.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
 
+    chk_replot = tk.Checkbutton(data_inp_frame, text='error bars', var=error_var)
+    chk_replot.grid(column=0, row=1, sticky='nswe', padx=5, pady=5)
+
     # plot_window(root, treeview_files, treeview_files.get_checked()
     ratio_menu = tk.OptionMenu(data_inp_frame, ratio_sel, *ratio_options)
-    ratio_menu.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=5, pady=5)
+    ratio_menu.grid(column=0, columnspan=2, row=2, sticky='nswe', padx=5, pady=5)
 
     # LEGEND settings --------------------------------------------------------------------------------------------------
     legend_frame = tk.LabelFrame(plot_option_frame, text='Legend settings')
@@ -221,7 +226,7 @@ def plot_window(root, tally_to_plot):
     xs_frame.grid(column=0, row=7, sticky='nswe', padx=5, pady=5)
 
     chk_xs = tk.Checkbutton(xs_frame, text='turn on a second Y axis', var=xs_var)
-    chk_xs.grid(column=0, columnspan=2, row=0, sticky='nswe', padx=5, pady=5)
+    chk_xs.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
 
     button_xs = tk.ttk.Button(xs_frame, text='Read XS', command=lambda: read_mod.read_xs())
     button_xs.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=5, pady=5)
@@ -234,7 +239,7 @@ def plot_window(root, tally_to_plot):
     button_settings.grid(column=0, columnspan=2, row=0, sticky='nswe', padx=5, pady=5)
 
     chk_replot = tk.Checkbutton(save_frame, text='save figure', var=save_var)
-    chk_replot.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=5, pady=5)
+    chk_replot.grid(column=0, row=1, sticky='nswe', padx=5, pady=5)
 
     # replot frame -----------------------------------------------------------------------------------------------------
     replot_frame = tk.LabelFrame(plot_option_frame, text='Replot')
@@ -272,6 +277,7 @@ def plot_window(root, tally_to_plot):
     ticks_var.trace_add('write', my_callback)
     xs_var.trace_add('write', my_callback)
     save_var.trace_add('write', my_callback)
+    error_var.trace_add('write', my_callback)
 
     # turn on-off online replot
     def turn_off_replot():
@@ -291,6 +297,7 @@ def plot_window(root, tally_to_plot):
             ticks_var.trace_remove('write', ticks_var.trace_info()[0][1])
             xs_var.trace_remove('write', xs_var.trace_info()[0][1])
             save_var.trace_remove('write', save_var.trace_info()[0][1])
+            error_var.trace_remove('write', error_var.trace_info()[0][1])
         else:
             button_replot['state'] = 'disabled'
 
@@ -307,6 +314,7 @@ def plot_window(root, tally_to_plot):
             ticks_var.trace_add('write', my_callback)
             xs_var.trace_add('write', my_callback)
             save_var.trace_add('write', my_callback)
+            error_var.trace_add('write', my_callback)
 
     def change_state():
         if grid_on_var.get():

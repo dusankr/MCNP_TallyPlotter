@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
-# TODO more options (ax min-max value, error bar?)
+# TODO more options (ax min-max value)
 
 # libraries
 from modules import config_mod
 import math
 import pathlib
+import tkinter as tk
 
 
 def plot_to_canvas(tally_to_plot):
@@ -60,8 +61,9 @@ def plot_to_canvas(tally_to_plot):
         p_color = next(config_mod.ax._get_lines.prop_cycler)['color']  # same color for step and errorbar plot
         linestep, = config_mod.ax.step(x_data, y_data, color=p_color, label=config_mod.tallies[name][9])
 
-        err = [a * b for a, b in zip(y_data_err, y_data)]  # abs error
-        lineerr = config_mod.ax.errorbar(x_data_center, y_data[1:], yerr=err[1:], xerr=0, color=p_color, marker='None', linestyle='None', capthick=0.7, capsize=2)
+        if config_mod.plot_settings["error_bar"]:
+            err = [a * b for a, b in zip(y_data_err, y_data)]  # abs error
+            lineerr = config_mod.ax.errorbar(x_data_center, y_data[1:], yerr=err[1:], xerr=0, color=p_color, marker='None', linestyle='None', capthick=0.7, capsize=2)
 
     # XS plot (if true, run) -------------------------------------------------------------------------------------------
     if config_mod.plot_settings["xs_switch"]:
@@ -113,7 +115,10 @@ def plot_to_canvas(tally_to_plot):
     # TODO add plot size for export
     # TODO independent path, file name
     if config_mod.plot_settings["save_fig"] is True and config_mod.plot_settings["fig_format"] != "None" and config_mod.plot_settings["fig_dpi"] != "None":
-        config_mod.fig_id.savefig(config_mod.plot_settings["work_dir_path"] / pathlib.Path('fig_exp.' + config_mod.plot_settings["fig_format"]), format=config_mod.plot_settings["fig_format"], dpi=int(config_mod.plot_settings["fig_dpi"]))
+        try:
+            config_mod.fig_id.savefig(config_mod.plot_settings["work_dir_path"] / pathlib.Path('fig_exp.' + config_mod.plot_settings["fig_format"]), format=config_mod.plot_settings["fig_format"], dpi=int(config_mod.plot_settings["fig_dpi"]))
+        except:
+            tk.messagebox.showerror('Read error', 'File is opened, please close it and then xou can continue.')
 
 
 # calculate a middle of energy intervals
