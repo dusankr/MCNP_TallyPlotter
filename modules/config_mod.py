@@ -2,11 +2,13 @@
 
 # main variable for tally values and parameters
 tallies = {}
+xs_data = {}
 
 # matplotlib variables
 canvas_id = None
 fig_id = None
 ax = None
+ax2 = None
 
 # TODO write description
 output_files = []
@@ -16,6 +18,7 @@ non_output = []
 plot_settings = dict.fromkeys([
     "work_dir_path",
     "export_dir_path",
+    "xs_dir_path",
     "fig_x_dimension",
     "fig_y_dimension",
     "fig_format",
@@ -30,7 +33,9 @@ plot_settings = dict.fromkeys([
     "grid_opt",
     "grid_ax",
     "ax_label_size",
-    "tics_size"
+    "tics_size",
+    "xs_switch",
+    "y2_title"
 ])
 
 # second option how to create dict:

@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
 # TODO what happens if cut off is higher than E_min???
-# TODO test MCTAL (compile python library from MCNP)
-
+# TODO use MCNP Tools
 # TODO create own class for tally results?
-
 # TODO create log file!
 
 # libraries
@@ -315,3 +313,46 @@ def read_tally(f_path, fname):
         traceback.print_exc()
         config_mod.non_output.append(fname.name)
         print('Read process crash for this file: ' + fname.name)
+
+
+# read XS data
+def read_xs():
+    config_mod.plot_settings["xs_dir_path"] = pathlib.Path(tk.filedialog.askopenfilename(title='Choose directory with XS file', initialdir=config_mod.plot_settings["work_dir_path"]))
+
+    try:
+        with open(config_mod.plot_settings["xs_dir_path"], 'r', encoding='utf-8') as temp_file:  # open XS file
+            content = temp_file.readlines()
+
+            config_mod.xs_data.clear()
+
+            x_dat = []
+            y_dat = []
+
+            i = 0
+            while i < len(content):
+                if content[i][0] != '#':
+                    line = content[i].split()
+                    if line[0] == "name:":
+                        name_xs = line[1] + " " + line[2]
+
+                        i += 8
+                        while content[i] != "//\n":
+                            line = content[i].split()
+                            x_dat.append(float(line[0]))
+                            y_dat.append(float(line[1]))
+                            i += 1
+                        config_mod.xs_data[name_xs] = [x_dat, y_dat]
+                        x_dat, y_dat = [], []
+                    else:
+                        i += 1
+                else:
+                    i += 1
+
+        # print all XS from file in CMD
+        print("All XS from ", config_mod.plot_settings["xs_dir_path"].name, " file:")
+        for nam in config_mod.xs_data.keys():
+            print(nam)
+
+    except:
+        traceback.print_exc()
+        print('Read process crash for this file:')

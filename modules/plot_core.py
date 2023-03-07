@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
-#
+# TODO more options (ax min-max value, error bar?)
 
 # libraries
 from modules import config_mod
@@ -9,6 +9,9 @@ import math
 
 def plot_to_canvas(tally_to_plot):
     config_mod.ax.clear()
+    if config_mod.ax2 != None:
+        config_mod.ax2.remove()     # TODO solve Warning!!! (works now)
+        config_mod.ax2 = None
 
     # read reference data for ratio plot
     if (config_mod.plot_settings["ratio"] != 'no ratio') and (config_mod.plot_settings["data_var"] == 'non'):
@@ -58,6 +61,24 @@ def plot_to_canvas(tally_to_plot):
 
         err = [a * b for a, b in zip(y_data_err, y_data)]  # abs error
         lineerr = config_mod.ax.errorbar(x_data_center, y_data[1:], yerr=err[1:], xerr=0, color=p_color, marker='None', linestyle='None', capthick=0.7, capsize=2)
+
+    # XS plot (if true, run)
+    if config_mod.plot_settings["xs_switch"]:
+        config_mod.ax2 = config_mod.ax.twinx()
+
+        if config_mod.plot_settings["y2_title"] != "None":
+            config_mod.ax2.set_ylabel(config_mod.plot_settings["y2_title"],fontsize=config_mod.plot_settings["ax_label_size"])
+        else:
+            config_mod.plot_settings["y2_title"] = "Cross Section (barns)"
+            config_mod.ax2.set_ylabel(config_mod.plot_settings["y2_title"], fontsize=config_mod.plot_settings["ax_label_size"])
+
+        config_mod.ax2.set_yscale("log")
+        config_mod.ax2.tick_params(axis='both', labelsize=config_mod.plot_settings["tics_size"])
+
+        # TODO add to legend
+        for name in config_mod.xs_data.keys():
+            config_mod.ax2.plot(config_mod.xs_data[name][0], config_mod.xs_data[name][1], ls="--", label=name)
+
 
     # plot settings
     config_mod.ax.legend(loc=config_mod.plot_settings["leg_pos"], fontsize=config_mod.plot_settings["leg_size"])

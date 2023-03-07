@@ -3,10 +3,10 @@
 
 # Long term tasks:
 #
-# TODO save all plot settings to config file - use config_dict to store setting when code run
+# TODO reread some settings?
 # TODO turn off error bars
 # TODO read different data and show them in tally plot with second Y axis (Cross section values from ENDF file structure, Talys output) => PyNE test (pak to bude fungovat jen na Linux/macOS)
-# TODO change axis names, description in legend (text file vs. new window?)
+# TODO description in legend (text file vs. new window?)
 # TODO problem with plot window reactivation after export settings is closed ( .grab_set() ?)
 # far future:
 # TODO change font in export settings window
@@ -15,7 +15,7 @@
 # libraries
 import matplotlib
 import matplotlib.pyplot as plt     # ploting in matlab style
-from modules import config_mod, editor_mod, plot_core
+from modules import config_mod, editor_mod, plot_core, read_mod
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 import math
 
@@ -57,6 +57,7 @@ def plot_window(root, tally_to_plot):
     grid_axis_var = tk.StringVar(value='both')  # Option Menu variable
     grid_on_var = tk.BooleanVar(value=True)  # Check box variable
 
+    xs_var = tk.BooleanVar(value=False)  # Check box variable - show XS data
     """ This is not more used - make problems if replot button is activated
     # figure size
     xfig_var = tk.StringVar(value=20)  # SpinBox variable
@@ -99,7 +100,7 @@ def plot_window(root, tally_to_plot):
     win_scroll.grid(sticky='ns', column=2, row=0)
 
     # Canvas definition
-    config_mod.fig_id = matplotlib.figure.Figure()
+    config_mod.fig_id = matplotlib.figure.Figure()  # TODO looks like a very old matplotlib commands
     config_mod.ax = config_mod.fig_id.add_subplot()
 
     config_mod.canvas_id = FigureCanvasTkAgg(config_mod.fig_id, plot_frame)  # add Figure to canvas from plot function
@@ -126,6 +127,7 @@ def plot_window(root, tally_to_plot):
         config_mod.plot_settings["grid_ax"] = grid_axis_var.get()
         config_mod.plot_settings["ax_label_size"] = axis_var.get()
         config_mod.plot_settings["tics_size"] = ticks_var.get()
+        config_mod.plot_settings["xs_switch"] = xs_var.get()
 
         # fill ax and fig with all curves and return it to the canvas
         plot_core.plot_to_canvas(tally_to_plot)
@@ -166,7 +168,8 @@ def plot_window(root, tally_to_plot):
     data_inp_radio = tk.Radiobutton(data_inp_frame, text='non', variable=data_var, value='non', tristatevalue="z")
     data_inp_radio.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
 
-    ratio_menu = tk.OptionMenu(data_inp_frame, ratio_sel, *ratio_options)  # plot_window(root, treeview_files, treeview_files.get_checked()
+    # plot_window(root, treeview_files, treeview_files.get_checked()
+    ratio_menu = tk.OptionMenu(data_inp_frame, ratio_sel, *ratio_options)
     ratio_menu.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=5, pady=5)
 
     # LEGEND settings --------------------------------------------------------------------------------------------------
@@ -175,7 +178,8 @@ def plot_window(root, tally_to_plot):
     legend_frame.columnconfigure(0, weight=1)
     legend_frame.rowconfigure(0, weight=1)
 
-    legend_menu = tk.OptionMenu(legend_frame, legend_pos, *legend_options)   # plot_window(root, treeview_files, treeview_files.get_checked()
+    # plot_window(root, treeview_files, treeview_files.get_checked()
+    legend_menu = tk.OptionMenu(legend_frame, legend_pos, *legend_options)
     legend_menu.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
 
     leg_spinbox = tk.ttk.Spinbox(legend_frame, from_=5, to=20, textvariable=leg_var, wrap=True, width=4)
@@ -210,7 +214,7 @@ def plot_window(root, tally_to_plot):
 
     # replot frame -----------------------------------------------------------------------------------------------------
     replot_frame = tk.LabelFrame(plot_option_frame, text='Replot')
-    replot_frame.grid(column=0, row=7, sticky='nswe', padx=5, pady=5)
+    replot_frame.grid(column=0, row=8, sticky='nswe', padx=5, pady=5)
 
     chk_replot = tk.Checkbutton(replot_frame, text='disable immediate changes', var=replot_var, command=lambda: turn_off_replot())
     chk_replot.grid(column=0, columnspan=2, row=0, sticky='nswe', padx=5, pady=5)
@@ -221,8 +225,22 @@ def plot_window(root, tally_to_plot):
     button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: plot_function(), state='disabled')
     button_replot.grid(column=0, columnspan=2, row=2, sticky='nswe', padx=5, pady=5)
 
+    # cross sections frame ---------------------------------------------------------------------------------------------
+    # TODO data source: ENDF, ACE, simple table, Talys
+    # TODO choose XS data for plotting (more complicated)
+    # TODO step vs. point plot
+    xs_frame = tk.LabelFrame(plot_option_frame, text='Cross Section')
+    xs_frame.grid(column=0, row=7, sticky='nswe', padx=5, pady=5)
+
+    chk_xs = tk.Checkbutton(xs_frame, text='turn on a second Y axis', var=xs_var, command=lambda: plot_function())
+    chk_xs.grid(column=0, columnspan=2, row=0, sticky='nswe', padx=5, pady=5)
+
+    button_xs = tk.ttk.Button(xs_frame, text='Read XS', command=lambda: read_mod.read_xs())
+    button_xs.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=5, pady=5)
+
+    # quit -------------------------------------------------------------------------------------------------------------
     button_quit = tk.ttk.Button(plot_option_frame, text='Quit', command=new_win.destroy)
-    button_quit.grid(column=0, row=8, sticky='we', padx=5, pady=5)
+    button_quit.grid(column=0, row=9, sticky='we', padx=5, pady=5)
 
     # endregion all tkinter widgets for
 
