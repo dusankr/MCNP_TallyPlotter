@@ -5,6 +5,7 @@
 # libraries
 from modules import config_mod
 import math
+import pathlib
 
 
 def plot_to_canvas(tally_to_plot):
@@ -108,6 +109,11 @@ def plot_to_canvas(tally_to_plot):
     # workaround, this setting does not work in a log
     if config_mod.plot_settings["y_scale"] == 'linear':
         config_mod.ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True)
+
+    # TODO add plot size for export
+    # TODO independent path, file name
+    if config_mod.plot_settings["save_fig"] is True and config_mod.plot_settings["fig_format"] != "None" and config_mod.plot_settings["fig_dpi"] != "None":
+        config_mod.fig_id.savefig(config_mod.plot_settings["work_dir_path"] / pathlib.Path('fig_exp.' + config_mod.plot_settings["fig_format"]), format=config_mod.plot_settings["fig_format"], dpi=int(config_mod.plot_settings["fig_dpi"]))
 
 
 # calculate a middle of energy intervals

@@ -35,7 +35,8 @@ plot_settings = dict.fromkeys([
     "ax_label_size",
     "tics_size",
     "xs_switch",
-    "y2_title"
+    "y2_title",
+    "save_fig"
 ])
 
 # second option how to create dict:

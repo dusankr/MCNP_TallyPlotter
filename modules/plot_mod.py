@@ -5,7 +5,6 @@
 #
 # TODO reread some settings?
 # TODO turn off error bars
-# TODO read different data and show them in tally plot with second Y axis (Cross section values from ENDF file structure, Talys output) => PyNE test (pak to bude fungovat jen na Linux/macOS)
 # TODO description in legend (text file vs. new window?)
 # TODO problem with plot window reactivation after export settings is closed ( .grab_set() ?)
 # far future:
@@ -56,6 +55,7 @@ def plot_window(root, tally_to_plot):
     grid_var = tk.StringVar(value='major')  # Option Menu variable
     grid_axis_var = tk.StringVar(value='both')  # Option Menu variable
     grid_on_var = tk.BooleanVar(value=True)  # Check box variable
+    save_var = tk.BooleanVar(value=False)  # Check box variable - save figure
 
     xs_var = tk.BooleanVar(value=False)  # Check box variable - show XS data
     """ This is not more used - make problems if replot button is activated
@@ -73,7 +73,7 @@ def plot_window(root, tally_to_plot):
 
     new_win.title('Plotting window')
 
-    # layout all of the main containers
+    # layout FOR all the main containers
     new_win.columnconfigure(0, weight=1)
     new_win.columnconfigure(1, weight=0)
     new_win.rowconfigure(0, weight=1)
@@ -96,8 +96,8 @@ def plot_window(root, tally_to_plot):
 
     # Srollbar cannot work in window or frame -> canvas
     # https://riptutorial.com/tkinter/example/30942/scrolling-a-group-of-widgets
-    win_scroll = tk.Scrollbar(new_win, orient='vertical')
-    win_scroll.grid(sticky='ns', column=2, row=0)
+    # win_scroll = tk.Scrollbar(new_win, orient='vertical')
+    # win_scroll.grid(sticky='ns', column=2, row=0)
 
     # Canvas definition
     config_mod.fig_id = matplotlib.figure.Figure()  # TODO looks like a very old matplotlib commands
@@ -128,6 +128,7 @@ def plot_window(root, tally_to_plot):
         config_mod.plot_settings["ax_label_size"] = axis_var.get()
         config_mod.plot_settings["tics_size"] = ticks_var.get()
         config_mod.plot_settings["xs_switch"] = xs_var.get()
+        config_mod.plot_settings["save_fig"] = save_var.get()
 
         # fill ax and fig with all curves and return it to the canvas
         plot_core.plot_to_canvas(tally_to_plot)
@@ -225,22 +226,29 @@ def plot_window(root, tally_to_plot):
     button_xs = tk.ttk.Button(xs_frame, text='Read XS', command=lambda: read_mod.read_xs())
     button_xs.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=5, pady=5)
 
+    # save figure frame ------------------------------------------------------------------------------------------------
+    save_frame = tk.LabelFrame(plot_option_frame, text='Export')
+    save_frame.grid(column=0, row=8, sticky='nswe', padx=5, pady=5)
+
+    button_settings = tk.ttk.Button(save_frame, text='Export settings editor', command=lambda: editor_mod.open_lib())
+    button_settings.grid(column=0, columnspan=2, row=0, sticky='nswe', padx=5, pady=5)
+
+    chk_replot = tk.Checkbutton(save_frame, text='save figure', var=save_var)
+    chk_replot.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=5, pady=5)
+
     # replot frame -----------------------------------------------------------------------------------------------------
     replot_frame = tk.LabelFrame(plot_option_frame, text='Replot')
-    replot_frame.grid(column=0, row=8, sticky='nswe', padx=5, pady=5)
+    replot_frame.grid(column=0, row=9, sticky='nswe', padx=5, pady=5)
 
     chk_replot = tk.Checkbutton(replot_frame, text='disable immediate changes', var=replot_var, command=lambda: turn_off_replot())
     chk_replot.grid(column=0, columnspan=2, row=0, sticky='nswe', padx=5, pady=5)
 
-    button_settings = tk.ttk.Button(replot_frame, text='Export settings', command=lambda: editor_mod.open_lib())
-    button_settings.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=5, pady=5)
-
     button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: plot_function(), state='disabled')
-    button_replot.grid(column=0, columnspan=2, row=2, sticky='nswe', padx=5, pady=5)
+    button_replot.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=5, pady=5)
 
     # quit -------------------------------------------------------------------------------------------------------------
     button_quit = tk.ttk.Button(plot_option_frame, text='Quit', command=new_win.destroy)
-    button_quit.grid(column=0, row=9, sticky='we', padx=5, pady=5)
+    button_quit.grid(column=0, row=10, sticky='we', padx=5, pady=5)
 
     # endregion all tkinter widgets for
 
@@ -263,6 +271,7 @@ def plot_window(root, tally_to_plot):
     grid_axis_var.trace_add('write', my_callback)
     ticks_var.trace_add('write', my_callback)
     xs_var.trace_add('write', my_callback)
+    save_var.trace_add('write', my_callback)
 
     # turn on-off online replot
     def turn_off_replot():
@@ -281,6 +290,7 @@ def plot_window(root, tally_to_plot):
             grid_axis_var.trace_remove('write', grid_axis_var.trace_info()[0][1])
             ticks_var.trace_remove('write', ticks_var.trace_info()[0][1])
             xs_var.trace_remove('write', xs_var.trace_info()[0][1])
+            save_var.trace_remove('write', save_var.trace_info()[0][1])
         else:
             button_replot['state'] = 'disabled'
 
@@ -296,6 +306,7 @@ def plot_window(root, tally_to_plot):
             grid_axis_var.trace_add('write', my_callback)
             ticks_var.trace_add('write', my_callback)
             xs_var.trace_add('write', my_callback)
+            save_var.trace_add('write', my_callback)
 
     def change_state():
         if grid_on_var.get():
