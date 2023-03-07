@@ -15,7 +15,7 @@
 # libraries
 import matplotlib
 import matplotlib.pyplot as plt     # ploting in matlab style
-from modules import config_mod, editor_mod
+from modules import config_mod, editor_mod, plot_core
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 import math
 
@@ -114,78 +114,21 @@ def plot_window(root, tally_to_plot):
 
     # plot tallies from user -------------------------------------------------------------------------------------------
     def plot_function():
-        # matplotlib.rcParams['font.family'] = 'Comic Sans'     # font settings
 
-        config_mod.ax.clear()
+        config_mod.plot_settings["ratio"] = ratio_sel.get()
+        config_mod.plot_settings["data_var"] = data_var.get()
+        config_mod.plot_settings["leg_pos"] = legend_pos.get()
+        config_mod.plot_settings["leg_size"] = leg_var.get()
+        config_mod.plot_settings["x_scale"] = x_axis_var.get()
+        config_mod.plot_settings["y_scale"] = y_axis_var.get()
+        config_mod.plot_settings["grid_switch"] = grid_on_var.get()
+        config_mod.plot_settings["grid_opt"] = grid_var.get()
+        config_mod.plot_settings["grid_ax"] = grid_axis_var.get()
+        config_mod.plot_settings["ax_label_size"] = axis_var.get()
+        config_mod.plot_settings["tics_size"] = ticks_var.get()
 
-        # read reference data for ratio plot
-        if (ratio_sel.get() != 'no ratio') and (data_var.get() == 'non'):
-            x_ratio, y_ratio, y_err_ratio = config_mod.tallies[ratio_sel.get()][3], config_mod.tallies[ratio_sel.get()][4], config_mod.tallies[ratio_sel.get()][5]
-        elif (ratio_sel.get() != 'no ratio') and (data_var.get() == 'norm'):
-            x_ratio, y_ratio, y_err_ratio = config_mod.tallies[ratio_sel.get()][3], config_mod.tallies[ratio_sel.get()][7], config_mod.tallies[ratio_sel.get()][5]
-
-        # create a new list in case the ratio plot is chosen and delete reference tally
-        tally_to_plot_mod = tally_to_plot[:]
-        if ratio_sel.get() in tally_to_plot_mod:
-            tally_to_plot_mod.remove(ratio_sel.get())
-
-        # plot all chosen values
-        for name in tally_to_plot_mod:
-            if data_var.get() == 'norm':
-                x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][7][:], config_mod.tallies[name][5][:]  # normalized data
-                y_label = 'Tally / MeV / particle'
-            elif data_var.get() == 'non':
-                x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4][:], config_mod.tallies[name][5][:]  # original data
-                y_label = 'Tally / particle'
-
-            # temporary name
-            config_mod.tallies[name][9] = name
-
-            # return ration values
-            if ratio_sel.get() != 'no ratio':
-                y_label = 'Tally to Tally ratio (-)'
-                if x_data != x_ratio:
-                    continue        # skip this cycle step if energy bins in current tally have different step from reference tally
-
-                for i in range(0, len(y_data)):     # calculate ratio values and their errors
-                    if (y_data[i] != 0) and (y_ratio[i] != 0):      # only for non zero values
-                        y_data_err[i] = math.sqrt(y_data_err[i]**2 + y_err_ratio[i]**2)
-                        y_data[i] = y_data[i] / y_ratio[i]
-                    else:
-                        y_data[i] = 0
-                        y_data_err[i] = 0
-                # return new curve title for ratio plot
-                config_mod.tallies[name][9] = name + '/' + ratio_sel.get()
-
-            # calculate interval centers
-            x_data_center = interval_mid(x_data)
-
-            # plots
-            p_color = next(config_mod.ax._get_lines.prop_cycler)['color']      # same color for step and errorbar plot
-            linestep, = config_mod.ax.step(x_data, y_data, color=p_color, label=config_mod.tallies[name][9])
-
-            err = [a*b for a,b in zip(y_data_err, y_data)]          # abs error
-            lineerr = config_mod.ax.errorbar(x_data_center, y_data[1:], yerr=err[1:], xerr=0, color=p_color, marker='None',  linestyle='None', capthick=0.7, capsize=2)
-
-        # plot settings
-        config_mod.ax.legend(loc=legend_pos.get(), fontsize=leg_var.get())
-        config_mod.ax.set_xscale(x_axis_var.get())
-        config_mod.ax.set_yscale(y_axis_var.get())
-        config_mod.ax.grid(visible=grid_on_var.get(), which=grid_var.get(), axis=grid_axis_var.get())
-
-        if config_mod.plot_settings["x_title"] != "None":
-            config_mod.ax.set_xlabel(config_mod.plot_settings["x_title"], fontsize=axis_var.get())
-        else:
-            config_mod.ax.set_xlabel('energy (MeV)', fontsize=axis_var.get())
-
-        if config_mod.plot_settings["y_title"] != "None":
-            config_mod.ax.set_ylabel(config_mod.plot_settings["y_title"], fontsize=axis_var.get())
-        else:
-            config_mod.ax.set_ylabel(y_label, fontsize=axis_var.get())
-
-        config_mod.ax.tick_params(axis='both', labelsize=ticks_var.get())
-        if y_axis_var.get() == 'linear':
-            config_mod.ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True)  # does not work in log scale with this setting
+        # fill ax and fig with all curves and return it to the canvas
+        plot_core.plot_to_canvas(tally_to_plot)
 
         # Canvas for plot
         config_mod.canvas_id.draw()
@@ -285,7 +228,7 @@ def plot_window(root, tally_to_plot):
 
     # FUNCTIONS conected to MAIN function ------------------------------------------------------------------------------
 
-    # call replot when Option Menu are changed
+    # call replot when Option Menu is changed
     def my_callback(*args):
         plot_function()
 
@@ -340,14 +283,3 @@ def plot_window(root, tally_to_plot):
         else:
             grid_menu['state'] = 'disabled'
             grid_axis_menu['state'] = 'disabled'
-
-
-# OUTSIDE functions ----------------------------------------------------------------------------------------------------
-# calculate central value for all bins
-def interval_mid(x):
-    x_center = []
-    for i in range(0, len(x) - 1):
-        x_center.append(x[i] + (x[i + 1] - x[i]) / 2)
-
-    return x_center
-

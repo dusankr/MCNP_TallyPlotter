@@ -21,3 +21,14 @@ fig_format=None
 x_title=Energy (MeV)
 # y ax title
 y_title= Flux (cm$^{-2}$)
+ratio=o00e_114_cell_40031
+data_var=norm
+leg_pos=upper left
+leg_size=5
+grid_switch=True
+grid_opt=major
+grid_ax=both
+ax_label_size=10
+tics_size=10
+x_scale=log
+y_scale=log

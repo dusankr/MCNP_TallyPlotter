@@ -21,7 +21,16 @@ plot_settings = dict.fromkeys([
     "fig_format",
     "fig_dpi",
     "x_title",
-    "y_title"
+    "y_title",
+    "ratio",
+    "data_var",
+    "leg_pos",
+    "leg_size",
+    "grid_switch",
+    "grid_opt",
+    "grid_ax",
+    "ax_label_size",
+    "tics_size"
 ])
 
 # second option how to create dict:
