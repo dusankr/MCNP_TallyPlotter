@@ -212,6 +212,19 @@ def plot_window(root, tally_to_plot):
     grid_axis_menu = tk.OptionMenu(grid_frame, grid_axis_var, *grid_axis_options)
     grid_axis_menu.grid(column=1, row=1, sticky='nswe', padx=5, pady=5)
 
+    # cross sections frame ---------------------------------------------------------------------------------------------
+    # TODO data source: ENDF, ACE, Talys
+    # TODO choose XS data for plotting (more complicated)
+    # TODO step vs. point plot
+    xs_frame = tk.LabelFrame(plot_option_frame, text='Cross Section')
+    xs_frame.grid(column=0, row=7, sticky='nswe', padx=5, pady=5)
+
+    chk_xs = tk.Checkbutton(xs_frame, text='turn on a second Y axis', var=xs_var)
+    chk_xs.grid(column=0, columnspan=2, row=0, sticky='nswe', padx=5, pady=5)
+
+    button_xs = tk.ttk.Button(xs_frame, text='Read XS', command=lambda: read_mod.read_xs())
+    button_xs.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=5, pady=5)
+
     # replot frame -----------------------------------------------------------------------------------------------------
     replot_frame = tk.LabelFrame(plot_option_frame, text='Replot')
     replot_frame.grid(column=0, row=8, sticky='nswe', padx=5, pady=5)
@@ -224,19 +237,6 @@ def plot_window(root, tally_to_plot):
 
     button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: plot_function(), state='disabled')
     button_replot.grid(column=0, columnspan=2, row=2, sticky='nswe', padx=5, pady=5)
-
-    # cross sections frame ---------------------------------------------------------------------------------------------
-    # TODO data source: ENDF, ACE, simple table, Talys
-    # TODO choose XS data for plotting (more complicated)
-    # TODO step vs. point plot
-    xs_frame = tk.LabelFrame(plot_option_frame, text='Cross Section')
-    xs_frame.grid(column=0, row=7, sticky='nswe', padx=5, pady=5)
-
-    chk_xs = tk.Checkbutton(xs_frame, text='turn on a second Y axis', var=xs_var, command=lambda: plot_function())
-    chk_xs.grid(column=0, columnspan=2, row=0, sticky='nswe', padx=5, pady=5)
-
-    button_xs = tk.ttk.Button(xs_frame, text='Read XS', command=lambda: read_mod.read_xs())
-    button_xs.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=5, pady=5)
 
     # quit -------------------------------------------------------------------------------------------------------------
     button_quit = tk.ttk.Button(plot_option_frame, text='Quit', command=new_win.destroy)
@@ -262,6 +262,7 @@ def plot_window(root, tally_to_plot):
     grid_var.trace_add('write', my_callback)
     grid_axis_var.trace_add('write', my_callback)
     ticks_var.trace_add('write', my_callback)
+    xs_var.trace_add('write', my_callback)
 
     # turn on-off online replot
     def turn_off_replot():
@@ -279,6 +280,7 @@ def plot_window(root, tally_to_plot):
             grid_var.trace_remove('write', grid_var.trace_info()[0][1])
             grid_axis_var.trace_remove('write', grid_axis_var.trace_info()[0][1])
             ticks_var.trace_remove('write', ticks_var.trace_info()[0][1])
+            xs_var.trace_remove('write', xs_var.trace_info()[0][1])
         else:
             button_replot['state'] = 'disabled'
 
@@ -293,6 +295,7 @@ def plot_window(root, tally_to_plot):
             grid_var.trace_add('write', my_callback)
             grid_axis_var.trace_add('write', my_callback)
             ticks_var.trace_add('write', my_callback)
+            xs_var.trace_add('write', my_callback)
 
     def change_state():
         if grid_on_var.get():

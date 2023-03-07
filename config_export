@@ -8,7 +8,7 @@
 # initial directory
 work_dir_path=C:\Users\dusan\Desktop\test_plotter
 # initial directory
-export_dir_path=C:\Users\dusan\Desktop\test_plotter\export3
+export_dir_path=.
 # figure resolution in DPI
 fig_dpi=300
 # figure x dimensions
@@ -29,8 +29,8 @@ grid_switch=True
 grid_opt=major
 grid_ax=both
 ax_label_size=12
-tics_size=15
-x_scale=linear
+tics_size=10
+x_scale=log
 y_scale=linear
 xs_dir_path=C:\Users\dusan\Desktop\test_plotter\plot_format.txt
 xs_switch=True
