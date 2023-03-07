@@ -4,6 +4,9 @@
 # TODO use MCNP Tools
 # TODO create own class for tally results?
 # TODO create log file!
+# https://www.geeksforgeeks.org/how-to-log-a-python-exception/
+# https://docs.python.org/3/library/traceback.html
+# https://stackoverflow.com/questions/5191830/how-do-i-log-a-python-error-with-debug-information
 
 # libraries
 from modules import config_mod

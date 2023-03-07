@@ -31,10 +31,22 @@ def selected_tally():
     return selection
 
 
+# check/uncheck all items in teh treeview
+def select_all():
+    for item in treeview_files.get_children():
+        if check_var.get():
+            treeview_files.change_state(item, state="checked")
+        else:
+            treeview_files.change_state(item, state="unchecked")
+
+
 #  MAIN CODE  ##########################################################################################################
 
 # main window creation
 root = tk.Tk()
+
+# variable
+check_var = tk.BooleanVar(value=False)  # unchecked unchecked
 
 # Main window parameters
 root.title('MCNP tally plotting')
@@ -79,9 +91,7 @@ treeview_files['show'] = 'headings', 'tree'
 
 treeview_files['columns'] = ('File', 'Tally number', 'Tally type', 'Particle', 'Number of values', 'E_cut-off (MeV)', 'E_min (MeV)', 'E_max (MeV)', 'comment')
 
-
-for col_name in ['File', 'Tally number', 'Tally type', 'Particle', 'Number of values', 'E_min (MeV)', 'E_max (MeV)',
-                 'E_cut-off (MeV)', "comment"]:
+for col_name in ['File', 'Tally number', 'Tally type', 'Particle', 'Number of values', 'E_min (MeV)', 'E_max (MeV)', 'E_cut-off (MeV)', "comment"]:
     treeview_files.column(col_name, width=100, stretch=True)
     treeview_files.heading(col_name, text=col_name)
 
@@ -114,6 +124,9 @@ button_plot.grid(column=2, row=0, sticky='ws')
 
 button_export = tk.ttk.Button(button_frame, text='Export tally to xlsx', command=lambda: export_mod.save_to_xlsx(selected_tally()), width=20)
 button_export.grid(column=3, row=0, sticky='ws')
+
+chk_all = tk.Checkbutton(button_frame, text='check all', var=check_var, command=lambda: select_all())
+chk_all.grid(column=4, row=0, sticky='ws', padx=5, pady=5)
 
 # -----------------------------------
 workdir_label = tk.Label(down_frame, text='Work directory: ')
