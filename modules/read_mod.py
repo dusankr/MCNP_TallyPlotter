@@ -101,7 +101,6 @@ def file_is_hidden(p):
 def open_folder(treeview_files, workdir_label, button_update):
     config_mod.plot_settings["work_dir_path"] = pathlib.Path(tk.filedialog.askdirectory(title='Choose directory with MCNP output files', initialdir=config_mod.plot_settings["work_dir_path"]))
 
-    # TODO change because if user does not choose some dir, it will replace path in config mod
     if str(config_mod.plot_settings["work_dir_path"]) == '.':
         tk.messagebox.showerror('Input error', 'No directory was selected.')
         return

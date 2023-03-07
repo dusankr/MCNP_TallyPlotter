@@ -5,10 +5,12 @@
 # for the return of default value type <none>
 # upper/lower index in plot labels $text_{lower}$ $text^{upper}$
 #
-# initial directory
+# initial mcnp output directory
 work_dir_path=C:\Users\dusan\Desktop\test_plotter
-# initial directory
-export_dir_path=.
+# initial export directory
+export_dir_path=C:\Users\dusan\Desktop\export\try5.xlsx
+# initial XS dir
+xs_dir_path=C:\Users\dusan\Desktop\test_plotter
 # figure resolution in DPI
 fig_dpi=300
 # figure x dimensions
@@ -30,8 +32,7 @@ grid_opt=major
 grid_ax=both
 ax_label_size=12
 tics_size=10
-x_scale=log
+x_scale=linear
 y_scale=linear
-xs_dir_path=C:\Users\dusan\Desktop\test_plotter\plot_format.txt
-xs_switch=True
+xs_switch=False
 y2_title=Cross Section (barns)

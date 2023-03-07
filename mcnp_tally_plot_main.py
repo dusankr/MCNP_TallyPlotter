@@ -20,14 +20,14 @@ def ask_quit():
 # return selected tallies
 def selected_tally():
     if len(treeview_files.get_checked()) != 0:
-
         # send selected tallies to plot_mod function
         selection = []
         for row in treeview_files.get_checked():
             selection.append(treeview_files.item(row)['values'][0])
     else:
         tk.messagebox.showerror('Input error', 'Please choose tally for plotting.')
-
+        return None
+    
     return selection
 
 
@@ -47,7 +47,7 @@ style = tk.ttk.Style()
 root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
 
-root.protocol('WM_DELETE_WINDOW', ask_quit)  # program end TODO cause kernel crash in Spyder...
+root.protocol('WM_DELETE_WINDOW', ask_quit)  # program end
 # ----------------------------------------------------------------------------------------------------------------------
 # modules executed at startup
 settings_mod.config_file()
@@ -109,8 +109,8 @@ button_file.grid(column=0, row=0, sticky='ws')
 button_update = tk.ttk.Button(button_frame, text='Update directory', state='disabled', command=lambda: read_mod.read_folder(treeview_files), width=20)
 button_update.grid(column=1, row=0, sticky='ws')
 
-button_solve = tk.ttk.Button(button_frame, text='Plot data', command=lambda: plot_mod.plot_window(root, selected_tally()), width=20)
-button_solve.grid(column=2, row=0, sticky='ws')
+button_plot = tk.ttk.Button(button_frame, text='Plot data', command=lambda: plot_mod.plot_window(root, selected_tally()), width=20)
+button_plot.grid(column=2, row=0, sticky='ws')
 
 button_export = tk.ttk.Button(button_frame, text='Export tally to xlsx', command=lambda: export_mod.save_to_xlsx(selected_tally()), width=20)
 button_export.grid(column=3, row=0, sticky='ws')

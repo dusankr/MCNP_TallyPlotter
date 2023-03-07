@@ -10,22 +10,21 @@
 # TODO problem with plot window reactivation after export settings is closed ( .grab_set() ?)
 # far future:
 # TODO change font in export settings window
-# TODO turn on/off LaTeX in export settings window
+# TODO turn on/off LaTeX in the export settings window
 
 # libraries
 import matplotlib
-import matplotlib.pyplot as plt     # ploting in matlab style
 from modules import config_mod, editor_mod, plot_core, read_mod
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
-import math
-
-# GUI libraries
 import tkinter as tk
 
 
 #  Functions  ##########################################################################################################
 # create new Top level window and plot data
 def plot_window(root, tally_to_plot):
+    # close plot window if there are no tally
+    if tally_to_plot == None:
+        return
 
     # region Tkinter local variables
     legend_options = ['best', 'upper right', 'upper left', 'lower left', 'lower right', 'right', 'center left',

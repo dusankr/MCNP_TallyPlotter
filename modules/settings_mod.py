@@ -45,14 +45,30 @@ def read_config():
                 line = lines.split("=", 1)
                 if line[0] in config_mod.plot_settings.keys():
                     config_mod.plot_settings[line[0]] = line[1].rstrip()
-                
-    if config_mod.plot_settings["work_dir_path"]  == "none":
+
+    # conditions for all possibilities
+    if config_mod.plot_settings["work_dir_path"]  == "None" or not pathlib.Path(config_mod.plot_settings["work_dir_path"]).is_dir():
         config_mod.plot_settings["work_dir_path"] = pathlib.Path.cwd()
     else:
         config_mod.plot_settings["work_dir_path"] = pathlib.Path(config_mod.plot_settings["work_dir_path"])
-    
+
+    if config_mod.plot_settings["xs_dir_path"]  == "None":
+        config_mod.plot_settings["xs_dir_path"] = pathlib.Path.cwd()
+    elif pathlib.Path(config_mod.plot_settings["xs_dir_path"]).is_file():
+        config_mod.plot_settings["xs_dir_path"] = pathlib.Path(config_mod.plot_settings["xs_dir_path"]).parent
+    elif pathlib.Path(config_mod.plot_settings["xs_dir_path"]).is_dir():
+        config_mod.plot_settings["xs_dir_path"] = pathlib.Path(config_mod.plot_settings["xs_dir_path"])
+
+    if config_mod.plot_settings["export_dir_path"]  == "None":
+        config_mod.plot_settings["export_dir_path"] = pathlib.Path.cwd()
+    elif pathlib.Path(config_mod.plot_settings["export_dir_path"]).is_file():
+        config_mod.plot_settings["export_dir_path"] = pathlib.Path(config_mod.plot_settings["export_dir_path"]).parent
+    elif pathlib.Path(config_mod.plot_settings["export_dir_path"]).is_dir():
+        config_mod.plot_settings["export_dir_path"] = pathlib.Path(config_mod.plot_settings["export_dir_path"])
+
     print("Old work directory from config file is: " , config_mod.plot_settings["work_dir_path"])
-    print("Old export directory from config file is: " , config_mod.plot_settings["export_dir_path"], "\n")
+    print("Old XS directory from config file is: ", config_mod.plot_settings["xs_dir_path"])
+    print("Old export directory from config file is: ", config_mod.plot_settings["export_dir_path"], "\n")
 
 
 # save config values
