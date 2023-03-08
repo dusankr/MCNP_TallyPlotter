@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
 # TODO more options (ax min-max value)
+# TODO turn off user setings? (titles...)
 
 # libraries
 from modules import config_mod
@@ -9,25 +10,34 @@ import pathlib
 import tkinter as tk
 
 
-def plot_to_canvas(tally_to_plot):
+# return key of legend name
+def find_key(leg_name):
+    for key in config_mod.tallies.keys():
+        if leg_name == config_mod.tallies[key][10]:
+            return key
+
+
+def plot_to_canvas(tally):
+    tally_to_plot = tally[:]
+
     config_mod.ax.clear()
     if config_mod.ax2 != None:
         config_mod.ax2.remove()     # TODO solve Warning!!! (works now)
         config_mod.ax2 = None
 
     # read reference data for ratio plot
-    if (config_mod.plot_settings["ratio"] != 'no ratio') and (config_mod.plot_settings["data_var"] == 'non'):
-        x_ratio, y_ratio, y_err_ratio = config_mod.tallies[config_mod.plot_settings["ratio"]][3], config_mod.tallies[config_mod.plot_settings["ratio"]][4], config_mod.tallies[config_mod.plot_settings["ratio"]][5]
-    elif (config_mod.plot_settings["ratio"] != 'no ratio') and (config_mod.plot_settings["data_var"] == 'norm'):
-        x_ratio, y_ratio, y_err_ratio = config_mod.tallies[config_mod.plot_settings["ratio"]][3], config_mod.tallies[config_mod.plot_settings["ratio"]][7], config_mod.tallies[config_mod.plot_settings["ratio"]][5]
+    if config_mod.plot_settings["ratio"] != "no ratio":
+        key = find_key(config_mod.plot_settings["ratio"])   # return key of legend name
 
-    # create a new list in case the ratio plot is chosen and delete reference tally
-    tally_to_plot_mod = tally_to_plot[:]
-    if config_mod.plot_settings["ratio"] in tally_to_plot_mod:
-        tally_to_plot_mod.remove(config_mod.plot_settings["ratio"])
+        if (config_mod.plot_settings["data_var"] == 'non'):
+            x_ratio, y_ratio, y_err_ratio = config_mod.tallies[key][3], config_mod.tallies[key][4], config_mod.tallies[key][5]
+        elif (config_mod.plot_settings["data_var"] == 'norm'):
+            x_ratio, y_ratio, y_err_ratio = config_mod.tallies[key][3], config_mod.tallies[key][7], config_mod.tallies[key][5]
+
+        tally_to_plot.remove(key)   # remove tally name from the list for ratio plot
 
     # plot all chosen values
-    for name in tally_to_plot_mod:
+    for name in tally_to_plot:
         if config_mod.plot_settings["data_var"] == 'norm':
             x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][7][:], config_mod.tallies[name][5][:]  # normalized data
             y_label = 'Tally / MeV / particle'
@@ -36,7 +46,7 @@ def plot_to_canvas(tally_to_plot):
             y_label = 'Tally / particle'
 
         # take right name for legend
-        config_mod.tallies[name][9] = config_mod.tallies[name][10]
+        legend_name = config_mod.tallies[name][10]
 
         # return ratio values
         if config_mod.plot_settings["ratio"] != 'no ratio':
@@ -52,14 +62,14 @@ def plot_to_canvas(tally_to_plot):
                     y_data[i] = 0
                     y_data_err[i] = 0
             # return new curve title for ratio plot
-            config_mod.tallies[name][9] = name + '/' + config_mod.plot_settings["ratio"]
+            legend_name = config_mod.tallies[name][10] + '/' + config_mod.plot_settings["ratio"]
 
         # calculate interval centers
         x_data_center = interval_mid(x_data)
 
         # plots
         p_color = next(config_mod.ax._get_lines.prop_cycler)['color']  # same color for step and errorbar plot
-        linestep, = config_mod.ax.step(x_data, y_data, color=p_color, label=config_mod.tallies[name][9])
+        linestep, = config_mod.ax.step(x_data, y_data, color=p_color, label=legend_name)
 
         if config_mod.plot_settings["error_bar"]:
             err = [a * b for a, b in zip(y_data_err, y_data)]  # abs error

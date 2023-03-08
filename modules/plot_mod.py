@@ -32,7 +32,10 @@ def plot_window(root, tally_to_plot):
     legend_pos = tk.StringVar(value='best')  # Option Menu variable
 
     if len(tally_to_plot) > 1:
-        ratio_options = ['no ratio'] + tally_to_plot
+        ratio_options = ['no ratio']
+        for key in config_mod.tallies.keys():
+            if key in tally_to_plot:
+                ratio_options.append(config_mod.tallies[key][10])
     else:
         ratio_options = ['no ratio']
 
@@ -115,7 +118,7 @@ def plot_window(root, tally_to_plot):
     toolbar.update()
 
     # plot tallies from user -------------------------------------------------------------------------------------------
-    def plot_function():
+    def plot_function(tally):
 
         config_mod.plot_settings["ratio"] = ratio_sel.get()
         config_mod.plot_settings["data_var"] = data_var.get()
@@ -133,13 +136,13 @@ def plot_window(root, tally_to_plot):
         config_mod.plot_settings["error_bar"] = error_var.get()
 
         # fill ax and fig with all curves and return it to the canvas
-        plot_core.plot_to_canvas(tally_to_plot)
+        plot_core.plot_to_canvas(tally)
 
         # Canvas for plot
         config_mod.canvas_id.draw()
 
     # insert FIRST plot CANVAS
-    plot_function()
+    plot_function(tally_to_plot)
 
     # region Description: all Tkinter Widgets used for plot settings
     # PLOT OPTION FRAME ------------------------------------------------------------------------------------------------
@@ -261,7 +264,7 @@ def plot_window(root, tally_to_plot):
 
     # call replot when Option Menu is changed
     def my_callback(*args):
-        plot_function()
+        plot_function(tally_to_plot)
 
     # first definition of Tkinter Variables tracing
     legend_pos.trace_add('write', my_callback)
