@@ -38,17 +38,23 @@ def create_config(fname):
 
 
 # read values from config file to program variables
-def read_config():
+def read_config(fname):
     # read values from config file
-    with open("config_export","r", encoding='utf-8') as temp_file:
+    with open(fname,"r", encoding='utf-8') as temp_file:
         content = temp_file.readlines()
-                
-        
+
         for lines in content:
             if lines[0] != '#':
                 line = lines.split("=", 1)
-                if line[0] in config_mod.plot_settings.keys():
-                    config_mod.plot_settings[line[0]] = line[1].rstrip()
+                # settings
+                if fname == "config_export":
+                    if line[0] in config_mod.plot_settings.keys():
+                        config_mod.plot_settings[line[0]] = line[1].rstrip()    # rstrip remove \n from the end of line
+                # legend
+                elif fname == "config_legend":
+                    if line[0] in config_mod.tallies.keys():
+                        config_mod.tallies[line[0]][10] = line[1].rstrip()
+
 
     # conditions for all possibilities
     if config_mod.plot_settings["work_dir_path"]  == "None" or not pathlib.Path(config_mod.plot_settings["work_dir_path"]).is_dir():

@@ -142,6 +142,7 @@ def read_tallies(treeview_files):
     for file in config_mod.non_output:
         print("\t" + file)
 
+    # read legend names
     settings_mod.read_config("config_legend")
 
     # fill treeview part
@@ -257,7 +258,7 @@ def read_tally(f_path, fname):
                             more_items_in_one_tally = False
 
                         while more_items_in_one_tally == True:
-                            config_mod.tallies[fname.stem + '_' + str(tally_num) + "_" + str(surface_or_cell[0]) + "_" + str(surface_or_cell[1])] = [tally_num, tally_type, tally_ptc, energy, flux, error, cutoff_en, flux_n, com_loaded, None]
+                            config_mod.tallies[fname.stem + '_' + str(tally_num) + "_" + str(surface_or_cell[0]) + "_" + str(surface_or_cell[1])] = [tally_num, tally_type, tally_ptc, energy, flux, error, cutoff_en, flux_n, com_loaded, None, None]
 
                             energy = []
                             flux = [0]
@@ -301,10 +302,10 @@ def read_tally(f_path, fname):
                             if len(control_next_tally_connection) > 1 and save_talies == control_next_tally_connection[1]:
                                 print("---> next tally included...")
                                 print(str(surface_or_cell[0]) + str(surface_or_cell[1]) + "  ---  line" + str(last + 4))
-                                config_mod.tallies[fname.stem + '_' + str(tally_num) + "_" + str(surface_or_cell[0]) + "_" + str(surface_or_cell[1])] = [tally_num, tally_type, tally_ptc, energy, flux, error,cutoff_en, flux_n, com_loaded, None]
+                                config_mod.tallies[fname.stem + '_' + str(tally_num) + "_" + str(surface_or_cell[0]) + "_" + str(surface_or_cell[1])] = [tally_num, tally_type, tally_ptc, energy, flux, error,cutoff_en, flux_n, com_loaded, None, None]
                                 # print("last_tallies.....")
                             else:
-                                config_mod.tallies[fname.stem + '_' + str(tally_num)] = [tally_num, tally_type, tally_ptc, energy, flux, error, cutoff_en, flux_n, com_loaded, None]
+                                config_mod.tallies[fname.stem + '_' + str(tally_num)] = [tally_num, tally_type, tally_ptc, energy, flux, error, cutoff_en, flux_n, com_loaded, None, None]
                                 print("---> This file does not contain more items per tally\n")
 
                             # josef20220202-end
