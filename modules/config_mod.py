@@ -4,6 +4,9 @@
 tallies = {}
 xs_data = {}
 
+# names for the legend
+leg_names = {}
+
 # matplotlib variables
 canvas_id = None
 fig_id = None

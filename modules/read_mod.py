@@ -9,7 +9,7 @@
 # https://stackoverflow.com/questions/5191830/how-do-i-log-a-python-error-with-debug-information
 
 # libraries
-from modules import config_mod
+from modules import config_mod, settings_mod
 import pathlib  # better and easier work with file and directory paths
 import tkinter as tk
 import os
@@ -102,7 +102,7 @@ def file_is_hidden(p):
 
 # chose folder with MCNP outputs, read all files
 def open_folder(treeview_files, workdir_label, button_update):
-    config_mod.plot_settings["work_dir_path"] = pathlib.Path(tk.filedialog.askdirectory(title='Choose directory with MCNP output files', initialdir=config_mod.plot_settings["work_dir_path"]))
+    config_mod.plot_settings["work_dir_path"] = pathlib.Path(tk.filedialog.askdirectory(title='Choose a directory with MCNP output files', initialdir=config_mod.plot_settings["work_dir_path"]))
 
     if str(config_mod.plot_settings["work_dir_path"]) == '.':
         tk.messagebox.showerror('Input error', 'No directory was selected.')
@@ -142,6 +142,7 @@ def read_tallies(treeview_files):
     for file in config_mod.non_output:
         print("\t" + file)
 
+    settings_mod.read_config("config_legend")
 
     # fill treeview part
     x = treeview_files.get_children()  # get id of all items in treeview

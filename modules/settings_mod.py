@@ -7,30 +7,34 @@
 from modules import config_mod
 import pathlib
 
+
 # functions
-
-# on start up will check if config file exists, if not, it will create new one
-# with defaul values
-def config_file():
-    if pathlib.Path("config_export").is_file():
-        read_config()
+# on start up will check if config file exists, if not, it will create a new one
+# with default values
+def config_file(fname):
+    if pathlib.Path(fname).is_file():
+        read_config(fname)
     else:
-        create_config()
-        read_config()
+        create_config(fname)
+        read_config(fname)
 
 
-# TODO keep create config updated!
 # create new config file if someone deleted it
-def create_config():
-    with open("config_export", "w", encoding='utf-8') as temp_file:
-        temp_file.write("# export and import setting for STEP plot SW\n")
-        temp_file.write("# hashtag is used for commenting\n")
-        temp_file.write("# = is used as separator, spaces are not allowed between setting and value!\n")
-        temp_file.write("#\n")
-        temp_file.write("# work directory from last session\n")
-        temp_file.write("work_dir_path=none\n")
-        temp_file.write("# export directory from last session\n")
-        temp_file.write("export_dir_path=none\n")
+def create_config(fname):
+    with open(fname, "w", encoding='utf-8') as temp_file:
+        if fname == "config_export":
+            temp_file.write("# export and import setting for STEP plot SW\n")
+            temp_file.write("# hashtag is used for commenting\n")
+            temp_file.write("# = is used as separator, spaces are not allowed between setting and value!\n")
+            temp_file.write("#\n")
+            for key in config_mod.plot_settings.keys():
+                temp_file.write(key, "=", config_mod.plot_settings[key], "\n")
+
+        elif fname == "config_legend":
+            temp_file.write("# list of all loaded tallies through the time\n")
+            temp_file.write("# on the left side of = is name from SW\n")
+            temp_file.write("# in the right side of = is possible write new name\n")
+            temp_file.write("#\n")
 
 
 # read values from config file to program variables

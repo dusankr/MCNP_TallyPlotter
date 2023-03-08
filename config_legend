@@ -1,0 +1,9 @@
+# list of all loaded tallies trough the time
+# on the left side of "=" is name from SW
+# in the right side of "=" is possible write new name
+#
+# TODO:
+# - nactene tally ulozit sem s hodnotou None nebo se stejnou hodnotou jako je jmeno tally? (pokud tu uz nejsou!)
+# - pokud tu uz jsou tak zachovat hodnotu
+# - pri plot funkci se podivat jestli tu je hodnota, pokud ano tak ji vlozi do grafu
+#
