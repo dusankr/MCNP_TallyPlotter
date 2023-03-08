@@ -2,10 +2,5 @@
 # on the left side of "=" is name from SW
 # in the right side of "=" is possible write new name
 #
-# TODO:
-# - nactene tally ulozit sem s hodnotou None nebo se stejnou hodnotou jako je jmeno tally? (pokud tu uz nejsou!)
-# - pokud tu uz jsou tak zachovat hodnotu
-# - pri plot funkci se podivat jestli tu je hodnota, pokud ano tak ji vlozi do grafu
-#
-o00e_114_cell_40030=test
-o00e_114_cell_40031=test2
+o00e_114_cell_40030=curve_1
+o00e_114_cell_40031=o00e_114_cell_40031

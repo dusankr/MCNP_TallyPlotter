@@ -35,10 +35,10 @@ def plot_to_canvas(tally_to_plot):
             x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4][:], config_mod.tallies[name][5][:]  # original data
             y_label = 'Tally / particle'
 
-        # temporary name
-        config_mod.tallies[name][9] = name
+        # take right name for legend
+        config_mod.tallies[name][9] = config_mod.tallies[name][10]
 
-        # return ration values
+        # return ratio values
         if config_mod.plot_settings["ratio"] != 'no ratio':
             y_label = 'Tally to Tally ratio (-)'
             if x_data != x_ratio:
@@ -78,7 +78,6 @@ def plot_to_canvas(tally_to_plot):
         config_mod.ax2.set_yscale("log")
         config_mod.ax2.tick_params(axis='both', labelsize=config_mod.plot_settings["tics_size"])
 
-        # TODO add to legend
         for name in config_mod.xs_data.keys():
             config_mod.ax2.plot(config_mod.xs_data[name][0], config_mod.xs_data[name][1], ls="--", label=name)
 

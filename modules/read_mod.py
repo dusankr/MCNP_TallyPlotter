@@ -143,7 +143,7 @@ def read_tallies(treeview_files):
         print("\t" + file)
 
     # read legend names
-    settings_mod.read_config("config_legend")
+    settings_mod.readsave_legend("config_legend")
 
     # fill treeview part
     x = treeview_files.get_children()  # get id of all items in treeview

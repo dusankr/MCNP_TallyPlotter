@@ -62,7 +62,7 @@ root.rowconfigure(0, weight=1)
 root.protocol('WM_DELETE_WINDOW', ask_quit)  # program end
 # ----------------------------------------------------------------------------------------------------------------------
 # modules executed at startup
-settings_mod.config_file("config_export")
+settings_mod.read_config("config_export")   # read settings from config_export file
 
 # MENU (not used due to problems on Mac devices) -----------------------------------------------------------------------
 # does NOT work at MAC devices...

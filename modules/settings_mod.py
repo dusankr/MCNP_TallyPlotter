@@ -9,16 +9,7 @@ import pathlib
 
 
 # functions
-# on start up will check if config file exists, if not, it will create a new one
-# with default values
-def config_file(fname):
-    if pathlib.Path(fname).is_file():
-        read_config(fname)
-    else:
-        create_config(fname)
-        read_config(fname)
-
-
+#
 # create new config file if someone deleted it
 def create_config(fname):
     with open(fname, "w", encoding='utf-8') as temp_file:
@@ -39,21 +30,18 @@ def create_config(fname):
 
 # read values from config file to program variables
 def read_config(fname):
-    # read values from config file
+    if not pathlib.Path(fname).is_file():
+        create_config(fname)
+
+    # read values from config files
     with open(fname,"r", encoding='utf-8') as temp_file:
         content = temp_file.readlines()
 
         for lines in content:
             if lines[0] != '#':
                 line = lines.split("=", 1)
-                # settings
-                if fname == "config_export":
-                    if line[0] in config_mod.plot_settings.keys():
-                        config_mod.plot_settings[line[0]] = line[1].rstrip()    # rstrip remove \n from the end of line
-                # legend
-                elif fname == "config_legend":
-                    if line[0] in config_mod.tallies.keys():
-                        config_mod.tallies[line[0]][10] = line[1].rstrip()
+                if line[0] in config_mod.plot_settings.keys():
+                    config_mod.plot_settings[line[0]] = line[1].rstrip()    # rstrip remove \n from the end of line
 
 
     # conditions for all possibilities
@@ -104,9 +92,34 @@ def save_config():
                 if i == (len(content)):
                     content_n.append(key + '=' + str(val) + '\n')
 
-        # instead of reopen in write mode:
+        # instead of reopen in a writing mode:
         temp_file.seek(0)
         temp_file.truncate()
         temp_file.writelines(content + content_n)
 
 
+# read and save tally names to the config_legend file
+def readsave_legend(fname):
+    if not pathlib.Path(fname).is_file():
+        create_config(fname)
+
+    # read values from config files
+    with open(fname,"r+", encoding='utf-8') as temp_file:
+        content = temp_file.readlines()
+        content_n = []
+
+        for key in config_mod.tallies.keys():
+            for i in range(0,len(content)):
+                if content[i][0] != '#':
+                    line = content[i].split("=", 1)
+                    if line[0] == key:
+                        config_mod.tallies[key][10] = line[1].rstrip()
+                        break
+                if i == len(content) - 1:
+                    config_mod.tallies[key][10] = key
+                    content_n.append(key + '=' + key + '\n')
+
+        # add new lines to the end of this file:
+        temp_file.seek(0)
+        temp_file.truncate()
+        temp_file.writelines(content + content_n)
