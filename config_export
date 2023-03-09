@@ -6,7 +6,7 @@
 # upper/lower index in plot labels $text_{lower}$ $text^{upper}$
 #
 # initial mcnp output directory
-work_dir_path=C:\Users\dusan\Desktop\test_plotter\opakujici se tally
+work_dir_path=C:\Users\dusan\Desktop\test_plotter
 # initial export directory
 export_dir_path=C:\Users\dusan\Desktop\export
 # initial XS dir
@@ -23,7 +23,7 @@ fig_format=png
 x_title=Energy (MeV)
 # y ax title
 y_title= Flux (cm$^{-2}$)
-ratio=o15n_114_cell_88088
+ratio=no ratio
 data_var=non
 leg_pos=best
 leg_size=10
@@ -32,9 +32,15 @@ grid_opt=major
 grid_ax=both
 ax_label_size=12
 tics_size=10
-x_scale=log
-y_scale=log
+x_scale=linear
+y_scale=linear
 xs_switch=False
 y2_title=Cross Section (barns)
 save_fig=False
-error_bar=False
+error_bar=True
+
+
+
+
+
+

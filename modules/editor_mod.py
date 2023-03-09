@@ -9,8 +9,8 @@ import pathlib
 import tkinter as tk
 from modules import plot_mod, settings_mod
 
-# open library or any ascii file in text editor TODO grab_set() pri zavreni editoru zpet na plot window
-def open_lib():
+# open library or any ascii file in text editor
+def open_lib(file_path, tally_to_plot, plot_win):
     editor_win = tk.Toplevel()
     editor_win.grab_set()
     editor_win.minsize(500, 300)
@@ -24,14 +24,22 @@ def open_lib():
 
     button_frame = tk.Frame(editor_win)
     button_frame.grid(column=0, row=1, sticky='nswe', padx=5, pady=5)
-    save_button = tk.Button(button_frame, text='Save library', command=lambda: save_lib() )
+
+    # read_button = tk.Button(button_frame, text='Open file', command=lambda: read_lib())
+    # read_button.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
+
+    save_button = tk.Button(button_frame, text='Save file', command=lambda: save_lib() )
     save_button.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
+
     #saveas_button = tk.Button(button_frame, text='Save as library', command=lambda: save_as_lib())
     #saveas_button.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
-    button_quit = tk.ttk.Button(button_frame, text='Quit', command=editor_win.destroy)
+    button_quit = tk.ttk.Button(button_frame, text='Quit', command=lambda: quit() )
     button_quit.grid(column=1, row=0, sticky='we', padx=5, pady=5)
 
-    file_path = pathlib.Path("config_export")
+    def quit():
+        # close the editor window and grab the plot window
+        plot_win.grab_set()
+        editor_win.destroy()
 
     def read_lib():
         with open(file_path, 'r') as lib_file:
@@ -40,31 +48,21 @@ def open_lib():
 
         editor_win.title(f'Library editor - {file_path}')
 
-    read_lib()      # run open lib function
-
     def save_lib():
         with open(file_path, 'w') as output_file:
             text_s = txt_edit.get(1.0, tk.END)
             output_file.write(text_s)
         
-        tk.messagebox.showinfo(title='Config file', message='Config file was modified and saved.')
+        # tk.messagebox.showinfo(title='Config file', message='Config file was modified and saved.')
 
         # read again config file
-        settings_mod.read_config()
-        editor_win.destroy()
+        if pathlib.Path(file_path).name == "config_export":
+            settings_mod.read_config("config_export")
+        elif pathlib.Path(file_path).name == "config_legend":
+            settings_mod.readsave_legend("config_legend")
 
+        # close an editor window and grab plot window
+        quit()
 
-    """
-    def save_as_lib():
-        file_path_new = tk.filedialog.asksaveasfilename(
-            initialdir=os.getcwd(),
-            defaultextension="txt",
-            filetypes=[("Library Files", "*.lib"), ("Text Files", "*.txt"), ("All Files", "*.*")]
-        )
-        if not file_path_new:
-            return
-
-        with open(file_path_new, 'w') as output_file:
-            text_s = txt_edit.get(1.0, tk.END)
-            output_file.write(text_s)
-    """
+    # open and read file into the editor window
+    read_lib()

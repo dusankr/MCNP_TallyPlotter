@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
-
-# Long term tasks:
-#
+# TODO bug - option menu for ratio plot is more complicated
+# https://stackoverflow.com/questions/17580218/changing-the-options-of-a-optionmenu-when-clicking-a-button
+# TODO change whole structure
+# https://stackoverflow.com/questions/11154634/call-nested-function-in-python
 # TODO reread some settings?
-# TODO turn off error bars
-# TODO description in legend (text file vs. new window?)
-# TODO problem with plot window reactivation after export settings is closed ( .grab_set() ?)
 # far future:
 # TODO change font in export settings window
 # TODO turn on/off LaTeX in the export settings window
@@ -17,12 +15,13 @@ from modules import config_mod, editor_mod, plot_core, read_mod
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 import matplotlib.pyplot as plt     # MUST stay here!!!
 import tkinter as tk
+import pathlib
 
 
 #  Functions  ##########################################################################################################
 # create new Top level window and plot data
 def plot_window(root, tally_to_plot):
-    # close plot window if there are no tally
+    # close plot window if there are no tallies
     if tally_to_plot == None:
         return
 
@@ -31,13 +30,23 @@ def plot_window(root, tally_to_plot):
                       'center right', 'lower center', 'upper center', 'center']
     legend_pos = tk.StringVar(value='best')  # Option Menu variable
 
-    if len(tally_to_plot) > 1:
-        ratio_options = ['no ratio']
-        for key in config_mod.tallies.keys():
-            if key in tally_to_plot:
-                ratio_options.append(config_mod.tallies[key][10])
-    else:
-        ratio_options = ['no ratio']
+    edit_options = ["config_export", "config_legend"]
+    edit_var = tk.StringVar(value='config_export')
+
+    def legend_opt():
+        global ratio_options
+        if len(tally_to_plot) > 1:
+            ratio_options = ['no ratio']
+            for key in config_mod.tallies.keys():
+                if key in tally_to_plot:
+                    ratio_options.append(config_mod.tallies[key][10])
+        else:
+            ratio_options = ['no ratio']
+
+        #return ratio_options
+
+    # first read of an option menu
+    legend_opt()
 
     # radio button variable
     x_axis_var = tk.StringVar(value='linear')
@@ -71,19 +80,19 @@ def plot_window(root, tally_to_plot):
     # endregion
 
     # NEW Window definition---------------------------------------------------------------------------------------------
-    new_win = tk.Toplevel(root)
-    new_win.grab_set()      # the main window is locked until the new window is closed
-    new_win.geometry('1200x700')
+    plot_win = tk.Toplevel(root)
+    plot_win.grab_set()      # the main window is locked until the new window is closed
+    plot_win.geometry('1200x850')
 
-    new_win.title('Plotting window')
+    plot_win.title('Plotting window')
 
     # layout FOR all the main containers
-    new_win.columnconfigure(0, weight=1)
-    new_win.columnconfigure(1, weight=0)
-    new_win.rowconfigure(0, weight=1)
+    plot_win.columnconfigure(0, weight=1)
+    plot_win.columnconfigure(1, weight=0)
+    plot_win.rowconfigure(0, weight=1)
 
     # MAIN frames ------------------------------------------------------------------------------------------------------
-    plot_frame = tk.ttk.Frame(new_win)
+    plot_frame = tk.ttk.Frame(plot_win)
     plot_frame.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)  # set the margins between window and content
 
     # plot_frame.grid_propagate(False)      # Turn of auto resize of plot frame
@@ -92,7 +101,7 @@ def plot_window(root, tally_to_plot):
     plot_frame.columnconfigure(0, weight=1)
     plot_frame.rowconfigure(0, weight=1)
 
-    plot_option_frame = tk.LabelFrame(new_win, text='Plot settings', width=25)
+    plot_option_frame = tk.LabelFrame(plot_win, text='Plot settings', width=25)
     plot_option_frame.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
     # layout PLOT_OPTION frame
     plot_option_frame.columnconfigure(0, weight=1)
@@ -119,6 +128,8 @@ def plot_window(root, tally_to_plot):
 
     # plot tallies from user -------------------------------------------------------------------------------------------
     def plot_function(tally):
+        legend_opt()    # update option menu
+        print(ratio_options)
 
         config_mod.plot_settings["ratio"] = ratio_sel.get()
         config_mod.plot_settings["data_var"] = data_var.get()
@@ -234,15 +245,18 @@ def plot_window(root, tally_to_plot):
     button_xs = tk.ttk.Button(xs_frame, text='Read XS', command=lambda: read_mod.read_xs())
     button_xs.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=5, pady=5)
 
-    # save figure frame ------------------------------------------------------------------------------------------------
+    # config (save, editor) --------------------------------------------------------------------------------------------
     save_frame = tk.LabelFrame(plot_option_frame, text='Export')
     save_frame.grid(column=0, row=8, sticky='nswe', padx=5, pady=5)
 
-    button_settings = tk.ttk.Button(save_frame, text='Export settings editor', command=lambda: editor_mod.open_lib())
-    button_settings.grid(column=0, columnspan=2, row=0, sticky='nswe', padx=5, pady=5)
+    legend_menu = tk.OptionMenu(save_frame, edit_var, *edit_options)
+    legend_menu.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
 
-    chk_replot = tk.Checkbutton(save_frame, text='save figure', var=save_var)
-    chk_replot.grid(column=0, row=1, sticky='nswe', padx=5, pady=5)
+    button_settings = tk.ttk.Button(save_frame, text='Editor settings/legend', command=lambda: editor_mod.open_lib(pathlib.Path(edit_var.get()), tally_to_plot, plot_win))
+    button_settings.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=5, pady=5)
+
+    chk_replot = tk.Checkbutton(save_frame, text='On/Off save figure', var=save_var)
+    chk_replot.grid(column=0, row=2, sticky='nswe', padx=5, pady=5)
 
     # replot frame -----------------------------------------------------------------------------------------------------
     replot_frame = tk.LabelFrame(plot_option_frame, text='Replot')
@@ -255,7 +269,7 @@ def plot_window(root, tally_to_plot):
     button_replot.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=5, pady=5)
 
     # quit -------------------------------------------------------------------------------------------------------------
-    button_quit = tk.ttk.Button(plot_option_frame, text='Quit', command=new_win.destroy)
+    button_quit = tk.ttk.Button(plot_option_frame, text='Quit', command=plot_win.destroy)
     button_quit.grid(column=0, row=10, sticky='we', padx=5, pady=5)
 
     # endregion all tkinter widgets for
