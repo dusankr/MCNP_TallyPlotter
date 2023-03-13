@@ -48,8 +48,8 @@ def read_config(fname):
     try:
         if config_mod.plot_settings["work_dir_path"]  == "None" or None:
             config_mod.plot_settings["work_dir_path"] = pathlib.Path.cwd()
-        elif config_mod.plot_settings["work_dir_path"] is not pathlib.Path(config_mod.plot_settings["work_dir_path"]).is_dir():
-            config_mod.plot_settings["work_dir_path"] = pathlib.Path.cwd()
+        #elif config_mod.plot_settings["work_dir_path"] is not pathlib.Path(config_mod.plot_settings["work_dir_path"]).is_dir():
+            #config_mod.plot_settings["work_dir_path"] = pathlib.Path.cwd()
         else:
             config_mod.plot_settings["work_dir_path"] = pathlib.Path(config_mod.plot_settings["work_dir_path"])
     except:

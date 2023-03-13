@@ -82,7 +82,7 @@ def plot_window(root, tally_to_plot):
     # NEW Window definition---------------------------------------------------------------------------------------------
     plot_win = tk.Toplevel(root)
     plot_win.grab_set()      # the main window is locked until the new window is closed
-    plot_win.geometry('1200x850')
+    plot_win.geometry('1200x650')
 
     plot_win.title('Plotting window')
 
@@ -101,11 +101,17 @@ def plot_window(root, tally_to_plot):
     plot_frame.columnconfigure(0, weight=1)
     plot_frame.rowconfigure(0, weight=1)
 
-    plot_option_frame = tk.LabelFrame(plot_win, text='Plot settings', width=25)
+    plot_option_frame = tk.LabelFrame(plot_win, text='Plot settings I', width=20)
     plot_option_frame.grid(column=1, row=0, sticky='nswe', padx=5, pady=5)
     # layout PLOT_OPTION frame
     plot_option_frame.columnconfigure(0, weight=1)
     plot_option_frame.rowconfigure(0, weight=0)         # weight=0 means no stretching...
+    
+    plot_option_frame2 = tk.LabelFrame(plot_win,text="Plot settings II", width=20)
+    plot_option_frame2.grid(column=2, row=0, sticky='nswe', padx=5, pady=5)
+    # layout PLOT_OPTION frame
+    plot_option_frame2.columnconfigure(0, weight=1)
+    plot_option_frame2.rowconfigure(0, weight=0)         # weight=0 means no stretching...
 
     # Srollbar cannot work in window or frame -> canvas
     # https://riptutorial.com/tkinter/example/30942/scrolling-a-group-of-widgets
@@ -232,12 +238,28 @@ def plot_window(root, tally_to_plot):
     grid_axis_menu = tk.OptionMenu(grid_frame, grid_axis_var, *grid_axis_options)
     grid_axis_menu.grid(column=1, row=1, sticky='nswe', padx=5, pady=5)
 
+
+    # replot frame -----------------------------------------------------------------------------------------------------
+    replot_frame = tk.LabelFrame(plot_option_frame, text='Replot')
+    replot_frame.grid(column=0, row=7, sticky='nswe', padx=5, pady=5)
+
+    chk_replot = tk.Checkbutton(replot_frame, text='disable immediate changes', var=replot_var, command=lambda: turn_off_replot())
+    chk_replot.grid(column=0, columnspan=2, row=0, sticky='nswe', padx=5, pady=5)
+
+    button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: plot_function(), state='disabled')
+    button_replot.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=5, pady=5)
+    
+    # NEW COLUMN -------------------------------------------------------------------------------------------------------
+    
     # cross sections frame ---------------------------------------------------------------------------------------------
     # TODO data source: ENDF, ACE, Talys
     # TODO choose XS data for plotting (more complicated)
     # TODO step vs. point plot
-    xs_frame = tk.LabelFrame(plot_option_frame, text='Cross Section')
-    xs_frame.grid(column=0, row=7, sticky='nswe', padx=5, pady=5)
+    row_c = 0
+    
+    xs_frame = tk.LabelFrame(plot_option_frame2, text='Cross Section')
+    xs_frame.grid(column=0, row=row_c, sticky='nswe', padx=5, pady=5)
+    row_c+=1
 
     chk_xs = tk.Checkbutton(xs_frame, text='turn on a second Y axis', var=xs_var)
     chk_xs.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
@@ -246,8 +268,9 @@ def plot_window(root, tally_to_plot):
     button_xs.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=5, pady=5)
 
     # config (save, editor) --------------------------------------------------------------------------------------------
-    save_frame = tk.LabelFrame(plot_option_frame, text='Export')
-    save_frame.grid(column=0, row=8, sticky='nswe', padx=5, pady=5)
+    save_frame = tk.LabelFrame(plot_option_frame2, text='Export')
+    save_frame.grid(column=0, row=row_c, sticky='nswe', padx=5, pady=5)
+    row_c+=1
 
     legend_menu = tk.OptionMenu(save_frame, edit_var, *edit_options)
     legend_menu.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
@@ -257,21 +280,13 @@ def plot_window(root, tally_to_plot):
 
     chk_replot = tk.Checkbutton(save_frame, text='On/Off save figure', var=save_var)
     chk_replot.grid(column=0, row=2, sticky='nswe', padx=5, pady=5)
-
-    # replot frame -----------------------------------------------------------------------------------------------------
-    replot_frame = tk.LabelFrame(plot_option_frame, text='Replot')
-    replot_frame.grid(column=0, row=9, sticky='nswe', padx=5, pady=5)
-
-    chk_replot = tk.Checkbutton(replot_frame, text='disable immediate changes', var=replot_var, command=lambda: turn_off_replot())
-    chk_replot.grid(column=0, columnspan=2, row=0, sticky='nswe', padx=5, pady=5)
-
-    button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: plot_function(), state='disabled')
-    button_replot.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=5, pady=5)
-
+    
+    # ------------------------------------------------------------------------------------------------------------------
+    
     # quit -------------------------------------------------------------------------------------------------------------
-    button_quit = tk.ttk.Button(plot_option_frame, text='Quit', command=plot_win.destroy)
-    button_quit.grid(column=0, row=10, sticky='we', padx=5, pady=5)
-
+    button_quit = tk.ttk.Button(plot_win, text='Quit', command=plot_win.destroy)
+    button_quit.grid(column=1, columnspan=2, row=1, sticky='we', padx=5, pady=5)
+    
     # endregion all tkinter widgets for
 
     # FUNCTIONS conected to MAIN function ------------------------------------------------------------------------------

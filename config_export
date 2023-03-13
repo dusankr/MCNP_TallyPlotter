@@ -6,7 +6,7 @@
 # upper/lower index in plot labels $text_{lower}$ $text^{upper}$
 #
 # initial mcnp output directory
-work_dir_path=C:\Users\dusan\Desktop\test_plotter
+work_dir_path=/Users/kral/Desktop/all_results
 # initial export directory
 export_dir_path=C:\Users\dusan\Desktop\export
 # initial XS dir
