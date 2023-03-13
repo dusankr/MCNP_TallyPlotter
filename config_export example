@@ -3,6 +3,3 @@
 # = is used as separator, spaces are not allowed between setting and value!
 #
 # initial directory
-work_dir_path=none
-# figure resolution in DPI
-fig_dpi=300

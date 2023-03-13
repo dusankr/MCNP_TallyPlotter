@@ -19,7 +19,7 @@ def create_config(fname):
             temp_file.write("# = is used as separator, spaces are not allowed between setting and value!\n")
             temp_file.write("#\n")
             for key in config_mod.plot_settings.keys():
-                temp_file.write(key, "=", config_mod.plot_settings[key], "\n")
+                temp_file.write(key + "=" + str(config_mod.plot_settings[key]) + "\n")
 
         elif fname == "config_legend":
             temp_file.write("# list of all loaded tallies through the time\n")
@@ -45,24 +45,35 @@ def read_config(fname):
 
 
     # conditions for all possibilities
-    if config_mod.plot_settings["work_dir_path"]  == "None" or not pathlib.Path(config_mod.plot_settings["work_dir_path"]).is_dir():
+    try:
+        if config_mod.plot_settings["work_dir_path"]  == "None" or None:
+            config_mod.plot_settings["work_dir_path"] = pathlib.Path.cwd()
+        elif config_mod.plot_settings["work_dir_path"] is not pathlib.Path(config_mod.plot_settings["work_dir_path"]).is_dir():
+            config_mod.plot_settings["work_dir_path"] = pathlib.Path.cwd()
+        else:
+            config_mod.plot_settings["work_dir_path"] = pathlib.Path(config_mod.plot_settings["work_dir_path"])
+    except:
         config_mod.plot_settings["work_dir_path"] = pathlib.Path.cwd()
-    else:
-        config_mod.plot_settings["work_dir_path"] = pathlib.Path(config_mod.plot_settings["work_dir_path"])
-
-    if config_mod.plot_settings["xs_dir_path"]  == "None":
+        
+    try:
+        if config_mod.plot_settings["xs_dir_path"]  == "None" or None:
+            config_mod.plot_settings["xs_dir_path"] = pathlib.Path.cwd()
+        elif pathlib.Path(config_mod.plot_settings["xs_dir_path"]).is_file():
+            config_mod.plot_settings["xs_dir_path"] = pathlib.Path(config_mod.plot_settings["xs_dir_path"]).parent
+        elif pathlib.Path(config_mod.plot_settings["xs_dir_path"]).is_dir():
+            config_mod.plot_settings["xs_dir_path"] = pathlib.Path(config_mod.plot_settings["xs_dir_path"])
+    except:
         config_mod.plot_settings["xs_dir_path"] = pathlib.Path.cwd()
-    elif pathlib.Path(config_mod.plot_settings["xs_dir_path"]).is_file():
-        config_mod.plot_settings["xs_dir_path"] = pathlib.Path(config_mod.plot_settings["xs_dir_path"]).parent
-    elif pathlib.Path(config_mod.plot_settings["xs_dir_path"]).is_dir():
-        config_mod.plot_settings["xs_dir_path"] = pathlib.Path(config_mod.plot_settings["xs_dir_path"])
-
-    if config_mod.plot_settings["export_dir_path"]  == "None":
+        
+    try:
+        if config_mod.plot_settings["export_dir_path"]  == "None" or None:
+            config_mod.plot_settings["export_dir_path"] = pathlib.Path.cwd()
+        elif pathlib.Path(config_mod.plot_settings["export_dir_path"]).is_file():
+            config_mod.plot_settings["export_dir_path"] = pathlib.Path(config_mod.plot_settings["export_dir_path"]).parent
+        elif pathlib.Path(config_mod.plot_settings["export_dir_path"]).is_dir():
+            config_mod.plot_settings["export_dir_path"] = pathlib.Path(config_mod.plot_settings["export_dir_path"])
+    except:
         config_mod.plot_settings["export_dir_path"] = pathlib.Path.cwd()
-    elif pathlib.Path(config_mod.plot_settings["export_dir_path"]).is_file():
-        config_mod.plot_settings["export_dir_path"] = pathlib.Path(config_mod.plot_settings["export_dir_path"]).parent
-    elif pathlib.Path(config_mod.plot_settings["export_dir_path"]).is_dir():
-        config_mod.plot_settings["export_dir_path"] = pathlib.Path(config_mod.plot_settings["export_dir_path"])
 
     print("Old work directory from config file is: " , config_mod.plot_settings["work_dir_path"])
     print("Old XS directory from config file is: ", config_mod.plot_settings["xs_dir_path"])
