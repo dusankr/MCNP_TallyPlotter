@@ -5,12 +5,9 @@
 # for the return of default value type <none>
 # upper/lower index in plot labels $text_{lower}$ $text^{upper}$
 #
-# initial mcnp output directory
-work_dir_path=C:\Users\dusan\Desktop\test_plotter
-# initial export directory
-export_dir_path=C:\Users\dusan\Desktop\export
-# initial XS dir
-xs_dir_path=C:\Users\dusan\Desktop\test_plotter
+<<<<<<< Updated upstream
+work_dir_path=/Users/svoboda/LANL_work/python/GIT-rep/Dusan-step-plot/Step_plot_MCNP_GUI/fp12
+export_dir_path=/Users/svoboda/LANL_work/MCNP/calculations/mcnp6/fp12
 # figure resolution in DPI
 fig_dpi=300
 # figure x dimensions
@@ -20,7 +17,7 @@ fig_y_dimension=None
 # figure output formats (png, pdf, ps, eps and svg)
 fig_format=png
 # x ax title
-x_title=Energy (MeV)
+x_title=Energy [MeV]
 # y ax title
 y_title= Flux (cm$^{-2}$)
 ratio=no ratio
@@ -38,9 +35,5 @@ xs_switch=False
 y2_title=Cross Section (barns)
 save_fig=False
 error_bar=True
-
-
-
-
-
-
+y_title= n-flux [arb. units]
+fig_dpi=None
