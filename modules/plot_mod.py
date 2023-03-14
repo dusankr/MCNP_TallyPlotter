@@ -24,8 +24,9 @@ def plot_window(root, tally_to_plot):
     # close plot window if there are no tallies
     if tally_to_plot == None:
         return
-
-    # region Tkinter local variables
+    
+    # region Tkinter local variables ----------------------------------------------------------------------------------
+    
     legend_options = ['best', 'upper right', 'upper left', 'lower left', 'lower right', 'right', 'center left',
                       'center right', 'lower center', 'upper center', 'center']
     legend_pos = tk.StringVar(value='best')  # Option Menu variable
@@ -76,7 +77,9 @@ def plot_window(root, tally_to_plot):
     xfig_var = tk.StringVar(value=20)  # SpinBox variable
     yfig_var = tk.StringVar(value=15)  # SpinBox variable
     """
-
+    
+    latex_var = tk.BooleanVar(value=True) # check box LaTeX
+    
     # endregion
 
     # NEW Window definition---------------------------------------------------------------------------------------------
@@ -151,7 +154,15 @@ def plot_window(root, tally_to_plot):
         config_mod.plot_settings["xs_switch"] = xs_var.get()
         config_mod.plot_settings["save_fig"] = save_var.get()
         config_mod.plot_settings["error_bar"] = error_var.get()
-
+        
+        #"latex",
+        #"x_lim",
+        #"x_min",
+        #"x_max",
+        #"y_lim",
+        #"y_min",
+        #"y_max"
+        
         # fill ax and fig with all curves and return it to the canvas
         plot_core.plot_to_canvas(tally)
 
@@ -238,16 +249,6 @@ def plot_window(root, tally_to_plot):
     grid_axis_menu = tk.OptionMenu(grid_frame, grid_axis_var, *grid_axis_options)
     grid_axis_menu.grid(column=1, row=1, sticky='nswe', padx=5, pady=5)
 
-
-    # replot frame -----------------------------------------------------------------------------------------------------
-    replot_frame = tk.LabelFrame(plot_option_frame, text='Replot')
-    replot_frame.grid(column=0, row=7, sticky='nswe', padx=5, pady=5)
-
-    chk_replot = tk.Checkbutton(replot_frame, text='disable immediate changes', var=replot_var, command=lambda: turn_off_replot())
-    chk_replot.grid(column=0, columnspan=2, row=0, sticky='nswe', padx=5, pady=5)
-
-    button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: plot_function(), state='disabled')
-    button_replot.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=5, pady=5)
     
     # NEW COLUMN -------------------------------------------------------------------------------------------------------
     
@@ -281,11 +282,23 @@ def plot_window(root, tally_to_plot):
     chk_replot = tk.Checkbutton(save_frame, text='On/Off save figure', var=save_var)
     chk_replot.grid(column=0, row=2, sticky='nswe', padx=5, pady=5)
     
+    chk_latex = tk.Checkbutton(save_frame, text='On/Off LaTeX', var=latex_var)
+    chk_latex.grid(column=0, row=2, sticky='nswe', padx=5, pady=5)
+    
     # ------------------------------------------------------------------------------------------------------------------
     
-    # quit -------------------------------------------------------------------------------------------------------------
-    button_quit = tk.ttk.Button(plot_win, text='Quit', command=plot_win.destroy)
-    button_quit.grid(column=1, columnspan=2, row=1, sticky='we', padx=5, pady=5)
+    # replot frame -----------------------------------------------------------------------------------------------------
+    replot_frame = tk.LabelFrame(plot_win, text='Replot')
+    replot_frame.grid(column=1, columnspan=2, row=1, sticky='we', padx=5, pady=5)
+
+    chk_replot = tk.Checkbutton(replot_frame, text='disable immediate changes', var=replot_var, command=lambda: turn_off_replot())
+    chk_replot.grid(column=0, columnspan=2, row=0, sticky='nswe', padx=5, pady=5)
+
+    button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: plot_function(), state='disabled')
+    button_replot.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=5, pady=5)
+    
+    button_quit = tk.ttk.Button(replot_frame, text='Quit', command=plot_win.destroy)
+    button_quit.grid(column=1, columnspan=2, row=2, sticky='we', padx=5, pady=5)
     
     # endregion all tkinter widgets for
 
