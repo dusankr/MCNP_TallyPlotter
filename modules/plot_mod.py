@@ -154,8 +154,8 @@ def plot_window(root, tally_to_plot):
         config_mod.plot_settings["xs_switch"] = xs_var.get()
         config_mod.plot_settings["save_fig"] = save_var.get()
         config_mod.plot_settings["error_bar"] = error_var.get()
+        config_mod.plot_settings["latex"] = error_var.get()
         
-        #"latex",
         #"x_lim",
         #"x_min",
         #"x_max",
@@ -249,8 +249,8 @@ def plot_window(root, tally_to_plot):
     grid_axis_menu = tk.OptionMenu(grid_frame, grid_axis_var, *grid_axis_options)
     grid_axis_menu.grid(column=1, row=1, sticky='nswe', padx=5, pady=5)
 
-    
     # NEW COLUMN -------------------------------------------------------------------------------------------------------
+    # ------------------------------------------------------------------------------------------------------------------
     
     # cross sections frame ---------------------------------------------------------------------------------------------
     # TODO data source: ENDF, ACE, Talys
