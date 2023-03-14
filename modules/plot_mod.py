@@ -260,7 +260,7 @@ def plot_window(root, tally_to_plot):
     
     xs_frame = tk.LabelFrame(plot_option_frame2, text='Cross Section')
     xs_frame.grid(column=0, row=row_c, sticky='nswe', padx=5, pady=5)
-    row_c+=1
+    row_c += 1
 
     chk_xs = tk.Checkbutton(xs_frame, text='turn on a second Y axis', var=xs_var)
     chk_xs.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
@@ -271,7 +271,7 @@ def plot_window(root, tally_to_plot):
     # config (save, editor) --------------------------------------------------------------------------------------------
     save_frame = tk.LabelFrame(plot_option_frame2, text='Export')
     save_frame.grid(column=0, row=row_c, sticky='nswe', padx=5, pady=5)
-    row_c+=1
+    row_c += 1
 
     legend_menu = tk.OptionMenu(save_frame, edit_var, *edit_options)
     legend_menu.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
@@ -285,20 +285,19 @@ def plot_window(root, tally_to_plot):
     chk_latex = tk.Checkbutton(save_frame, text='On/Off LaTeX', var=latex_var)
     chk_latex.grid(column=0, row=2, sticky='nswe', padx=5, pady=5)
     
-    # ------------------------------------------------------------------------------------------------------------------
-    
     # replot frame -----------------------------------------------------------------------------------------------------
-    replot_frame = tk.LabelFrame(plot_win, text='Replot')
-    replot_frame.grid(column=1, columnspan=2, row=1, sticky='we', padx=5, pady=5)
+    replot_frame = tk.LabelFrame(plot_option_frame2, text='Replot')
+    replot_frame.grid(column=0, row=row_c, sticky='nswe', padx=5, pady=5)
+    row_c += 1
 
     chk_replot = tk.Checkbutton(replot_frame, text='disable immediate changes', var=replot_var, command=lambda: turn_off_replot())
     chk_replot.grid(column=0, columnspan=2, row=0, sticky='nswe', padx=5, pady=5)
 
-    button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: plot_function(), state='disabled')
+    button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: plot_function(tally_to_plot), state='disabled')
     button_replot.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=5, pady=5)
     
     button_quit = tk.ttk.Button(replot_frame, text='Quit', command=plot_win.destroy)
-    button_quit.grid(column=1, columnspan=2, row=2, sticky='we', padx=5, pady=5)
+    button_quit.grid(column=0, columnspan=2, row=2, sticky='nswe', padx=5, pady=5)
     
     # endregion all tkinter widgets for
 

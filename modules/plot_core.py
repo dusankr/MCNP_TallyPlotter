@@ -26,7 +26,18 @@ def plot_to_canvas(tally):
     if config_mod.ax2 != None:
         config_mod.ax2.remove()     # TODO solve Warning!!! (works now)
         config_mod.ax2 = None
-
+    
+    # turn on/off LaTeX
+    """
+    try:
+        if config_mod.plot_settings["latex"]:       # if True
+            rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
+            rc('text', usetex=True)
+    except:
+            traceback.print_exc()
+            tk.messagebox.showerror('LaTeX error', 'Your TeX compiler is not installed or some packages are missing.')
+    """
+    
     # read reference data for ratio plot
     if config_mod.plot_settings["ratio"] != "no ratio":
         key = find_key(config_mod.plot_settings["ratio"])   # return key of legend name
@@ -65,14 +76,7 @@ def plot_to_canvas(tally):
                     y_data_err[i] = 0
             # return new curve title for ratio plot
             legend_name = config_mod.tallies[name][10] + '/' + config_mod.plot_settings["ratio"]
-
-        try:
-            if config_mod.plot_settings["latex"]:       # if True
-                rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
-                rc('text', usetex=True)
-        except:
-            traceback.print_exc()
-            tk.messagebox.showerror('LaTeX error', 'Your TeX compiler is not installed or some packages are missing.')
+        
 
         # calculate interval centers
         x_data_center = interval_mid(x_data)
