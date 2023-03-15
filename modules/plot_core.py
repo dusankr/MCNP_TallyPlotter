@@ -27,7 +27,7 @@ def plot_to_canvas(tally):
         config_mod.ax2.remove()     # TODO solve Warning!!! (works now)
         config_mod.ax2 = None
     
-    # turn on/off LaTeX
+    # turn on/off LaTeX TODO should be used before figure is created!!!
     """
     try:
         if config_mod.plot_settings["latex"]:       # if True
