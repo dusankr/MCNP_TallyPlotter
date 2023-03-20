@@ -6,7 +6,7 @@
 # upper/lower index in plot labels $text_{lower}$ $text^{upper}$
 #
 # initial mcnp output directory
-work_dir_path=C:\Users\dusan\Desktop\test_plotter
+work_dir_path=/Users/kral/Desktop/all_results
 # initial export directory
 export_dir_path=C:\Users\dusan\Desktop\export
 # initial XS dir
@@ -24,9 +24,9 @@ x_title=Energy (MeV)
 # y ax title
 y_title= Flux (cm$^{-2}$)
 ratio=no ratio
-data_var=non
-leg_pos=best
-leg_size=10
+data_var=norm
+leg_pos=lower left
+leg_size=9
 grid_switch=True
 grid_opt=major
 grid_ax=both
