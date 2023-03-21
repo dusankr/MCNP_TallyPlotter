@@ -14,7 +14,8 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationTool
 import matplotlib.pyplot as plt     # MUST stay here!!!
 import tkinter as tk
 import pathlib
-
+from matplotlib import rc
+import traceback
 
 #  Functions  ##########################################################################################################
 # create new Top level window and plot data
@@ -67,7 +68,7 @@ def plot_window(root, tally_to_plot):
     yfig_var = tk.StringVar(value=15)  # SpinBox variable
     """
     
-    latex_var = tk.BooleanVar(value=True) # check box LaTeX
+    latex_var = tk.BooleanVar(value=False)   # check box LaTeX
     
     # endregion
 
@@ -110,6 +111,17 @@ def plot_window(root, tally_to_plot):
     # win_scroll = tk.Scrollbar(new_win, orient='vertical')
     # win_scroll.grid(sticky='ns', column=2, row=0)
 
+    # turn on/off LaTeX TODO should be used before figure is created!!!
+    """
+    try:
+        if config_mod.plot_settings["latex"]:       # if True
+            rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
+            rc('text', usetex=True)
+    except:
+            traceback.print_exc()
+            tk.messagebox.showerror('LaTeX error', 'Your TeX compiler is not installed or some packages are missing.')
+    """
+
     # Canvas definition
     config_mod.fig_id = matplotlib.figure.Figure()  # TODO looks like a very old matplotlib commands
     config_mod.ax = config_mod.fig_id.add_subplot()
@@ -140,7 +152,7 @@ def plot_window(root, tally_to_plot):
         config_mod.plot_settings["xs_switch"] = xs_var.get()
         config_mod.plot_settings["save_fig"] = save_var.get()
         config_mod.plot_settings["error_bar"] = error_var.get()
-        config_mod.plot_settings["latex"] = error_var.get()
+        config_mod.plot_settings["latex"] = latex_var.get()
 
         # latex family + font
         # "x_lim"
@@ -272,7 +284,7 @@ def plot_window(root, tally_to_plot):
     chk_replot.grid(column=0, row=2, sticky='nswe', padx=2, pady=2)
     
     chk_latex = tk.Checkbutton(save_frame, text='On/Off LaTeX', var=latex_var)
-    chk_latex.grid(column=0, row=2, sticky='nswe', padx=2, pady=2)
+    chk_latex.grid(column=0, row=3, sticky='nswe', padx=2, pady=2)
     
     # replot frame -----------------------------------------------------------------------------------------------------
     replot_frame = tk.LabelFrame(plot_option_frame2, text='Replot')

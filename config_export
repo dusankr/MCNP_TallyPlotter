@@ -10,7 +10,7 @@ work_dir_path=C:\Users\dusan\Desktop\test_plotter
 # initial export directory
 export_dir_path=C:\Users\dusan\Desktop\export
 # initial XS dir
-xs_dir_path=C:\Users\dusan\Desktop\test_plotter\plot_format.txt
+xs_dir_path=C:\Users\dusan\Desktop\test_plotter
 # figure resolution in DPI
 fig_dpi=300
 # figure x dimensions
@@ -33,8 +33,8 @@ grid_ax=both
 ax_label_size=12
 tics_size=10
 x_scale=log
-y_scale=log
-xs_switch=True
+y_scale=linear
+xs_switch=False
 y2_title=Cross Section (barns)
 save_fig=False
 error_bar=True
@@ -45,3 +45,6 @@ x_max=None
 y_lim=None
 y_min=None
 y_max=None
+y2_lim=None
+y2_min=None
+y2_max=None

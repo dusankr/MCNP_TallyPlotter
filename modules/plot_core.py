@@ -8,16 +8,6 @@ from modules import config_mod
 import math
 import pathlib
 import tkinter as tk
-from matplotlib import rc
-import traceback
-
-"""
-# return key of legend name
-def find_key(leg_name):
-    for key in config_mod.tallies.keys():
-        if leg_name == config_mod.tallies[key][10]:
-            return key
-"""
 
 def plot_to_canvas(tally):
     tally_to_plot = tally[:]
@@ -26,17 +16,6 @@ def plot_to_canvas(tally):
     if config_mod.ax2 != None:
         config_mod.ax2.remove()     # TODO solve Warning!!! (works now)
         config_mod.ax2 = None
-    
-    # turn on/off LaTeX TODO should be used before figure is created!!!
-    """
-    try:
-        if config_mod.plot_settings["latex"]:       # if True
-            rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
-            rc('text', usetex=True)
-    except:
-            traceback.print_exc()
-            tk.messagebox.showerror('LaTeX error', 'Your TeX compiler is not installed or some packages are missing.')
-    """
     
     # read reference data for ratio plot
     if config_mod.plot_settings["ratio"] != "no ratio":
