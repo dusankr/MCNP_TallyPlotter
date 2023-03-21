@@ -34,20 +34,11 @@ def plot_window(root, tally_to_plot):
     edit_options = ["config_export", "config_legend"]
     edit_var = tk.StringVar(value='config_export')
 
-    def legend_opt():
-        global ratio_options
-        if len(tally_to_plot) > 1:
-            ratio_options = ['no ratio']
-            for key in config_mod.tallies.keys():
-                if key in tally_to_plot:
-                    ratio_options.append(config_mod.tallies[key][10])
-        else:
-            ratio_options = ['no ratio']
-
-        #return ratio_options
-
-    # first read of an option menu
-    legend_opt()
+    # create a list of values for the ratio menu
+    if len(tally_to_plot) > 1:
+        ratio_options = ['no ratio'] + tally_to_plot
+    else:
+        ratio_options = ['no ratio']
 
     # radio button variable
     x_axis_var = tk.StringVar(value='linear')
@@ -137,9 +128,6 @@ def plot_window(root, tally_to_plot):
 
     # plot tallies from user -------------------------------------------------------------------------------------------
     def plot_function(tally):
-        legend_opt()    # update option menu
-        print(ratio_options)
-
         config_mod.plot_settings["ratio"] = ratio_sel.get()
         config_mod.plot_settings["data_var"] = data_var.get()
         config_mod.plot_settings["leg_pos"] = legend_pos.get()
@@ -155,13 +143,16 @@ def plot_window(root, tally_to_plot):
         config_mod.plot_settings["save_fig"] = save_var.get()
         config_mod.plot_settings["error_bar"] = error_var.get()
         config_mod.plot_settings["latex"] = error_var.get()
-        
-        #"x_lim",
-        #"x_min",
-        #"x_max",
-        #"y_lim",
-        #"y_min",
-        #"y_max"
+
+        # latex family + font
+        # "x_lim"
+        # "x_min"
+        # "x_max"
+        # "y_lim"
+        # "y_min"
+        # "y_max"
+        # "y2_min"
+        # "y2_max"
         
         # fill ax and fig with all curves and return it to the canvas
         plot_core.plot_to_canvas(tally)

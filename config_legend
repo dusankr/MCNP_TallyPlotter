@@ -2,8 +2,8 @@
 # on the left side of "=" is name from SW
 # in the right side of "=" is possible write new name
 #
-o00e_114_cell_40030=nefunguje_to
-o00e_114_cell_40031=test_2
+o00e_114_cell_40030=funguje_to
+o00e_114_cell_40031=funguje_to_2
 o00e_F8_114_cell_5=o00e_F8_114_cell_5
 o00e_F8_114_cell_40031=o00e_F8_114_cell_40031
 o15n_114_cell_88088=o15n_114_cell_88088
@@ -75,3 +75,4 @@ Cf+PE_p2_nophoto_concrete_24=Cf+PE_p2_nophoto_concrete_24
 Cf+PE_p2_nophoto_concrete_34=Cf+PE_p2_nophoto_concrete_34
 Cf+PE_p2_nophoto_concrete_44=Cf+PE_p2_nophoto_concrete_44
 Cf+PE_p2_nophoto_concrete_58=Cf+PE_p2_nophoto_concrete_58
+

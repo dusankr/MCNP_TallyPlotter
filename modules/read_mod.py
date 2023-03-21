@@ -302,7 +302,7 @@ def read_tally(f_path, fname):
                             if len(control_next_tally_connection) > 1 and save_talies == control_next_tally_connection[1]:
                                 print("---> next tally included...")
                                 print(str(surface_or_cell[0]) + str(surface_or_cell[1]) + "  ---  line" + str(last + 4))
-                                config_mod.tallies[fname.stem + '_' + str(tally_num) + "_" + str(surface_or_cell[0]) + "_" + str(surface_or_cell[1])] = [tally_num, tally_type, tally_ptc, energy, flux, error,cutoff_en, flux_n, com_loaded, None, None]
+                                config_mod.tallies[fname.stem + '_' + str(tally_num) + "_" + str(surface_or_cell[0]) + "_" + str(surface_or_cell[1])] = [tally_num, tally_type, tally_ptc, energy, flux, error, cutoff_en, flux_n, com_loaded, None, None]
                                 # print("last_tallies.....")
                             else:
                                 config_mod.tallies[fname.stem + '_' + str(tally_num)] = [tally_num, tally_type, tally_ptc, energy, flux, error, cutoff_en, flux_n, com_loaded, None, None]

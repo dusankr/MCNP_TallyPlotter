@@ -11,13 +11,13 @@ import tkinter as tk
 from matplotlib import rc
 import traceback
 
-
+"""
 # return key of legend name
 def find_key(leg_name):
     for key in config_mod.tallies.keys():
         if leg_name == config_mod.tallies[key][10]:
             return key
-
+"""
 
 def plot_to_canvas(tally):
     tally_to_plot = tally[:]
@@ -40,7 +40,7 @@ def plot_to_canvas(tally):
     
     # read reference data for ratio plot
     if config_mod.plot_settings["ratio"] != "no ratio":
-        key = find_key(config_mod.plot_settings["ratio"])   # return key of legend name
+        key = config_mod.plot_settings["ratio"]   # not necessary do like this...
 
         if (config_mod.plot_settings["data_var"] == 'non'):
             x_ratio, y_ratio, y_err_ratio = config_mod.tallies[key][3], config_mod.tallies[key][4], config_mod.tallies[key][5]
