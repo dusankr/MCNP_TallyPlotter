@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
-# TODO bug - option menu for ratio plot is more complicated
-# https://stackoverflow.com/questions/17580218/changing-the-options-of-a-optionmenu-when-clicking-a-button
 # TODO change whole structure
 # https://stackoverflow.com/questions/11154634/call-nested-function-in-python
 # TODO reread some settings?

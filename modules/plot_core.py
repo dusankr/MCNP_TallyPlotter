@@ -103,7 +103,8 @@ def plot_to_canvas(tally):
         config_mod.ax2.tick_params(axis='both', labelsize=config_mod.plot_settings["tics_size"])
 
         for name in config_mod.xs_data.keys():
-            config_mod.ax2.plot(config_mod.xs_data[name][0], config_mod.xs_data[name][1], ls="--", label=name)
+            p_color = next(config_mod.ax._get_lines.prop_cycler)['color']  # same color
+            config_mod.ax2.plot(config_mod.xs_data[name][0], config_mod.xs_data[name][1], ls="--", label=name, color=p_color)
 
         config_mod.ax2.legend(loc=config_mod.plot_settings["leg_pos"], fontsize=config_mod.plot_settings["leg_size"])
 
