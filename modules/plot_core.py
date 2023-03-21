@@ -108,12 +108,12 @@ def plot_to_canvas(tally):
         config_mod.ax2.legend(loc=config_mod.plot_settings["leg_pos"], fontsize=config_mod.plot_settings["leg_size"])
 
     # plot settings ----------------------------------------------------------------------------------------------------
-    config_mod.ax.legend(loc=config_mod.plot_settings["leg_pos"], fontsize=config_mod.plot_settings["leg_size"])
-
     if config_mod.plot_settings["xs_switch"]:
         lines, labels = config_mod.ax.get_legend_handles_labels()
         lines2, labels2 = config_mod.ax2.get_legend_handles_labels()
         config_mod.ax2.legend(lines + lines2, labels + labels2, loc=config_mod.plot_settings["leg_pos"], fontsize=config_mod.plot_settings["leg_size"])
+    else:
+        config_mod.ax.legend(loc=config_mod.plot_settings["leg_pos"], fontsize=config_mod.plot_settings["leg_size"])
 
     config_mod.ax.set_xscale(config_mod.plot_settings["x_scale"])
     config_mod.ax.set_yscale(config_mod.plot_settings["y_scale"])

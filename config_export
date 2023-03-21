@@ -10,7 +10,7 @@ work_dir_path=C:\Users\dusan\Desktop\test_plotter
 # initial export directory
 export_dir_path=C:\Users\dusan\Desktop\export
 # initial XS dir
-xs_dir_path=C:\Users\dusan\Desktop\test_plotter
+xs_dir_path=C:\Users\dusan\Desktop\test_plotter\plot_format.txt
 # figure resolution in DPI
 fig_dpi=300
 # figure x dimensions
@@ -23,7 +23,7 @@ fig_format=png
 x_title=Energy (MeV)
 # y ax title
 y_title= Flux (cm$^{-2}$)
-ratio=o00e_114_cell_40030
+ratio=no ratio
 data_var=non
 leg_pos=best
 leg_size=10
@@ -34,7 +34,7 @@ ax_label_size=12
 tics_size=10
 x_scale=linear
 y_scale=linear
-xs_switch=False
+xs_switch=True
 y2_title=Cross Section (barns)
 save_fig=False
 error_bar=True
