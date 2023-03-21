@@ -6,11 +6,15 @@
 # upper/lower index in plot labels $text_{lower}$ $text^{upper}$
 #
 # initial mcnp output directory
+<<<<<<< Updated upstream
 work_dir_path=C:\Users\dusan\Desktop\test_plotter
+=======
+work_dir_path=/Users/svoboda/LANL_work/python/GIT-rep/Dusan-step-plot/Step_plot_MCNP_GUI/new
+>>>>>>> Stashed changes
 # initial export directory
 export_dir_path=C:\Users\dusan\Desktop\export
 # initial XS dir
-xs_dir_path=C:\Users\dusan\Desktop\test_plotter
+xs_dir_path=/Users/svoboda/LANL_work/python/GIT-rep/Dusan-step-plot/Step_plot_MCNP_GUI/data/u235-u238-tot
 # figure resolution in DPI
 fig_dpi=300
 # figure x dimensions
@@ -24,17 +28,23 @@ x_title=Energy (MeV)
 # y ax title
 y_title= Flux (cm$^{-2}$)
 ratio=no ratio
+<<<<<<< Updated upstream
 data_var=non
 leg_pos=best
 leg_size=10
+=======
+data_var=norm
+leg_pos=best
+leg_size=19
+>>>>>>> Stashed changes
 grid_switch=True
 grid_opt=major
 grid_ax=both
-ax_label_size=12
-tics_size=10
+ax_label_size=16
+tics_size=16
 x_scale=log
-y_scale=linear
-xs_switch=False
+y_scale=log
+xs_switch=True
 y2_title=Cross Section (barns)
 save_fig=False
 error_bar=True
