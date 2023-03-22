@@ -334,7 +334,7 @@ def read_xs():
 
             i = 0
             while i < len(content):
-                if content[i][0] != '#':
+                if (content[i][0] != '#') and (len(content[i]) > 1):
                     line = content[i].split()
                     if line[0] == "name:":
                         name_xs = line[1] + " " + line[2]

@@ -14,7 +14,7 @@ work_dir_path=/Users/svoboda/LANL_work/python/GIT-rep/Dusan-step-plot/Step_plot_
 # initial export directory
 export_dir_path=C:\Users\dusan\Desktop\export
 # initial XS dir
-xs_dir_path=/Users/svoboda/LANL_work/python/GIT-rep/Dusan-step-plot/Step_plot_MCNP_GUI/data/u235-u238-tot
+xs_dir_path=C:\Users\dusan\Desktop\test_plotter\plot_format - kopie.txt
 # figure resolution in DPI
 fig_dpi=300
 # figure x dimensions
@@ -40,15 +40,15 @@ leg_size=19
 grid_switch=True
 grid_opt=major
 grid_ax=both
-ax_label_size=16
-tics_size=16
+ax_label_size=12
+tics_size=10
 x_scale=log
 y_scale=log
 xs_switch=True
 y2_title=Cross Section (barns)
 save_fig=False
 error_bar=True
-latex=True
+latex=False
 x_lim=None
 x_min=None
 x_max=None
