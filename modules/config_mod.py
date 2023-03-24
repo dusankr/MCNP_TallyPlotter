@@ -44,7 +44,10 @@ plot_settings = dict.fromkeys([
     "x_max",
     "y_lim",
     "y_min",
-    "y_max"
+    "y_max",
+    "y2_lim",
+    "y2_min",
+    "y2_max"
 ])
 
 # second option how to create dict:

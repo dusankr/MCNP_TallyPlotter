@@ -62,6 +62,11 @@ def plot_window(root, tally_to_plot):
     error_var = tk.BooleanVar(value=True)  # Turn on error bars
 
     xs_var = tk.BooleanVar(value=False)  # Check box variable - show XS data
+
+    xlim_var = tk.BooleanVar(value=False)  # Check box variable - use X axis limits
+    ylim_var = tk.BooleanVar(value=False)  # Check box variable - use Y axis limits
+    y2lim_var = tk.BooleanVar(value=False)  # Check box variable - use secondary Y axis limits
+
     """ This is not more used - make problems if replot button is activated
     # figure size
     xfig_var = tk.StringVar(value=20)  # SpinBox variable
@@ -87,24 +92,30 @@ def plot_window(root, tally_to_plot):
     # MAIN frames ------------------------------------------------------------------------------------------------------
     plot_frame = tk.ttk.Frame(plot_win)
     plot_frame.grid(column=0, row=0, sticky='nswe', padx=2, pady=2)  # set the margins between window and content
-
     # plot_frame.grid_propagate(False)      # Turn of auto resize of plot frame
 
     # layout PLOT frame
     plot_frame.columnconfigure(0, weight=1)
     plot_frame.rowconfigure(0, weight=1)
 
-    plot_option_frame = tk.LabelFrame(plot_win, text='Plot settings I', width=20)
-    plot_option_frame.grid(column=1, row=0, sticky='nswe', padx=2, pady=2)
-    # layout PLOT_OPTION frame
-    plot_option_frame.columnconfigure(0, weight=1)
-    plot_option_frame.rowconfigure(0, weight=0)         # weight=0 means no stretching...
-    
-    plot_option_frame2 = tk.LabelFrame(plot_win,text="Plot settings II", width=20)
-    plot_option_frame2.grid(column=2, row=0, sticky='nswe', padx=2, pady=2)
-    # layout PLOT_OPTION frame
-    plot_option_frame2.columnconfigure(0, weight=1)
-    plot_option_frame2.rowconfigure(0, weight=0)         # weight=0 means no stretching...
+    # PLOT_OPTION both columns
+    option_frame = tk.LabelFrame(plot_win, width=40)
+    option_frame.grid(column=1, row=0, sticky='nswe', padx=2, pady=2)
+    option_frame.columnconfigure(0, weight=1)
+    option_frame.rowconfigure(0, weight=0)  # weight=0 means no stretching...
+
+    # first column
+    plot_option_frame = tk.LabelFrame(option_frame, text='Plot settings I', width=20)
+    plot_option_frame.grid(column=0, row=0, sticky='nswe', padx=2, pady=2)
+
+    # second column
+    plot_option_frame2 = tk.LabelFrame(option_frame,text="Plot settings II", width=20)
+    plot_option_frame2.grid(column=1, row=0, sticky='nswe', padx=2, pady=2)
+
+    # new row
+    bottom_opt_frame = tk.LabelFrame(option_frame)
+    bottom_opt_frame.grid(column=0, columnspan=2, row=1)
+
 
     # Srollbar cannot work in window or frame -> canvas
     # https://riptutorial.com/tkinter/example/30942/scrolling-a-group-of-widgets
@@ -154,16 +165,11 @@ def plot_window(root, tally_to_plot):
         config_mod.plot_settings["error_bar"] = error_var.get()
         config_mod.plot_settings["latex"] = latex_var.get()
 
-        # latex family + font
-        # "x_lim"
-        # "x_min"
-        # "x_max"
-        # "y_lim"
-        # "y_min"
-        # "y_max"
-        # "y2_min"
-        # "y2_max"
-        
+        config_mod.plot_settings["x_lim"] = xlim_var.get()
+        config_mod.plot_settings["y_lim"] = ylim_var.get()
+        config_mod.plot_settings["y2_lim"] =y2lim_var.get()
+
+
         # fill ax and fig with all curves and return it to the canvas
         plot_core.plot_to_canvas(tally)
 
@@ -203,7 +209,7 @@ def plot_window(root, tally_to_plot):
     data_inp_radio = tk.Radiobutton(data_inp_frame, text='non', variable=data_var, value='non', tristatevalue="z")
     data_inp_radio.grid(column=1, row=0, sticky='nswe', padx=2, pady=2)
 
-    chk_replot = tk.Checkbutton(data_inp_frame, text='error bars', var=error_var)
+    chk_replot = tk.Checkbutton(data_inp_frame, text='show/hide error bars', var=error_var)
     chk_replot.grid(column=0, row=1, sticky='nswe', padx=2, pady=2)
 
     # plot_window(root, treeview_files, treeview_files.get_checked()
@@ -269,6 +275,14 @@ def plot_window(root, tally_to_plot):
     button_xs = tk.ttk.Button(xs_frame, text='Read XS', command=lambda: read_mod.read_xs())
     button_xs.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=2, pady=2)
 
+    file_label = tk.Label(xs_frame, text='File name:')
+    file_label.grid(column=0, row=2, sticky='wn')
+
+    name_label = tk.Label(xs_frame, text=' ')
+    name_label.grid(column=0, columnspan=2, row=3, sticky='wn')
+
+    # name_label['text'] = str(config_mod.plot_settings["work_dir_path"])
+
     # config (save, editor) --------------------------------------------------------------------------------------------
     save_frame = tk.LabelFrame(plot_option_frame2, text='Export')
     save_frame.grid(column=0, row=row_c, sticky='nswe', padx=2, pady=2)
@@ -280,12 +294,21 @@ def plot_window(root, tally_to_plot):
     button_settings = tk.ttk.Button(save_frame, text='Editor settings/legend', command=lambda: editor_mod.open_lib(pathlib.Path(edit_var.get()), tally_to_plot, plot_win))
     button_settings.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=2, pady=2)
 
-    chk_replot = tk.Checkbutton(save_frame, text='On/Off save figure', var=save_var)
-    chk_replot.grid(column=0, row=2, sticky='nswe', padx=2, pady=2)
+    chk_save = tk.Checkbutton(save_frame, text='On/Off save figure', var=save_var)
+    chk_save.grid(column=0, row=2, sticky='nw', padx=2, pady=2)
     
-    chk_latex = tk.Checkbutton(save_frame, text='On/Off LaTeX', var=latex_var)
-    chk_latex.grid(column=0, row=3, sticky='nswe', padx=2, pady=2)
-    
+    chk_latex = tk.Checkbutton(save_frame, text='On/Off LaTeX', var=latex_var, state='disabled')
+    chk_latex.grid(column=0, row=3, sticky='nw', padx=2, pady=2)
+
+    chk_xlim = tk.Checkbutton(save_frame, text='On/Off X axis limits', var=xlim_var, state='disabled')
+    chk_xlim.grid(column=0, row=4, sticky='nw', padx=2, pady=2)
+
+    chk_ylim = tk.Checkbutton(save_frame, text='On/Off Y axis limits', var=ylim_var, state='disabled')
+    chk_ylim.grid(column=0, row=5, sticky='nw', padx=2, pady=2)
+
+    chk_y2lim = tk.Checkbutton(save_frame, text='On/Off Y2 axis limits', var=y2lim_var, state='disabled')
+    chk_y2lim.grid(column=0, row=6, sticky='nw', padx=2, pady=2)
+
     # replot frame -----------------------------------------------------------------------------------------------------
     replot_frame = tk.LabelFrame(plot_option_frame2, text='Replot')
     replot_frame.grid(column=0, row=row_c, sticky='nswe', padx=2, pady=2)
