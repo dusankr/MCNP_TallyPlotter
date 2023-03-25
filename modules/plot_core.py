@@ -72,7 +72,7 @@ def plot_to_canvas(tally):
     if config_mod.plot_settings["xs_switch"]:
         config_mod.ax2 = config_mod.ax.twinx()
 
-        if config_mod.plot_settings["y2_title"] != "None":
+        if config_mod.plot_settings["y2_title"] is not None:
             config_mod.ax2.set_ylabel(config_mod.plot_settings["y2_title"],fontsize=config_mod.plot_settings["ax_label_size"])
         else:
             config_mod.plot_settings["y2_title"] = "Cross Section (barns)"
@@ -87,6 +87,17 @@ def plot_to_canvas(tally):
 
         config_mod.ax2.legend(loc=config_mod.plot_settings["leg_pos"], fontsize=config_mod.plot_settings["leg_size"])
 
+    # axis limits ------------------------------------------------------------------------------------------------------
+    if config_mod.plot_settings["x_lim"] is not None and config_mod.plot_settings["x_lim"] is True:
+        config_mod.ax.set_xlim(config_mod.plot_settings["x_min"], config_mod.plot_settings["x_max"])
+
+    if config_mod.plot_settings["y_lim"] is not None and config_mod.plot_settings["y_lim"] is True:
+        config_mod.ax.set_ylim(config_mod.plot_settings["y_min"], config_mod.plot_settings["y_max"])
+
+
+    if config_mod.plot_settings["y2_lim"] is not None and config_mod.plot_settings["y2_lim"] is True and config_mod.plot_settings["xs_switch"] is True:
+        config_mod.ax2.set_ylim(config_mod.plot_settings["y2_min"], config_mod.plot_settings["y2_max"])
+
     # plot settings ----------------------------------------------------------------------------------------------------
     if config_mod.plot_settings["xs_switch"]:
         lines, labels = config_mod.ax.get_legend_handles_labels()
@@ -99,12 +110,12 @@ def plot_to_canvas(tally):
     config_mod.ax.set_yscale(config_mod.plot_settings["y_scale"])
     config_mod.ax.grid(visible=config_mod.plot_settings["grid_switch"], which=config_mod.plot_settings["grid_opt"], axis=config_mod.plot_settings["grid_ax"])
 
-    if config_mod.plot_settings["x_title"] != "None":
+    if config_mod.plot_settings["x_title"] is not None:
         config_mod.ax.set_xlabel(config_mod.plot_settings["x_title"], fontsize=config_mod.plot_settings["ax_label_size"])
     else:
         config_mod.ax.set_xlabel('energy (MeV)', fontsize=config_mod.plot_settings["ax_label_size"])
 
-    if config_mod.plot_settings["y_title"] != "None":
+    if config_mod.plot_settings["y_title"] is not None:
         config_mod.ax.set_ylabel(config_mod.plot_settings["y_title"], fontsize=config_mod.plot_settings["ax_label_size"])
     else:
         config_mod.ax.set_ylabel(y_label, fontsize=config_mod.plot_settings["ax_label_size"])
@@ -117,7 +128,7 @@ def plot_to_canvas(tally):
 
     # TODO add plot size for export
     # TODO independent path, file name
-    if config_mod.plot_settings["save_fig"] is True and config_mod.plot_settings["fig_format"] != "None" and config_mod.plot_settings["fig_dpi"] != "None":
+    if config_mod.plot_settings["save_fig"] is True and config_mod.plot_settings["fig_format"] is not None and config_mod.plot_settings["fig_dpi"] is not None:
         try:
             config_mod.fig_id.savefig(config_mod.plot_settings["work_dir_path"] / pathlib.Path('fig_exp.' + config_mod.plot_settings["fig_format"]), format=config_mod.plot_settings["fig_format"], dpi=int(config_mod.plot_settings["fig_dpi"]))
         except:

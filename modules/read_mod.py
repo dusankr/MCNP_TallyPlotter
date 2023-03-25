@@ -320,7 +320,7 @@ def read_tally(f_path, fname):
 
 
 # read XS data
-def read_xs():
+def read_xs(name_label):
     config_mod.plot_settings["xs_dir_path"] = pathlib.Path(tk.filedialog.askopenfilename(title='Choose directory with XS file', initialdir=config_mod.plot_settings["work_dir_path"]))
 
     try:
@@ -356,6 +356,8 @@ def read_xs():
         print("All XS from ", config_mod.plot_settings["xs_dir_path"].name, " file:")
         for nam in config_mod.xs_data.keys():
             print(nam)
+
+        name_label["text"] = config_mod.plot_settings["xs_dir_path"].name
 
     except:
         traceback.print_exc()

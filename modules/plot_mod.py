@@ -19,6 +19,11 @@ import pathlib
 #  Functions  ##########################################################################################################
 # create new Top level window and plot data
 def plot_window(root, tally_to_plot):
+    def quit():
+        # close the editor window and grab the plot window
+        root.grab_set()
+        plot_win.destroy()
+
     # close plot window if there are no tallies
     if tally_to_plot == None:
         return
@@ -158,7 +163,7 @@ def plot_window(root, tally_to_plot):
 
         config_mod.plot_settings["x_lim"] = xlim_var.get()
         config_mod.plot_settings["y_lim"] = ylim_var.get()
-        config_mod.plot_settings["y2_lim"] =y2lim_var.get()
+        config_mod.plot_settings["y2_lim"] = y2lim_var.get()
 
 
         # fill ax and fig with all curves and return it to the canvas
@@ -263,7 +268,7 @@ def plot_window(root, tally_to_plot):
     chk_xs = tk.Checkbutton(xs_frame, text='turn on a second Y axis', var=xs_var)
     chk_xs.grid(column=0, row=0, sticky='nswe', padx=2, pady=2)
 
-    button_xs = tk.ttk.Button(xs_frame, text='Read XS', command=lambda: read_mod.read_xs())
+    button_xs = tk.ttk.Button(xs_frame, text='Read XS', command=lambda: read_mod.read_xs(name_label))
     button_xs.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=2, pady=2)
 
     file_label = tk.Label(xs_frame, text='File name:')
@@ -291,13 +296,13 @@ def plot_window(root, tally_to_plot):
     chk_latex = tk.Checkbutton(save_frame, text='On/Off LaTeX', var=latex_var, state='disabled')
     chk_latex.grid(column=0, row=3, sticky='nw', padx=2, pady=2)
 
-    chk_xlim = tk.Checkbutton(save_frame, text='On/Off X axis limits', var=xlim_var, state='disabled')
+    chk_xlim = tk.Checkbutton(save_frame, text='On/Off X axis limits', var=xlim_var)
     chk_xlim.grid(column=0, row=4, sticky='nw', padx=2, pady=2)
 
-    chk_ylim = tk.Checkbutton(save_frame, text='On/Off Y axis limits', var=ylim_var, state='disabled')
+    chk_ylim = tk.Checkbutton(save_frame, text='On/Off Y axis limits', var=ylim_var)
     chk_ylim.grid(column=0, row=5, sticky='nw', padx=2, pady=2)
 
-    chk_y2lim = tk.Checkbutton(save_frame, text='On/Off Y2 axis limits', var=y2lim_var, state='disabled')
+    chk_y2lim = tk.Checkbutton(save_frame, text='On/Off Y2 axis limits', var=y2lim_var)
     chk_y2lim.grid(column=0, row=6, sticky='nw', padx=2, pady=2)
 
     button_reread = tk.ttk.Button(save_frame, text='Update config', state="disable")
@@ -313,7 +318,7 @@ def plot_window(root, tally_to_plot):
     button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: plot_function(tally_to_plot), state='disabled')
     button_replot.grid(column=0, row=1, sticky='swen', padx=2, pady=2)
     
-    button_quit = tk.ttk.Button(replot_frame, width=24, text='Quit', command=plot_win.destroy)
+    button_quit = tk.ttk.Button(replot_frame, width=24, text='Quit', command=lambda: quit())
     button_quit.grid(column=1, row=0, rowspan=2, sticky='swen', padx=2, pady=2)
     
     # endregion all tkinter widgets for

@@ -28,6 +28,14 @@ def create_config(fname):
             temp_file.write("#\n")
 
 
+def is_float(element):
+    try:
+        float(element)
+        return True
+    except ValueError:
+        return False
+
+
 # read values from config file to program variables
 def read_config(fname):
     if not pathlib.Path(fname).is_file():
@@ -41,12 +49,17 @@ def read_config(fname):
             if lines[0] != '#':
                 line = lines.split("=", 1)
                 if line[0] in config_mod.plot_settings.keys():
-                    config_mod.plot_settings[line[0]] = line[1].rstrip()    # rstrip remove \n from the end of line
-
+                    value = line[1].rstrip()    # rstrip remove \n from the end of line
+                    if is_float(value):
+                        config_mod.plot_settings[line[0]] = float(value)
+                    elif value == "None":
+                        config_mod.plot_settings[line[0]] = None
+                    else:
+                        config_mod.plot_settings[line[0]] = value
 
     # conditions for all possibilities
     try:
-        if config_mod.plot_settings["work_dir_path"]  == "None" or None:
+        if config_mod.plot_settings["work_dir_path"] is None:
             config_mod.plot_settings["work_dir_path"] = pathlib.Path.cwd()
         #elif config_mod.plot_settings["work_dir_path"] is not pathlib.Path(config_mod.plot_settings["work_dir_path"]).is_dir():
             #config_mod.plot_settings["work_dir_path"] = pathlib.Path.cwd()
@@ -56,7 +69,7 @@ def read_config(fname):
         config_mod.plot_settings["work_dir_path"] = pathlib.Path.cwd()
         
     try:
-        if config_mod.plot_settings["xs_dir_path"]  == "None" or None:
+        if config_mod.plot_settings["xs_dir_path"] is None:
             config_mod.plot_settings["xs_dir_path"] = pathlib.Path.cwd()
         elif pathlib.Path(config_mod.plot_settings["xs_dir_path"]).is_file():
             config_mod.plot_settings["xs_dir_path"] = pathlib.Path(config_mod.plot_settings["xs_dir_path"]).parent
@@ -66,7 +79,7 @@ def read_config(fname):
         config_mod.plot_settings["xs_dir_path"] = pathlib.Path.cwd()
         
     try:
-        if config_mod.plot_settings["export_dir_path"]  == "None" or None:
+        if config_mod.plot_settings["export_dir_path"] is None:
             config_mod.plot_settings["export_dir_path"] = pathlib.Path.cwd()
         elif pathlib.Path(config_mod.plot_settings["export_dir_path"]).is_file():
             config_mod.plot_settings["export_dir_path"] = pathlib.Path(config_mod.plot_settings["export_dir_path"]).parent
