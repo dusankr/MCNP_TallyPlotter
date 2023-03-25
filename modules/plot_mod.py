@@ -14,8 +14,7 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationTool
 import matplotlib.pyplot as plt     # MUST stay here!!!
 import tkinter as tk
 import pathlib
-from matplotlib import rc
-import traceback
+
 
 #  Functions  ##########################################################################################################
 # create new Top level window and plot data
@@ -92,25 +91,28 @@ def plot_window(root, tally_to_plot):
     # MAIN frames ------------------------------------------------------------------------------------------------------
     plot_frame = tk.ttk.Frame(plot_win)
     plot_frame.grid(column=0, row=0, sticky='nswe', padx=2, pady=2)  # set the margins between window and content
-    # plot_frame.grid_propagate(False)      # Turn of auto resize of plot frame
-
-    # layout PLOT frame
     plot_frame.columnconfigure(0, weight=1)
     plot_frame.rowconfigure(0, weight=1)
+    # plot_frame.grid_propagate(False)      # Turn of auto resize of plot frame
 
     # PLOT_OPTION both columns
     option_frame = tk.LabelFrame(plot_win, width=40)
     option_frame.grid(column=1, row=0, sticky='nswe', padx=2, pady=2)
     option_frame.columnconfigure(0, weight=1)
-    option_frame.rowconfigure(0, weight=0)  # weight=0 means no stretching...
+    option_frame.columnconfigure(1, weight=1)
+    option_frame.rowconfigure(0, weight=1)  # weight=0 means no stretching...
 
     # first column
     plot_option_frame = tk.LabelFrame(option_frame, text='Plot settings I', width=20)
     plot_option_frame.grid(column=0, row=0, sticky='nswe', padx=2, pady=2)
+    # plot_option_frame.columnconfigure(0, weight=1)
+    # plot_option_frame.rowconfigure(0, weight=0)  # weight=0 means no stretching...
 
     # second column
     plot_option_frame2 = tk.LabelFrame(option_frame,text="Plot settings II", width=20)
     plot_option_frame2.grid(column=1, row=0, sticky='nswe', padx=2, pady=2)
+    # plot_option_frame2.columnconfigure(0, weight=1)
+    # plot_option_frame2.rowconfigure(0, weight=0)  # weight=0 means no stretching...
 
     # new row
     bottom_opt_frame = tk.LabelFrame(option_frame)
@@ -121,17 +123,6 @@ def plot_window(root, tally_to_plot):
     # https://riptutorial.com/tkinter/example/30942/scrolling-a-group-of-widgets
     # win_scroll = tk.Scrollbar(new_win, orient='vertical')
     # win_scroll.grid(sticky='ns', column=2, row=0)
-
-    # turn on/off LaTeX TODO should be used before figure is created!!!
-    """
-    try:
-        if config_mod.plot_settings["latex"]:       # if True
-            rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
-            rc('text', usetex=True)
-    except:
-            traceback.print_exc()
-            tk.messagebox.showerror('LaTeX error', 'Your TeX compiler is not installed or some packages are missing.')
-    """
 
     # Canvas definition
     config_mod.fig_id = matplotlib.figure.Figure()  # TODO looks like a very old matplotlib commands
@@ -210,7 +201,7 @@ def plot_window(root, tally_to_plot):
     data_inp_radio.grid(column=1, row=0, sticky='nswe', padx=2, pady=2)
 
     chk_replot = tk.Checkbutton(data_inp_frame, text='show/hide error bars', var=error_var)
-    chk_replot.grid(column=0, row=1, sticky='nswe', padx=2, pady=2)
+    chk_replot.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=2, pady=2)
 
     # plot_window(root, treeview_files, treeview_files.get_checked()
     ratio_menu = tk.OptionMenu(data_inp_frame, ratio_sel, *ratio_options)
@@ -309,19 +300,21 @@ def plot_window(root, tally_to_plot):
     chk_y2lim = tk.Checkbutton(save_frame, text='On/Off Y2 axis limits', var=y2lim_var, state='disabled')
     chk_y2lim.grid(column=0, row=6, sticky='nw', padx=2, pady=2)
 
+    button_reread = tk.ttk.Button(save_frame, text='Update config', state="disable")
+    button_reread.grid(column=0, columnspan=2, row=7, sticky='nswe', padx=2, pady=2)
+
     # replot frame -----------------------------------------------------------------------------------------------------
-    replot_frame = tk.LabelFrame(plot_option_frame2, text='Replot')
-    replot_frame.grid(column=0, row=row_c, sticky='nswe', padx=2, pady=2)
-    row_c += 1
+    replot_frame = tk.LabelFrame(option_frame, text='Replot')
+    replot_frame.grid(column=0, columnspan=2, row=1, sticky='swe', padx=2, pady=2)
 
     chk_replot = tk.Checkbutton(replot_frame, text='disable immediate changes', var=replot_var, command=lambda: turn_off_replot())
-    chk_replot.grid(column=0, columnspan=2, row=0, sticky='nswe', padx=2, pady=2)
+    chk_replot.grid(column=0, row=0, sticky='swe', padx=2, pady=2)
 
     button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: plot_function(tally_to_plot), state='disabled')
-    button_replot.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=2, pady=2)
+    button_replot.grid(column=0, row=1, sticky='swen', padx=2, pady=2)
     
-    button_quit = tk.ttk.Button(replot_frame, text='Quit', command=plot_win.destroy)
-    button_quit.grid(column=0, columnspan=2, row=2, sticky='nswe', padx=2, pady=2)
+    button_quit = tk.ttk.Button(replot_frame, width=24, text='Quit', command=plot_win.destroy)
+    button_quit.grid(column=1, row=0, rowspan=2, sticky='swen', padx=2, pady=2)
     
     # endregion all tkinter widgets for
 
