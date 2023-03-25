@@ -343,10 +343,13 @@ def plot_window(root, tally_to_plot):
     xs_var.trace_add('write', my_callback)
     save_var.trace_add('write', my_callback)
     error_var.trace_add('write', my_callback)
+    xlim_var.trace_add('write', my_callback)
+    ylim_var.trace_add('write', my_callback)
+    y2lim_var.trace_add('write', my_callback)
 
     # turn on-off online replot
     def turn_off_replot():
-        if replot_var.get() == True:
+        if replot_var.get() is True:
             button_replot['state'] = 'normal'
 
             legend_pos.trace_remove('write', legend_pos.trace_info()[0][1])
@@ -363,6 +366,9 @@ def plot_window(root, tally_to_plot):
             xs_var.trace_remove('write', xs_var.trace_info()[0][1])
             save_var.trace_remove('write', save_var.trace_info()[0][1])
             error_var.trace_remove('write', error_var.trace_info()[0][1])
+            xlim_var.trace_remove('write', xlim_var.trace_info()[0][1])
+            ylim_var.trace_remove('write', ylim_var.trace_info()[0][1])
+            y2lim_var.trace_remove('write', y2lim_var.trace_info()[0][1])
         else:
             button_replot['state'] = 'disabled'
 
@@ -380,6 +386,9 @@ def plot_window(root, tally_to_plot):
             xs_var.trace_add('write', my_callback)
             save_var.trace_add('write', my_callback)
             error_var.trace_add('write', my_callback)
+            xlim_var.trace_add('write', my_callback)
+            ylim_var.trace_add('write', my_callback)
+            y2lim_var.trace_add('write', my_callback)
 
     def change_state():
         if grid_on_var.get():
