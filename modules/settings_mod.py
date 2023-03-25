@@ -52,7 +52,7 @@ def read_config(fname):
                     value = line[1].rstrip()    # rstrip remove \n from the end of line
                     if is_float(value):
                         config_mod.plot_settings[line[0]] = float(value)
-                    elif value == "None":
+                    elif value == "None" or value == "none":
                         config_mod.plot_settings[line[0]] = None
                     else:
                         config_mod.plot_settings[line[0]] = value
