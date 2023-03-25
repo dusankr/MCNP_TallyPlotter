@@ -130,7 +130,7 @@ def plot_window(root, tally_to_plot):
     # win_scroll.grid(sticky='ns', column=2, row=0)
 
     # Canvas definition
-    config_mod.fig_id = matplotlib.figure.Figure()  # TODO looks like a very old matplotlib commands
+    config_mod.fig_id = matplotlib.pyplot.figure()
     config_mod.ax = config_mod.fig_id.add_subplot()
 
     config_mod.canvas_id = FigureCanvasTkAgg(config_mod.fig_id, plot_frame)  # add Figure to canvas from plot function
