@@ -3,13 +3,12 @@
 # TODO change whole structure
 # https://stackoverflow.com/questions/11154634/call-nested-function-in-python
 # TODO reread some settings?
-# far future:
 # TODO change font in export settings window
 # TODO turn on/off LaTeX in the export settings window
 
 # libraries
 import matplotlib
-from modules import config_mod, editor_mod, plot_core, read_mod
+from modules import config_mod, editor_mod, plot_core, read_mod, settings_mod
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 import matplotlib.pyplot as plt     # MUST stay here!!!
 import tkinter as tk
@@ -305,7 +304,7 @@ def plot_window(root, tally_to_plot):
     chk_y2lim = tk.Checkbutton(save_frame, text='On/Off Y2 axis limits', var=y2lim_var)
     chk_y2lim.grid(column=0, row=6, sticky='nw', padx=2, pady=2)
 
-    button_reread = tk.ttk.Button(save_frame, text='Update config', state="disable")
+    button_reread = tk.ttk.Button(save_frame, text='Update export', command=lambda: settings_mod.read_config("config_export"))
     button_reread.grid(column=0, columnspan=2, row=7, sticky='nswe', padx=2, pady=2)
 
     # replot frame -----------------------------------------------------------------------------------------------------
