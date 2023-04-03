@@ -8,7 +8,7 @@
 # initial mcnp output directory
 work_dir_path=C:\Users\dusan\Desktop\test_plotter
 # initial export directory
-export_dir_path=C:\Users\dusan\Desktop\export
+export_dir_path=C:\Users\dusan\Desktop\test_plotter
 # initial XS dir
 xs_dir_path=C:\Users\dusan\Desktop\test_plotter
 # figure resolution in DPI
@@ -22,7 +22,7 @@ fig_format=png
 # x ax title
 x_title=Energy (MeV)
 # y ax title
-y_title= Flux (cm$^{-2}$)
+y_title=Flux (cm$^{-2}$)
 ratio=no ratio
 data_var=non
 leg_pos=best
@@ -32,19 +32,20 @@ grid_opt=major
 grid_ax=both
 ax_label_size=12
 tics_size=10
-x_scale=linear
-y_scale=linear
+x_scale=log
+y_scale=log
 xs_switch=False
 y2_title=Cross Section (barns)
 save_fig=False
 error_bar=True
 latex=False
-x_lim=True
-x_min=100.0
-x_max=700.0
+x_lim=False
+x_min=1e-07
+x_max=None
 y_lim=False
-y_min=5e-11
+y_min=None
 y_max=None
 y2_lim=False
 y2_min=None
-y2_max=None
+y2_max=10000000000.0
+
