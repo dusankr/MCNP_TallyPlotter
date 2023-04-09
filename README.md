@@ -1,8 +1,7 @@
 # MCNP 2D tally plotter
 
-## TODO:
-- improve description how to build a conda environment from enviroment.yml file (included)
 <!--
+## TODO:
 https://www.freecodecamp.org/news/how-to-write-a-good-readme-file/
 -->
 
