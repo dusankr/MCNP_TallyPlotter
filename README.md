@@ -44,7 +44,7 @@ https://www.freecodecamp.org/news/how-to-write-a-good-readme-file/
   - **comment** - tally comment if was defined by user
 
 <img src="doc/mcnp_plotter/main_win_data.PNG" width="70%" height="70%" title="Main window with data">
-<img src="doc/mcnp_plotter/excel_export.PNG" alt=“” width="70%" height="70%" title="Exported xlsx file">
+<img src="doc/mcnp_plotter/excel_export.PNG" width="70%" height="70%" title="Exported xlsx file">
 
 ## Plot window
 - the plot window could be divided into several parts:
@@ -52,7 +52,7 @@ https://www.freecodecamp.org/news/how-to-write-a-good-readme-file/
   2. plotter settings - this section allows some basic changes. A more detailed description is below.
   3. figure tools - allows manual zoom by magnifier tool, move in changes back and forward, modify position of titles and plot, move curves in the figure and save plot into several formats.
 
-<img src="doc/mcnp_plotter/plot_win_init_sec.PNG" alt= “” width="70%" height="70%">
+<img src="doc/mcnp_plotter/plot_win_init_sec.PNG" width="70%" height="70%">
 
 ### Plot settings and replot
 - most of the changes are applied immediately after a widget is used.
