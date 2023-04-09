@@ -1,4 +1,4 @@
-name: gui_env3
+name: plotter_gui
 channels:
   - defaults
 dependencies:

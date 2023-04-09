@@ -6,6 +6,28 @@
 https://www.freecodecamp.org/news/how-to-write-a-good-readme-file/
 -->
 
+## How to run uncompiled plotter
+
+Users can use compiled release (will be added soon) or run uncompiled code with necessary packages:
+- Python >=3.8
+- tkinter
+- ttkwidgets
+- pathlib
+- openpyxl
+- math
+- matplotlib
+- traceback
+- os
+
+The easiest option is to use a Conda environment. To recreate the Conda environment, for this project (gui_environment.yml), run the following command:
+
+```
+conda env create --file gui_environment.yaml
+```
+
+This will create a new environment named `plotter_gui` with the same dependencies and versions as the one used in this project.
+
+The `plotter_gui` can be activated trough **Anaconda Prompt** or with **Anaconda Navigator**.
 
 ## Short description of MCNP Plotter
 
