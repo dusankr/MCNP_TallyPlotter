@@ -91,4 +91,4 @@ dependencies:
     - wcwidth==0.2.6
     - wurlitzer==3.0.3
     - zipp==3.14.0
-prefix: /Users/kral/.conda/envs/gui_env3
+prefix: /Users/kral/.conda/envs/plotter_gui
