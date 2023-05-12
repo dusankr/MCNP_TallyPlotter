@@ -13,10 +13,7 @@ Users can use compiled release (will be added soon) or run uncompiled code with 
 - ttkwidgets
 - pathlib
 - openpyxl
-- math
 - matplotlib
-- traceback
-- os
 
 The easiest option is to use a Conda environment. To recreate the Conda environment, for this project (gui_environment.yml), run the following command:
 
