@@ -7,7 +7,7 @@
 from modules import config_mod
 import pathlib
 import tkinter as tk
-from modules import plot_mod, settings_mod
+from modules import settings_mod
 
 # open library or any ascii file in text editor
 def open_lib(file_path, tally_to_plot, plot_win):

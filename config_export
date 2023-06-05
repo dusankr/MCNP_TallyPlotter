@@ -10,7 +10,7 @@ work_dir_path=C:\Users\dusan\Desktop\test_plotter\josef_uranium
 # initial export directory
 export_dir_path=C:\Users\dusan\Desktop\test_plotter
 # initial XS dir
-xs_dir_path=C:\Users\dusan\Desktop\test_plotter\josef_uranium\u235-u238-tot
+xs_dir_path=C:\Users\dusan\Desktop\test_plotter\josef_uranium
 # figure resolution in DPI
 fig_dpi=300.0
 # figure x dimensions
@@ -25,19 +25,19 @@ x_title=Energy (MeV)
 y_title=Flux (cm$^{-2}$)
 ratio=no ratio
 data_var=non
-leg_pos=lower left
+leg_pos=best
 leg_size=10
 grid_switch=True
 grid_opt=major
 grid_ax=both
 ax_label_size=12
 tics_size=10
-x_scale=log
-y_scale=log
-xs_switch=True
+x_scale=linear
+y_scale=linear
+xs_switch=False
 y2_title=Cross Section (barns)
 save_fig=False
-error_bar=False
+error_bar=True
 latex=False
 x_lim=False
 x_min=1e-07
