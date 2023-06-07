@@ -60,7 +60,7 @@ Or you can import you environment into some IDE like Pycharm, Anaconda Spyder, e
   - **Export tally to xlsx** - all selected tally are saved to `.xsls` file. User has to choose the `.xsls` file name in the saving dialog. Every tally is saved to a separate list.
   - **check all** - this check box allows us to check/uncheck all tallies.
 
-<img src="doc/mcnp_plotter/main_win_empty.PNG" alt=“” width="70%" height="70%" title=“Main window without data”>
+<img src="doc/mcnp_plotter/main_win_empty.PNG" width="70%" height="70%" title="Main window without data">
 
 - after the data are loaded from the working folder, its parameters are displayed:
   - the first column is check box for data selection
