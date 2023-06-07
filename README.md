@@ -5,25 +5,38 @@
 https://www.freecodecamp.org/news/how-to-write-a-good-readme-file/
 -->
 
-## How to run uncompiled plotter
+## How to run plotter
+Two main options:
+1. Download EXE files from last release (available for Linux and Windows x64)
+2. Source files
 
-Users can use compiled release (will be added soon) or run uncompiled code with necessary packages:
+### Executable files
+This option offer the most simple use of the MCNP tally plotter. All what one needs to do is download and install basic Python 3.10 (works with different versions but this one is tested). Actual files are available in Releases at the main page.
+
+### Source files
+
+Users can run uncompiled code with necessary packages:
 - Python >=3.8
-- tkinter
 - ttkwidgets
-- pathlib
 - openpyxl
 - matplotlib
+- rest of packages should be part of primary Python installation
 
-The easiest option is to use a Conda environment. To recreate the Conda environment, for this project (gui_environment.yml), run the following command:
+The easiest option is to use some virtual environment e.g. Conda environment. To recreate the Conda environment, for this project, run the following command:
 
 ```
-conda env create --file gui_environment.yaml
+conda env create --file environment_file.yml
 ```
 
-This will create a new environment named `plotter_gui` with the same dependencies and versions as the one used in this project.
+This will create a new environment named `plotter_env` or similar. The dependencies and versions should be same as ones used in this project.
 
-The `plotter_gui` can be activated trough **Anaconda Prompt** or with **Anaconda Navigator**.
+The `plotter_env` can be activated trough **Anaconda Prompt** or with **Anaconda Navigator**. Users can run software by using this command in the activated environment:
+
+```
+python mcnp_tally_plot_main.py
+```
+
+Or you can import you environment into some IDE like Pycharm, Anaconda Spyder, etc.
 
 ## Short description of MCNP Plotter
 
