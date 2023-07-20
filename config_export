@@ -2,15 +2,16 @@
 # hashtag is used for commenting
 # = is used as separator, spaces are not allowed between setting and value!
 # at the end of file must be empty line
-# for the return of default value type <none>
-# upper/lower index in plot labels $text_{lower}$ $text^{upper}$
+# for the return of default value type <None>
+# upper/lower index in plot labels works with <$><$>
+# e.g. $text_{lower index}$ $text^{upper index}$
 #
 # initial mcnp output directory
-work_dir_path=C:\Users\dusan\Desktop\test_plotter\josef_uranium
+work_dir_path=C:\Users\dusan\Desktop\test_plotter\texas
 # initial export directory
 export_dir_path=C:\Users\dusan\Desktop\test_plotter
 # initial XS dir
-xs_dir_path=C:\Users\dusan\Desktop\test_plotter\josef_uranium
+xs_dir_path=C:\Users\dusan\Desktop\test_plotter\plot_format.txt
 # figure resolution in DPI
 fig_dpi=300.0
 # figure x dimensions
@@ -32,9 +33,9 @@ grid_opt=major
 grid_ax=both
 ax_label_size=12
 tics_size=10
-x_scale=linear
-y_scale=linear
-xs_switch=False
+x_scale=log
+y_scale=log
+xs_switch=True
 y2_title=Cross Section (barns)
 save_fig=False
 error_bar=True
@@ -48,4 +49,5 @@ y_max=None
 y2_lim=False
 y2_min=None
 y2_max=10000000000.0
+
 

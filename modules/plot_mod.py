@@ -7,9 +7,9 @@
 # TODO turn on/off LaTeX in the export settings window
 
 # libraries
-import matplotlib
 from modules import config_mod, editor_mod, plot_core, read_mod, settings_mod
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
+import matplotlib
 import matplotlib.pyplot as plt     # MUST stay here!!!
 import tkinter as tk
 import pathlib
@@ -118,23 +118,16 @@ def plot_window(root, tally_to_plot):
     # plot_option_frame2.columnconfigure(0, weight=1)
     # plot_option_frame2.rowconfigure(0, weight=0)  # weight=0 means no stretching...
 
-    # new row
-    bottom_opt_frame = tk.LabelFrame(option_frame)
-    bottom_opt_frame.grid(column=0, columnspan=2, row=1)
+    # new row - unused
+    # bottom_opt_frame = tk.LabelFrame(option_frame)
+    # bottom_opt_frame.grid(column=0, columnspan=2, row=1)
 
-
-    # Srollbar cannot work in window or frame -> canvas
-    # https://riptutorial.com/tkinter/example/30942/scrolling-a-group-of-widgets
-    # win_scroll = tk.Scrollbar(new_win, orient='vertical')
-    # win_scroll.grid(sticky='ns', column=2, row=0)
-
-    # Canvas definition
+    # Canvas definition     # TODO try to define this only in plot core
     config_mod.fig_id = matplotlib.pyplot.figure()
     config_mod.ax = config_mod.fig_id.add_subplot()
 
     config_mod.canvas_id = FigureCanvasTkAgg(config_mod.fig_id, plot_frame)  # add Figure to canvas from plot function
     config_mod.canvas_id.get_tk_widget().grid(column=0, row=0, sticky='nswe')
-    config_mod.canvas_id.draw()
 
     # Toolbar for plot
     toolbar_frame = tk.ttk.Frame(plot_frame)
@@ -163,7 +156,6 @@ def plot_window(root, tally_to_plot):
         config_mod.plot_settings["x_lim"] = xlim_var.get()
         config_mod.plot_settings["y_lim"] = ylim_var.get()
         config_mod.plot_settings["y2_lim"] = y2lim_var.get()
-
 
         # fill ax and fig with all curves and return it to the canvas
         plot_core.plot_to_canvas(tally)
@@ -264,10 +256,10 @@ def plot_window(root, tally_to_plot):
     xs_frame.grid(column=0, row=row_c, sticky='nswe', padx=2, pady=2)
     row_c += 1
 
-    chk_xs = tk.Checkbutton(xs_frame, text='turn on a second Y axis', var=xs_var)
+    chk_xs = tk.Checkbutton(xs_frame, text='turn on a second Y axis', var=xs_var, state="disabled")
     chk_xs.grid(column=0, row=0, sticky='nswe', padx=2, pady=2)
 
-    button_xs = tk.ttk.Button(xs_frame, text='Read XS', command=lambda: read_mod.read_xs(name_label))
+    button_xs = tk.ttk.Button(xs_frame, text='Read XS', command=lambda: [read_mod.read_xs(name_label), change_state2()])
     button_xs.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=2, pady=2)
 
     file_label = tk.Label(xs_frame, text='File name:')
@@ -397,3 +389,10 @@ def plot_window(root, tally_to_plot):
         else:
             grid_menu['state'] = 'disabled'
             grid_axis_menu['state'] = 'disabled'
+
+
+    def change_state2():
+        if len(config_mod.xs_data.keys()) > 0:
+            chk_xs['state'] = 'normal'
+        else:
+            chk_xs['state'] = 'disabled'

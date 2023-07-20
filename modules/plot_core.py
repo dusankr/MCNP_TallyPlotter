@@ -9,14 +9,16 @@ import math
 import pathlib
 import tkinter as tk
 
+
 def plot_to_canvas(tally):
     tally_to_plot = tally[:]
 
     config_mod.ax.clear()
+
     if config_mod.ax2 != None:
         config_mod.ax2.remove()     # TODO solve Warning!!! (works now)
         config_mod.ax2 = None
-    
+
     # read reference data for ratio plot
     if config_mod.plot_settings["ratio"] != "no ratio":
         key = config_mod.plot_settings["ratio"]   # not necessary do like this...

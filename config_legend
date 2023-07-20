@@ -1,8 +1,10 @@
-# list of all loaded tallies trough the time
-# on the left side of "=" is name from SW
-# in the right side of "=" is possible write new name
+# list of all loaded tallies over time
+# on the left side of "=" is the name from output file + tally number
+# in the right side of "=" is possible to have own name
 #
-o00e_114_cell_40030=FP12_neutrons_beamspot_D10mm
+o00k_4_cell_101=neutrons_depth 1 mm
+o00k_4_cell_102=neutrons_depth 2 mm
+o00e_114_cell_40030=o00e_114_cell_40030
 o00e_114_cell_40031=FP12_neutrons_beamspot_D23mm
 o00e_F8_114_cell_5=o00e_F8_114_cell_5
 o00e_F8_114_cell_40031=o00e_F8_114_cell_40031
@@ -260,8 +262,6 @@ o00k_4_cell_300=o00k_4_cell_300
 o00k_114_cell_500=o00k_114_cell_500
 o00k_114_cell_501=o00k_114_cell_501
 o00k_114_cell_502=o00k_114_cell_502
-o00e_4_cell_101=o00e_4_cell_101
-o00e_4_cell_102=o00e_4_cell_102
 o00e_4_cell_103=o00e_4_cell_103
 o00e_4_cell_104=o00e_4_cell_104
 o00e_4_cell_105=o00e_4_cell_105
@@ -399,11 +399,12 @@ NaITl_FEP-eff_p0_concrete_03o_58=NaITl_FEP-eff_p0_concrete_03o_58
 NaITl_FEP-eff_p0_concrete_04o_58=NaITl_FEP-eff_p0_concrete_04o_58
 NaITl_FEP-eff_p0_concrete_05o_58=NaITl_FEP-eff_p0_concrete_05o_58
 NaITl_FEP-eff_p0_concrete_06o_58=NaITl_FEP-eff_p0_concrete_06o_58
-
-
+o00e_4_cell_101=neutrons_depth 1 mm
+o00e_4_cell_102=neutrons_depth 2 mm
 Cf+PE_p0_concrete_mod_14=Cf+PE_p0_concrete_mod_14
 Cf+PE_p0_concrete_mod_24=Cf+PE_p0_concrete_mod_24
 Cf+PE_p0_concrete_mod_58=Cf+PE_p0_concrete_mod_58
 Cf_SF+PEpos_p0_nophoto_concrete_14=Cf_SF+PEpos_p0_nophoto_concrete_14
 Cf_SF+PEpos_p0_nophoto_concrete_24=Cf_SF+PEpos_p0_nophoto_concrete_24
 Cf_SF+PEpos_p0_nophoto_concrete_58=Cf_SF+PEpos_p0_nophoto_concrete_58
+
