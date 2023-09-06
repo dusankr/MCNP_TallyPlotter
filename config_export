@@ -27,27 +27,28 @@ y_title=Flux (cm$^{-2}$)
 ratio=no ratio
 data_var=non
 leg_pos=best
-leg_size=10.0
+leg_size=10
 grid_switch=True
 grid_opt=major
 grid_ax=both
-ax_label_size=12.0
-tics_size=10.0
-x_scale=linear
-y_scale=linear
+ax_label_size=12
+tics_size=10
+x_scale=log
+y_scale=log
 xs_switch=False
 y2_title=Cross Section (barns)
 save_fig=False
 error_bar=True
 latex=False
-x_lim=False
-x_min=1e-07
-x_max=None
+x_lim=True
+x_min=1.0
+x_max=10.0
 y_lim=False
 y_min=None
 y_max=None
 y2_lim=False
 y2_min=None
 y2_max=10000000000.0
+
 
 

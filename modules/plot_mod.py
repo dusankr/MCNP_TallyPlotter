@@ -77,7 +77,7 @@ def plot_window(root, tally_to_plot):
     """
     
     latex_var = tk.BooleanVar(value=False)   # check box LaTeX
-    
+    restore_var = tk.BooleanVar(value=True)    # check box variable restore settings from last session
     # endregion
 
     # NEW Window definition---------------------------------------------------------------------------------------------
@@ -137,6 +137,9 @@ def plot_window(root, tally_to_plot):
 
     # plot tallies from user -------------------------------------------------------------------------------------------
     def plot_function(tally):
+        # if restore_var.get() == True:
+        #    old_settings()
+
         config_mod.plot_settings["ratio"] = ratio_sel.get()
         config_mod.plot_settings["data_var"] = data_var.get()
         config_mod.plot_settings["leg_pos"] = legend_pos.get()
@@ -242,6 +245,13 @@ def plot_window(root, tally_to_plot):
 
     grid_axis_menu = tk.OptionMenu(grid_frame, grid_axis_var, *grid_axis_options)
     grid_axis_menu.grid(column=1, row=1, sticky='nswe', padx=2, pady=2)
+
+    # RESTORE settings -------------------------------------------------------------------------------------------------
+    restore_frame = tk.LabelFrame(plot_option_frame, text='Grid settings')
+    restore_frame.grid(column=0, row=6, sticky='nswe', padx=2, pady=2)
+
+    restore_chk = tk.Checkbutton(restore_frame, text='Restore last session', var=restore_var, command=lambda: old_settings())
+    restore_chk.grid(column=0, row=0, sticky='nswe', padx=2, pady=2)
 
     # NEW COLUMN -------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
@@ -396,3 +406,30 @@ def plot_window(root, tally_to_plot):
             chk_xs['state'] = 'normal'
         else:
             chk_xs['state'] = 'disabled'
+
+    def old_settings():
+        x_axis_var.set(config_mod.plot_settings["x_scale"])
+        y_axis_var.set(config_mod.plot_settings["y_scale"])
+
+        data_var.set(config_mod.plot_settings["data_var"])
+        error_var.set(config_mod.plot_settings["error_bar"])
+
+        legend_pos.set(config_mod.plot_settings["leg_pos"])
+        leg_var.set(config_mod.plot_settings["leg_size"])
+
+        axis_var.set(config_mod.plot_settings["ax_label_size"])
+        ticks_var.get(config_mod.plot_settings["tics_size"])
+
+        grid_on_var.set(config_mod.plot_settings["grid_switch"])
+        grid_var.set(config_mod.plot_settings["grid_opt"])
+        grid_axis_var.set(config_mod.plot_settings["grid_ax"])
+
+        # TODO solve situation if those data were not read, XS similar problem
+        # ratio_sel.set(config_mod.plot_settings["ratio"])
+        # xs_var.set(config_mod.plot_settings["xs_switch"])
+        # save_var.set(config_mod.plot_settings["save_fig"])
+        # latex_var.set(config_mod.plot_settings["latex"])
+
+        xlim_var.set(config_mod.plot_settings["x_lim"])
+        ylim_var.set(config_mod.plot_settings["y_lim"])
+        y2lim_var.set(config_mod.plot_settings["y2_lim"])

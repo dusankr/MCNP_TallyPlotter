@@ -10,7 +10,7 @@ import pathlib
 
 # functions
 #
-# create new config file if someone deleted it
+# create a new config file if someone deleted it
 def create_config(fname):
     with open(fname, "w", encoding='utf-8') as temp_file:
         if fname == "config_export":
