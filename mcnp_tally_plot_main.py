@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
-#
+# test of github connection
 
 # LIBRARIES
 from modules import read_mod, plot_mod, settings_mod, export_mod
