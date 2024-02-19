@@ -2,6 +2,7 @@
 # TODO_list:
 # TODO change whole structure
 # https://stackoverflow.com/questions/11154634/call-nested-function-in-python
+# probably possible to do in classes
 # TODO reread some settings?
 # TODO change font in export settings window
 # TODO turn on/off LaTeX in the export settings window
