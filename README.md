@@ -104,7 +104,7 @@ A short description of major settings:
     - On/Off save figure activate figure saving after every replot
     - On/Off LaTeX - this checkbox is now deprecated, but in the future will allow use LaTeX fonts and formatting (only with LaTeX compiler, e.g. MikTeX, LiveTex)
     - On/Off X/Y/Y2 axis limits are using limit values from a `config` file
-    - Update export - read again setting from the  `config` file
+    - Reload config - read again setting from the  `config` file (in case you made changes in a different text editor)
 
 
 <img src="doc/mcnp_plotter/plot_win_xs-data.PNG" alt= “” width="70%" height="70%">
