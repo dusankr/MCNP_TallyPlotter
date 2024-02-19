@@ -7,7 +7,7 @@
 # e.g. $text_{lower index}$ $text^{upper index}$
 #
 # initial mcnp output directory
-work_dir_path=C:\Users\dusan\Desktop\test_plotter\texas
+work_dir_path=C:\Users\dusan\PycharmProjects\MCNP_TallyPlotter\test_plotter\texas
 # initial export directory
 export_dir_path=C:\Users\dusan\Desktop\test_plotter\final_test.xlsx
 # initial XS dir
@@ -27,20 +27,20 @@ y_title=Flux (cm$^{-2}$)
 ratio=no ratio
 data_var=non
 leg_pos=best
-leg_size=10
+leg_size=10.0
 grid_switch=True
 grid_opt=major
 grid_ax=both
-ax_label_size=12
-tics_size=10
-x_scale=log
-y_scale=log
+ax_label_size=12.0
+tics_size=10.0
+x_scale=linear
+y_scale=linear
 xs_switch=False
 y2_title=Cross Section (barns)
 save_fig=False
 error_bar=True
 latex=False
-x_lim=True
+x_lim=False
 x_min=1.0
 x_max=10.0
 y_lim=False
