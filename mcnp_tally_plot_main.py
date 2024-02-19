@@ -124,7 +124,7 @@ for col_name in ['File', 'Tally number', 'Tally type', 'Particle', 'Number of va
 # allows chose all items in the treeview by clicking on the heading
 treeview_files.heading('#0', text='(un)check', anchor='w', command=lambda: select_all_click())
 
-treeview_files.column('#0',anchor='w', width=80, stretch=False)
+treeview_files.column('#0',anchor='w', width=65, stretch=False)
 treeview_files.column('File', width=150, stretch=False)
 
 # Treeview X-scrollbar

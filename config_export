@@ -24,7 +24,7 @@ fig_format=png
 x_title=Energy (MeV)
 # y ax title
 y_title=Flux (cm$^{-2}$)
-ratio=Cf+PEpos_p0o_24
+ratio=no ratio
 data_var=non
 leg_pos=best
 leg_size=10
@@ -42,13 +42,23 @@ error_bar=True
 latex=False
 x_lim=False
 x_min=1.0
-x_max=10.0
-y_lim=False
+x_max=5.0
+y_lim=True
 y_min=None
-y_max=None
+y_max=3.0
 y2_lim=False
 y2_min=None
 y2_max=10000000000.0
+fig_title_switch=False
+fig_title=Texas A&M University MCNP Tally Plotter example
+fig_title_size=14.0
+
+
+
+
+
+
+
 
 
 

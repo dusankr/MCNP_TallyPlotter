@@ -128,13 +128,16 @@ def plot_to_canvas(tally):
     if config_mod.plot_settings["y_scale"] == 'linear':
         config_mod.ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True)
 
-    # TODO add plot size for export
+    if config_mod.plot_settings["fig_title_switch"] is True:
+        config_mod.ax.set_title(config_mod.plot_settings["fig_title"], fontsize=int(config_mod.plot_settings["fig_title_size"]))
+
+    # TODO add plot size for export (note: config keys already exist)
     # TODO independent path, file name
     if config_mod.plot_settings["save_fig"] is True and config_mod.plot_settings["fig_format"] is not None and config_mod.plot_settings["fig_dpi"] is not None:
         try:
             config_mod.fig_id.savefig(config_mod.plot_settings["work_dir_path"] / pathlib.Path('fig_exp.' + config_mod.plot_settings["fig_format"]), format=config_mod.plot_settings["fig_format"], dpi=int(config_mod.plot_settings["fig_dpi"]))
         except:
-            tk.messagebox.showerror('Read error', 'File is opened, please close it and then xou can continue.')
+            tk.messagebox.showerror('Read error', 'File is opened, please close it and then you can continue.')
 
 
 # calculate a middle of energy intervals

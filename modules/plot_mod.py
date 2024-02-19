@@ -70,6 +70,8 @@ def plot_window(root, tally_to_plot):
     ylim_var = tk.BooleanVar(value=False)  # Check box variable - use Y axis limits
     y2lim_var = tk.BooleanVar(value=False)  # Check box variable - use secondary Y axis limits
 
+    fig_title_var = tk.BooleanVar(value=False)  # Check box variable - use figure title
+
     """ This is not more used - make problems if replot button is activated
     # figure size
     xfig_var = tk.StringVar(value=20)  # SpinBox variable
@@ -159,6 +161,7 @@ def plot_window(root, tally_to_plot):
         config_mod.plot_settings["x_lim"] = xlim_var.get()
         config_mod.plot_settings["y_lim"] = ylim_var.get()
         config_mod.plot_settings["y2_lim"] = y2lim_var.get()
+        config_mod.plot_settings["fig_title_switch"] = fig_title_var.get()
 
         # fill ax and fig with all curves and return it to the canvas
         plot_core.plot_to_canvas(tally)
@@ -246,18 +249,19 @@ def plot_window(root, tally_to_plot):
     grid_axis_menu = tk.OptionMenu(grid_frame, grid_axis_var, *grid_axis_options)
     grid_axis_menu.grid(column=1, row=1, sticky='nswe', padx=2, pady=2)
 
+    """
     # RESTORE settings -------------------------------------------------------------------------------------------------
-    restore_frame = tk.LabelFrame(plot_option_frame, text='Grid settings')
-    restore_frame.grid(column=0, row=6, sticky='nswe', padx=2, pady=2)
+    restore_frame = tk.LabelFrame(plot_option_frame, text='Restore settings')
+    restore_frame.grid(column=0, row=7, sticky='nswe', padx=2, pady=2)
 
     restore_chk = tk.Checkbutton(restore_frame, text='Restore last session', var=restore_var, command=lambda: old_settings())
     restore_chk.grid(column=0, row=0, sticky='nswe', padx=2, pady=2)
-
+    """
     # NEW COLUMN -------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
     
     # cross sections frame ---------------------------------------------------------------------------------------------
-    # TODO data source: ENDF, ACE, Talys
+    # TODO data source: ACE
     # TODO choose XS data for plotting (more complicated)
     # TODO step vs. point plot
     row_c = 0
@@ -285,29 +289,50 @@ def plot_window(root, tally_to_plot):
     save_frame.grid(column=0, row=row_c, sticky='nswe', padx=2, pady=2)
     row_c += 1
 
+    row_f = 0
     legend_menu = tk.OptionMenu(save_frame, edit_var, *edit_options)
-    legend_menu.grid(column=0, row=0, sticky='nswe', padx=2, pady=2)
+    legend_menu.grid(column=0, row=row_f, sticky='nswe', padx=2, pady=2)
+    row_f += 1
 
-    button_settings = tk.ttk.Button(save_frame, text='Editor settings/legend', command=lambda: editor_mod.open_lib(pathlib.Path(edit_var.get()), tally_to_plot, plot_win))
-    button_settings.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=2, pady=2)
+    button_settings = tk.ttk.Button(save_frame, text='Editor settings/legend', command=lambda: editor_mod.open_lib(pathlib.Path(edit_var.get()), plot_win))
+    button_settings.grid(column=0, columnspan=2, row=row_f, sticky='nswe', padx=2, pady=2)
+    row_f += 1
+
+    h_sep_2 = tk.ttk.Separator(save_frame, orient='horizontal')
+    h_sep_2.grid(column=0, columnspan=2, row=row_f, sticky='nswe', padx=2, pady=2)
+    row_f += 1
 
     chk_save = tk.Checkbutton(save_frame, text='On/Off save figure', var=save_var)
-    chk_save.grid(column=0, row=2, sticky='nw', padx=2, pady=2)
-    
+    chk_save.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1
+
     chk_latex = tk.Checkbutton(save_frame, text='On/Off LaTeX', var=latex_var, state='disabled')
-    chk_latex.grid(column=0, row=3, sticky='nw', padx=2, pady=2)
+    chk_latex.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1
 
     chk_xlim = tk.Checkbutton(save_frame, text='On/Off X axis limits', var=xlim_var)
-    chk_xlim.grid(column=0, row=4, sticky='nw', padx=2, pady=2)
+    chk_xlim.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1
 
     chk_ylim = tk.Checkbutton(save_frame, text='On/Off Y axis limits', var=ylim_var)
-    chk_ylim.grid(column=0, row=5, sticky='nw', padx=2, pady=2)
+    chk_ylim.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1
 
     chk_y2lim = tk.Checkbutton(save_frame, text='On/Off Y2 axis limits', var=y2lim_var)
-    chk_y2lim.grid(column=0, row=6, sticky='nw', padx=2, pady=2)
+    chk_y2lim.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1
 
-    button_reread = tk.ttk.Button(save_frame, text='Update export', command=lambda: settings_mod.read_config("config_export"))
-    button_reread.grid(column=0, columnspan=2, row=7, sticky='nswe', padx=2, pady=2)
+    chk_title = tk.Checkbutton(save_frame, text="On/Off figure title", var=fig_title_var)
+    chk_title.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1
+
+    h_sep = tk.ttk.Separator(save_frame, orient='horizontal')
+    h_sep.grid(column=0, columnspan=2, row=row_f, sticky='nswe', padx=2, pady=2)
+    row_f += 1
+
+    button_reload = tk.ttk.Button(save_frame, text='Reload config', command=lambda: settings_mod.read_config("config_export"))
+    button_reload.grid(column=0, columnspan=2, row=row_f, sticky='nswe', padx=2, pady=2)
+    row_f += 1
 
     # replot frame -----------------------------------------------------------------------------------------------------
     replot_frame = tk.LabelFrame(option_frame, text='Replot')
@@ -348,6 +373,7 @@ def plot_window(root, tally_to_plot):
     xlim_var.trace_add('write', my_callback)
     ylim_var.trace_add('write', my_callback)
     y2lim_var.trace_add('write', my_callback)
+    fig_title_var.trace_add('write', my_callback)
 
     # turn on-off online replot
     def turn_off_replot():
@@ -371,6 +397,7 @@ def plot_window(root, tally_to_plot):
             xlim_var.trace_remove('write', xlim_var.trace_info()[0][1])
             ylim_var.trace_remove('write', ylim_var.trace_info()[0][1])
             y2lim_var.trace_remove('write', y2lim_var.trace_info()[0][1])
+            fig_title_var.trace_remove('write', fig_title_var.trace_info()[0][1])
         else:
             button_replot['state'] = 'disabled'
 
@@ -391,6 +418,7 @@ def plot_window(root, tally_to_plot):
             xlim_var.trace_add('write', my_callback)
             ylim_var.trace_add('write', my_callback)
             y2lim_var.trace_add('write', my_callback)
+            fig_title_var.trace_add('write', my_callback)
 
     def change_state():
         if grid_on_var.get():
@@ -407,6 +435,9 @@ def plot_window(root, tally_to_plot):
         else:
             chk_xs['state'] = 'disabled'
 
+
+
+    """
     def old_settings():
         x_axis_var.set(config_mod.plot_settings["x_scale"])
         y_axis_var.set(config_mod.plot_settings["y_scale"])
@@ -433,3 +464,4 @@ def plot_window(root, tally_to_plot):
         xlim_var.set(config_mod.plot_settings["x_lim"])
         ylim_var.set(config_mod.plot_settings["y_lim"])
         y2lim_var.set(config_mod.plot_settings["y2_lim"])
+    """

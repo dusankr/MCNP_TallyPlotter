@@ -54,6 +54,10 @@ def read_config(fname):
                         config_mod.plot_settings[line[0]] = float(value)
                     elif value == "None" or value == "none":
                         config_mod.plot_settings[line[0]] = None
+                    elif value == "True" or value == "true":
+                        config_mod.plot_settings[line[0]] = True
+                    elif value == "False" or value == "false":
+                        config_mod.plot_settings[line[0]] = False
                     else:
                         config_mod.plot_settings[line[0]] = value
 
