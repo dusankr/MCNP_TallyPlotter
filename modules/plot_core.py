@@ -39,7 +39,7 @@ def plot_to_canvas(tally):
             x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4][:], config_mod.tallies[name][5][:]  # original data
             y_label = 'Tally / particle'
 
-        # take right name for legend
+        # take the correct name for legend
         legend_name = config_mod.tallies[name][10]
 
         # return ratio values
@@ -56,8 +56,8 @@ def plot_to_canvas(tally):
                     y_data[i] = 0
                     y_data_err[i] = 0
             # return new curve title for ratio plot
-            legend_name = config_mod.tallies[name][10] + '/' + config_mod.plot_settings["ratio"]
-        
+            legend_name = config_mod.tallies[name][10] + '/' + config_mod.tallies[config_mod.plot_settings["ratio"]][10]
+
 
         # calculate interval centers
         x_data_center = interval_mid(x_data)
