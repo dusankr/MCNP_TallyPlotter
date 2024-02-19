@@ -118,8 +118,8 @@ def open_folder(treeview_files, workdir_label, button_update):
 # TODO maybe this one could be deleted and work only with try-except...
 def read_folder(treeview_files):
     config_mod.tallies.clear()  # clear tallies dict before read new directory
-
     config_mod.output_files = []
+
     for file in pathlib.Path.iterdir(config_mod.plot_settings["work_dir_path"]):
         if file.is_dir() or (file.stem[0] == '.') or file_is_hidden(file):  # UNIX/Mac/Windows hidden files and directories are skipped
             config_mod.non_output.append(file.name)

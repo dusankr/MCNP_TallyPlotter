@@ -10,7 +10,7 @@ import pathlib
 
 # functions
 #
-# create new config file if someone deleted it
+# create a new config file if someone deleted it
 def create_config(fname):
     with open(fname, "w", encoding='utf-8') as temp_file:
         if fname == "config_export":
@@ -54,6 +54,10 @@ def read_config(fname):
                         config_mod.plot_settings[line[0]] = float(value)
                     elif value == "None" or value == "none":
                         config_mod.plot_settings[line[0]] = None
+                    elif value == "True" or value == "true":
+                        config_mod.plot_settings[line[0]] = True
+                    elif value == "False" or value == "false":
+                        config_mod.plot_settings[line[0]] = False
                     else:
                         config_mod.plot_settings[line[0]] = value
 

@@ -2,15 +2,16 @@
 # hashtag is used for commenting
 # = is used as separator, spaces are not allowed between setting and value!
 # at the end of file must be empty line
-# for the return of default value type <none>
-# upper/lower index in plot labels $text_{lower}$ $text^{upper}$
+# for the return of default value type <None>
+# upper/lower index in plot labels works with <$><$>
+# e.g. $text_{lower index}$ $text^{upper index}$
 #
 # initial mcnp output directory
-work_dir_path=C:\Users\dusan\Desktop\test_plotter\josef_uranium
+work_dir_path=C:\Users\dusan\PycharmProjects\MCNP_TallyPlotter\test_plotter\texas
 # initial export directory
-export_dir_path=C:\Users\dusan\Desktop\test_plotter
+export_dir_path=C:\Users\dusan\Desktop\test_plotter\final_test.xlsx
 # initial XS dir
-xs_dir_path=C:\Users\dusan\Desktop\test_plotter\josef_uranium
+xs_dir_path=C:\Users\dusan\Desktop\test_plotter
 # figure resolution in DPI
 fig_dpi=300.0
 # figure x dimensions
@@ -40,12 +41,24 @@ save_fig=False
 error_bar=True
 latex=False
 x_lim=False
-x_min=1e-07
-x_max=None
-y_lim=False
+x_min=1.0
+x_max=5.0
+y_lim=True
 y_min=None
-y_max=None
+y_max=3.0
 y2_lim=False
 y2_min=None
 y2_max=10000000000.0
+fig_title_switch=False
+fig_title=Texas A&M University MCNP Tally Plotter example
+fig_title_size=14.0
+
+
+
+
+
+
+
+
+
 

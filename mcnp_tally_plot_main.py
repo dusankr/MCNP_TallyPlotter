@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
-#
+# test of github connection
 
 # LIBRARIES
 from modules import read_mod, plot_mod, settings_mod, export_mod
@@ -40,6 +40,31 @@ def select_all():
             treeview_files.change_state(item, state="unchecked")
 
 
+def select_all_click():
+    global check_on_click
+    if check_on_click:
+        for item in treeview_files.get_children():
+            treeview_files.change_state(item, state="checked")
+        check_on_click = False
+    else:
+        for item in treeview_files.get_children():
+            treeview_files.change_state(item, state="unchecked")
+        check_on_click = True
+
+
+# sort data in columns in treeview
+def treeview_sort_column(tree, col, reverse):
+    data = [(tree.set(child, col), child) for child in tree.get_children('')]
+    data.sort(reverse=reverse)
+
+    # rearrange items in sorted positions
+    for index, (val, child) in enumerate(data):
+        tree.move(child, '', index)
+
+    # rearrange items in sorted positions
+    tree.heading(col, command=lambda: treeview_sort_column(tree, col, not reverse))
+
+
 #  MAIN CODE  ##########################################################################################################
 
 # main window creation
@@ -47,6 +72,7 @@ root = tk.Tk()
 
 # variable
 check_var = tk.BooleanVar(value=False)  # unchecked unchecked
+check_on_click = True
 
 # Main window parameters
 root.title('MCNP tally plotting')
@@ -86,16 +112,19 @@ down_frame.rowconfigure(0, weight=0)
 treeview_files = ttkwidgets.CheckboxTreeview(up_frame)
 treeview_files.grid(sticky='wens', column=0, columnspan=5, row=0, rowspan=5)
 
-# somehow hide first ghost column
+# somehow hide the first ghost column
 treeview_files['show'] = 'headings', 'tree'
 
 treeview_files['columns'] = ('File', 'Tally number', 'Tally type', 'Particle', 'Number of values', 'E_cut-off (MeV)', 'E_min (MeV)', 'E_max (MeV)', 'comment')
 
 for col_name in ['File', 'Tally number', 'Tally type', 'Particle', 'Number of values', 'E_min (MeV)', 'E_max (MeV)', 'E_cut-off (MeV)', "comment"]:
     treeview_files.column(col_name, width=100, stretch=True)
-    treeview_files.heading(col_name, text=col_name)
+    treeview_files.heading(col_name, text=col_name, command=lambda _col=col_name: treeview_sort_column(treeview_files, _col, False))
 
-treeview_files.column('#0',anchor='w', width=40, stretch=False)
+# allows chose all items in the treeview by clicking on the heading
+treeview_files.heading('#0', text='(un)check', anchor='w', command=lambda: select_all_click())
+
+treeview_files.column('#0',anchor='w', width=65, stretch=False)
 treeview_files.column('File', width=150, stretch=False)
 
 # Treeview X-scrollbar

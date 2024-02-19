@@ -9,14 +9,16 @@ import math
 import pathlib
 import tkinter as tk
 
+
 def plot_to_canvas(tally):
     tally_to_plot = tally[:]
 
     config_mod.ax.clear()
+
     if config_mod.ax2 != None:
         config_mod.ax2.remove()     # TODO solve Warning!!! (works now)
         config_mod.ax2 = None
-    
+
     # read reference data for ratio plot
     if config_mod.plot_settings["ratio"] != "no ratio":
         key = config_mod.plot_settings["ratio"]   # not necessary do like this...
@@ -37,7 +39,7 @@ def plot_to_canvas(tally):
             x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4][:], config_mod.tallies[name][5][:]  # original data
             y_label = 'Tally / particle'
 
-        # take right name for legend
+        # take the correct name for legend
         legend_name = config_mod.tallies[name][10]
 
         # return ratio values
@@ -54,8 +56,8 @@ def plot_to_canvas(tally):
                     y_data[i] = 0
                     y_data_err[i] = 0
             # return new curve title for ratio plot
-            legend_name = config_mod.tallies[name][10] + '/' + config_mod.plot_settings["ratio"]
-        
+            legend_name = config_mod.tallies[name][10] + '/' + config_mod.tallies[config_mod.plot_settings["ratio"]][10]
+
 
         # calculate interval centers
         x_data_center = interval_mid(x_data)
@@ -126,13 +128,16 @@ def plot_to_canvas(tally):
     if config_mod.plot_settings["y_scale"] == 'linear':
         config_mod.ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True)
 
-    # TODO add plot size for export
+    if config_mod.plot_settings["fig_title_switch"] is True:
+        config_mod.ax.set_title(config_mod.plot_settings["fig_title"], fontsize=int(config_mod.plot_settings["fig_title_size"]))
+
+    # TODO add plot size for export (note: config keys already exist)
     # TODO independent path, file name
     if config_mod.plot_settings["save_fig"] is True and config_mod.plot_settings["fig_format"] is not None and config_mod.plot_settings["fig_dpi"] is not None:
         try:
             config_mod.fig_id.savefig(config_mod.plot_settings["work_dir_path"] / pathlib.Path('fig_exp.' + config_mod.plot_settings["fig_format"]), format=config_mod.plot_settings["fig_format"], dpi=int(config_mod.plot_settings["fig_dpi"]))
         except:
-            tk.messagebox.showerror('Read error', 'File is opened, please close it and then xou can continue.')
+            tk.messagebox.showerror('Read error', 'File is opened, please close it and then you can continue.')
 
 
 # calculate a middle of energy intervals
