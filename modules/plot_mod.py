@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
-# TODO change whole structure
-# https://stackoverflow.com/questions/11154634/call-nested-function-in-python
-# probably possible to do in classes
-# TODO reread some settings?
+# TODO replace all the functions with classes
+# TODO replace variables with dictionary (can I work with widget variables all the time instead current solution?)
+# TODO replace tally to plot with config_mod.tally_to_plot
+# TODO reload settings from last session
 # TODO change font in export settings window
 # TODO turn on/off LaTeX in the export settings window
+# cross section data
+# TODO data source: ACE
+# TODO choose XS data for plotting (more complicated)
+# TODO step vs. point plot
 
 # libraries
 from modules import config_mod, editor_mod, plot_core, read_mod, settings_mod
@@ -24,7 +28,7 @@ def plot_window(root, tally_to_plot):
         root.grab_set()
         plot_win.destroy()
 
-    # close plot window if there are no tallies
+    # close the plot window if there are no tallies
     if tally_to_plot == None:
         return
     
@@ -257,9 +261,6 @@ def plot_window(root, tally_to_plot):
     # ------------------------------------------------------------------------------------------------------------------
     
     # cross sections frame ---------------------------------------------------------------------------------------------
-    # TODO data source: ACE
-    # TODO choose XS data for plotting (more complicated)
-    # TODO step vs. point plot
     row_c = 0
     
     xs_frame = tk.LabelFrame(plot_option_frame2, text='Cross Section')

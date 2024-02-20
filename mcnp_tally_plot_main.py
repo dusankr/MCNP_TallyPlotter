@@ -30,7 +30,7 @@ def selected_tally():
     
     return selection
 
-
+"""
 # check/uncheck all items in teh treeview
 def select_all():
     for item in treeview_files.get_children():
@@ -39,7 +39,7 @@ def select_all():
         else:
             treeview_files.change_state(item, state="unchecked")
 
-
+"""
 def select_all_click():
     global check_on_click
     if check_on_click:
@@ -122,9 +122,9 @@ for col_name in ['File', 'Tally number', 'Tally type', 'Particle', 'Number of va
     treeview_files.heading(col_name, text=col_name, command=lambda _col=col_name: treeview_sort_column(treeview_files, _col, False))
 
 # allows chose all items in the treeview by clicking on the heading
-treeview_files.heading('#0', text='(un)check', anchor='w', command=lambda: select_all_click())
+treeview_files.heading('#0', text='(un)check all', anchor='w', command=lambda: select_all_click())
 
-treeview_files.column('#0',anchor='w', width=65, stretch=False)
+treeview_files.column('#0',anchor='w', width=75, stretch=False)
 treeview_files.column('File', width=150, stretch=False)
 
 # Treeview X-scrollbar
@@ -154,8 +154,8 @@ button_plot.grid(column=2, row=0, sticky='ws')
 button_export = tk.ttk.Button(button_frame, text='Export tally to xlsx', command=lambda: export_mod.save_to_xlsx(selected_tally()), width=20)
 button_export.grid(column=3, row=0, sticky='ws')
 
-chk_all = tk.Checkbutton(button_frame, text='check all', var=check_var, command=lambda: select_all())
-chk_all.grid(column=4, row=0, sticky='ws', padx=5, pady=5)
+# chk_all = tk.Checkbutton(button_frame, text='check all', var=check_var, command=lambda: select_all())
+# chk_all.grid(column=4, row=0, sticky='ws', padx=5, pady=5)
 
 # -----------------------------------
 workdir_label = tk.Label(down_frame, text='Work directory: ')
