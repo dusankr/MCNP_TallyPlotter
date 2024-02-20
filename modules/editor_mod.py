@@ -8,10 +8,11 @@ from modules import config_mod
 import pathlib
 import tkinter as tk
 from modules import settings_mod
-from modules import plot_mod
+from modules import plot_core
+
 
 # open library or any ascii file in text editor
-def open_lib(file_path, plot_win):
+def open_lib(file_path, plot_win, tally):
     editor_win = tk.Toplevel()
     editor_win.grab_set()
     editor_win.minsize(500, 300)
@@ -29,14 +30,13 @@ def open_lib(file_path, plot_win):
     save_button = tk.Button(button_frame, text='Save file', command=lambda: save_lib() )
     save_button.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
 
-    button_quit = tk.ttk.Button(button_frame, text='Quit', command=lambda: quit() )
+    button_quit = tk.ttk.Button(button_frame, text='Quit', command=lambda: quit_m() )
     button_quit.grid(column=1, row=0, sticky='we', padx=5, pady=5)
 
-    def quit():
+    def quit_m():
         # close the editor window and grab the plot window
         plot_win.grab_set()
         editor_win.destroy()
-
 
     def read_lib():
         with open(file_path, 'r') as lib_file:
@@ -44,7 +44,6 @@ def open_lib(file_path, plot_win):
             txt_edit.insert(tk.END, text)
 
         editor_win.title(f'Library editor - {file_path}')
-
 
     def save_lib():
         with open(file_path, 'w') as output_file:
@@ -59,9 +58,10 @@ def open_lib(file_path, plot_win):
         elif pathlib.Path(file_path).name == "config_legend":
             settings_mod.readsave_legend("config_legend")
 
-        # close an editor window and grab plot window
-        quit()
+        plot_core.plot_to_canvas(tally)
 
+        # close an editor window and grab the plot window
+        quit_m()
 
     # open and read file into the editor window
     read_lib()

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
-# test of github connection
 
 # LIBRARIES
 from modules import read_mod, plot_mod, settings_mod, export_mod
@@ -14,7 +13,8 @@ import ttkwidgets
 def ask_quit():
     if tk.messagebox.askokcancel('Quit', 'Do you want to quit now?'):
         settings_mod.save_config()
-        root.destroy()
+        root.quit()     # stops mainloop
+        root.destroy()  # this is necessary on Windows to prevent Fatal Python Error: PyEval_RestoreThread: NULL tstate
 
 
 # return selected tallies

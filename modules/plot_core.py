@@ -11,6 +11,7 @@ import tkinter as tk
 
 
 def plot_to_canvas(tally):
+
     tally_to_plot = tally[:]
 
     config_mod.ax.clear()
@@ -138,6 +139,8 @@ def plot_to_canvas(tally):
             config_mod.fig_id.savefig(config_mod.plot_settings["work_dir_path"] / pathlib.Path('fig_exp.' + config_mod.plot_settings["fig_format"]), format=config_mod.plot_settings["fig_format"], dpi=int(config_mod.plot_settings["fig_dpi"]))
         except:
             tk.messagebox.showerror('Read error', 'File is opened, please close it and then you can continue.')
+
+    config_mod.canvas_id.draw()
 
 
 # calculate a middle of energy intervals

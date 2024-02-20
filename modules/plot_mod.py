@@ -19,7 +19,7 @@ import pathlib
 #  Functions  ##########################################################################################################
 # create new Top level window and plot data
 def plot_window(root, tally_to_plot):
-    def quit():
+    def quit_m():
         # close the editor window and grab the plot window
         root.grab_set()
         plot_win.destroy()
@@ -138,8 +138,8 @@ def plot_window(root, tally_to_plot):
     toolbar = NavigationToolbar2Tk(config_mod.canvas_id, toolbar_frame)
     toolbar.update()
 
-    # plot tallies from user -------------------------------------------------------------------------------------------
-    def plot_function(tally):
+    # save values from widgets into dictionary
+    def plot_variables():
         # if restore_var.get() == True:
         #    old_settings()
 
@@ -164,14 +164,9 @@ def plot_window(root, tally_to_plot):
         config_mod.plot_settings["y2_lim"] = y2lim_var.get()
         config_mod.plot_settings["fig_title_switch"] = fig_title_var.get()
 
-        # fill ax and fig with all curves and return it to the canvas
-        plot_core.plot_to_canvas(tally)
-
-        # Canvas for plot
-        config_mod.canvas_id.draw()
-
     # insert FIRST plot CANVAS
-    plot_function(tally_to_plot)
+    plot_variables()
+    plot_core.plot_to_canvas(tally_to_plot)
 
     # region Description: all Tkinter Widgets used for plot settings
     # PLOT OPTION FRAME ------------------------------------------------------------------------------------------------
@@ -295,8 +290,16 @@ def plot_window(root, tally_to_plot):
     legend_menu.grid(column=0, row=row_f, sticky='nswe', padx=2, pady=2)
     row_f += 1
 
-    button_settings = tk.ttk.Button(save_frame, text='Editor settings/legend', command=lambda: editor_mod.open_lib(pathlib.Path(edit_var.get()), plot_win))
+    button_settings = tk.ttk.Button(save_frame, text='Editor settings/legend', command=lambda: editor_mod.open_lib(pathlib.Path(edit_var.get()), plot_win, tally_to_plot))
     button_settings.grid(column=0, columnspan=2, row=row_f, sticky='nswe', padx=2, pady=2)
+    row_f += 1
+
+    h_sep = tk.ttk.Separator(save_frame, orient='horizontal')
+    h_sep.grid(column=0, columnspan=2, row=row_f, sticky='nswe', padx=2, pady=2)
+    row_f += 1
+
+    button_reload = tk.ttk.Button(save_frame, text='Reload config', command=lambda: settings_mod.read_config("config_export"))
+    button_reload.grid(column=0, columnspan=2, row=row_f, sticky='nswe', padx=2, pady=2)
     row_f += 1
 
     h_sep_2 = tk.ttk.Separator(save_frame, orient='horizontal')
@@ -327,14 +330,6 @@ def plot_window(root, tally_to_plot):
     chk_title.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
 
-    h_sep = tk.ttk.Separator(save_frame, orient='horizontal')
-    h_sep.grid(column=0, columnspan=2, row=row_f, sticky='nswe', padx=2, pady=2)
-    row_f += 1
-
-    button_reload = tk.ttk.Button(save_frame, text='Reload config', command=lambda: settings_mod.read_config("config_export"))
-    button_reload.grid(column=0, columnspan=2, row=row_f, sticky='nswe', padx=2, pady=2)
-    row_f += 1
-
     # replot frame -----------------------------------------------------------------------------------------------------
     replot_frame = tk.LabelFrame(option_frame, text='Replot')
     replot_frame.grid(column=0, columnspan=2, row=1, sticky='swe', padx=2, pady=2)
@@ -342,10 +337,10 @@ def plot_window(root, tally_to_plot):
     chk_replot = tk.Checkbutton(replot_frame, text='disable immediate changes', var=replot_var, command=lambda: turn_off_replot())
     chk_replot.grid(column=0, row=0, sticky='swe', padx=2, pady=2)
 
-    button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: plot_function(tally_to_plot), state='disabled')
+    button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)), state='disabled')
     button_replot.grid(column=0, row=1, sticky='swen', padx=2, pady=2)
     
-    button_quit = tk.ttk.Button(replot_frame, width=24, text='Quit', command=lambda: quit())
+    button_quit = tk.ttk.Button(replot_frame, width=24, text='Quit', command=lambda: quit_m())
     button_quit.grid(column=1, row=0, rowspan=2, sticky='swen', padx=2, pady=2)
     
     # endregion all tkinter widgets for
@@ -354,7 +349,9 @@ def plot_window(root, tally_to_plot):
 
     # call replot when Option Menu is changed
     def my_callback(*args):
-        plot_function(tally_to_plot)
+        # plot_function(tally_to_plot)
+        plot_variables()
+        plot_core.plot_to_canvas(tally_to_plot)
 
     # first definition of Tkinter Variables tracing
     legend_pos.trace_add('write', my_callback)
