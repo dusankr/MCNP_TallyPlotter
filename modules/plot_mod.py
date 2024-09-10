@@ -12,6 +12,7 @@
 # TODO step vs. point plot
 
 # libraries
+import matplotlib.style
 from modules import config_mod, editor_mod, plot_core, read_mod, settings_mod
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 import matplotlib
@@ -141,6 +142,10 @@ def plot_window(root, tally_to_plot):
     toolbar_frame.grid(column=0, row=1, sticky='nswe')
     toolbar = NavigationToolbar2Tk(config_mod.canvas_id, toolbar_frame)
     toolbar.update()
+
+    # white background in plot on Mac
+    matplotlib.rcParams['axes.facecolor'] = 'white'     # set only the background color of the plot
+    # matplotlib.style.use('classic')   # set the style of the plot - global setting
 
     # save values from widgets into dictionary
     def plot_variables():

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
-# TODO more options (ax min-max value)
 # TODO turn off user setings? (titles...)
 
 # libraries
@@ -137,8 +136,10 @@ def plot_to_canvas(tally):
     if config_mod.plot_settings["save_fig"] is True and config_mod.plot_settings["fig_format"] is not None and config_mod.plot_settings["fig_dpi"] is not None:
         try:
             config_mod.fig_id.savefig(config_mod.plot_settings["work_dir_path"] / pathlib.Path('fig_exp.' + config_mod.plot_settings["fig_format"]), format=config_mod.plot_settings["fig_format"], dpi=int(config_mod.plot_settings["fig_dpi"]))
-        except:
-            tk.messagebox.showerror('Read error', 'File is opened, please close it and then you can continue.')
+        except PermissionError:
+            tk.messagebox.showerror('Read error', 'File might be opened and unavailable for plotter, please close it and then you can continue.')
+        except Exception as e:
+            tk.messagebox.showerror('Error', 'Something went wrong during saving the figure. Please check the settings and try again. Error: ' + str(e))
 
     config_mod.canvas_id.draw()
 
