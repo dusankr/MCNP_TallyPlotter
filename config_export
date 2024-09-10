@@ -7,7 +7,7 @@
 # e.g. $text_{lower index}$ $text^{upper index}$
 #
 # initial mcnp output directory
-work_dir_path=C:\Users\dusan\PycharmProjects\MCNP_TallyPlotter\test_plotter\texas
+work_dir_path=C:\Users\367334.WIN\Desktop\all_canam_202408
 # initial export directory
 export_dir_path=C:\Users\dusan\Desktop\test_plotter\final_test.xlsx
 # initial XS dir
@@ -43,7 +43,7 @@ latex=False
 x_lim=False
 x_min=1.0
 x_max=5.0
-y_lim=True
+y_lim=False
 y_min=None
 y_max=3.0
 y2_lim=False
