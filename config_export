@@ -7,37 +7,31 @@
 # e.g. $text_{lower index}$ $text^{upper index}$
 #
 # initial mcnp output directory
-work_dir_path=C:\Users\367334.WIN\Desktop\all_canam_202408\test
+work_dir_path=C:\Users\367334.WIN\Desktop\all_canam_202408
 # initial export directory
 export_dir_path=C:\Users\dusan\Desktop\test_plotter\final_test.xlsx
 # initial XS dir
 xs_dir_path=C:\Users\dusan\Desktop\test_plotter
 # figure resolution in DPI
-fig_dpi=300.0
-# figure x dimensions
-fig_x_dimension=None
-# figure y dimensions
-fig_y_dimension=None
-# figure output formats (png, pdf, ps, eps and svg)
+fig_x_dimension=20.0
+fig_y_dimension=15.0
 fig_format=png
-# x ax title
-x_title=Energy (MeV)
-# y ax title
-y_title=Flux (cm$^{-2}$)
-ratio=canam_i_la150h_14
+fig_dpi=100.0
+x_title=Energie (MeV)
+y_title=Fluence neutronu (cm$^{-2}$MeV$^{-1}$)
+ax_label_size=12
+ratio=no ratio
 data_var=norm
 leg_pos=best
 leg_size=10
 grid_switch=True
 grid_opt=major
 grid_ax=both
-ax_label_size=12
 tics_size=10
 x_scale=linear
 y_scale=linear
 xs_switch=False
 y2_title=Cross Section (barns)
-# save_fig=False
 error_bar=True
 latex=False
 x_lim=False
@@ -50,7 +44,7 @@ y2_lim=False
 y2_min=None
 y2_max=10000000000.0
 fig_title_switch=False
-fig_title=Texas A&M University MCNP Tally Plotter example
+fig_title=CANAM I test - 02
 fig_title_size=14.0
-save_fig=None
-first_bin=False
+save_fig=False
+first_bin=True

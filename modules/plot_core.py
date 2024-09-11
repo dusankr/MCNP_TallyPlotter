@@ -16,7 +16,7 @@ def plot_to_canvas(tally):
     config_mod.ax.clear()
 
     if config_mod.ax2 != None:
-        config_mod.ax2.remove()     # TODO solve Warning!!! (works now)
+        config_mod.ax2.remove()
         config_mod.ax2 = None
 
     # read reference data for ratio plot
@@ -144,18 +144,34 @@ def plot_to_canvas(tally):
     if config_mod.plot_settings["fig_title_switch"] is True:
         config_mod.ax.set_title(config_mod.plot_settings["fig_title"], fontsize=int(config_mod.plot_settings["fig_title_size"]))
 
-    # TODO add plot size for export (note: config keys already exist)
-    # TODO ask dialog
-    '''
-    if config_mod.plot_settings["save_fig"] is True and config_mod.plot_settings["fig_format"] is not None and config_mod.plot_settings["fig_dpi"] is not None:
+    # SAVE figure into folder with specific dimensions, DPI and format
+    if config_mod.plot_settings["save_fig"] is True:
+        # set the figure size in cm
+        config_mod.fig_id.set_size_inches(config_mod.plot_settings["fig_x_dimension"] / 2.54, config_mod.plot_settings["fig_y_dimension"] / 2.54)
+        
+        # get the work directory path and file format from a file save as dialog, available formats: png, pdf, ps, eps and svg
+        picture_path = pathlib.Path(tk.filedialog.asksaveasfilename(initialdir=config_mod.plot_settings["work_dir_path"], title='Choose folder and file name without an extension:', filetypes=[("PNG files", "*.png"), ("PDF files", "*.pdf"), ("SVG files", "*.svg"), ("EPS files", "*.eps"), ("PS files", "*.ps")], defaultextension=".png"))
+        
+        # check if folder exists
+        if not pathlib.Path.exists(picture_path.parent) or str(picture_path) == '.':
+            tk.messagebox.showerror('Input error', 'No directory and file were selected.')
+            return
+
+        # extract format from the path
+        config_mod.plot_settings["fig_format"] = picture_path.suffix[1:]
+
+        # save the figure
         try:
-            config_mod.fig_id.savefig(config_mod.plot_settings["work_dir_path"] / pathlib.Path('fig_exp.' + config_mod.plot_settings["fig_format"]), format=config_mod.plot_settings["fig_format"], dpi=int(config_mod.plot_settings["fig_dpi"]))
+            config_mod.fig_id.savefig(picture_path, format=config_mod.plot_settings["fig_format"], dpi=int(config_mod.plot_settings["fig_dpi"]))
+            tk.messagebox.showinfo('File saved', 'Figure was saved to the work directory:\n' + str(picture_path))
+
         except PermissionError:
             tk.messagebox.showerror('Read error', 'File might be opened and unavailable for plotter, please close it and then you can continue.')
         except Exception as e:
             tk.messagebox.showerror('Error', 'Something went wrong during saving the figure. Please check the settings and try again. Error: ' + str(e))
-    '''
-    config_mod.canvas_id.draw()
+
+    else:
+        config_mod.canvas_id.draw()
 
 
 # calculate a middle of energy intervals

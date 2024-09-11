@@ -1,5 +1,7 @@
 # project global variables shared across all modules
 
+# TODO transfer plot settings in JSON format and RCparams
+
 # main variable for tally values and parameters
 tallies = {}
 xs_data = {}
@@ -36,7 +38,7 @@ plot_settings = dict.fromkeys([
     "tics_size",
     "xs_switch",
     "y2_title",
-    #"save_fig",
+    "save_fig",
     "error_bar",
     "latex",
     "x_lim",

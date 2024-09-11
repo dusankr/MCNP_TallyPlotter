@@ -76,15 +76,15 @@ def plot_window(root, tally_to_plot):
     y2lim_var = tk.BooleanVar(value=False)  # Check box variable - use secondary Y axis limits
 
     fig_title_var = tk.BooleanVar(value=False)  # Check box variable - use figure title
-
-    """ This is not more used - make problems if replot button is activated
-    # figure size
-    xfig_var = tk.StringVar(value=20)  # SpinBox variable
-    yfig_var = tk.StringVar(value=15)  # SpinBox variable
-    """
-    
-    latex_var = tk.BooleanVar(value=False)   # check box LaTeX
+   
     restore_var = tk.BooleanVar(value=True)    # check box variable restore settings from last session
+
+    # figure export variables
+    x_fig_var = tk.DoubleVar(value=20)  # SpinBox variable
+    y_fig_var = tk.DoubleVar(value=15)  # SpinBox variable
+    dpi_var = tk.DoubleVar(value=100)  # SpinBox variable
+    latex_var = tk.BooleanVar(value=False)   # check box LaTeX
+
     # endregion
 
     # NEW Window definition---------------------------------------------------------------------------------------------
@@ -147,7 +147,7 @@ def plot_window(root, tally_to_plot):
     # matplotlib.style.use('classic')   # set the style of the plot - global setting
 
     # save values from widgets into dictionary
-    def plot_variables():
+    def plot_variables(save=False):
         # if restore_var.get() == True:
         #    old_settings()
 
@@ -163,15 +163,22 @@ def plot_window(root, tally_to_plot):
         config_mod.plot_settings["ax_label_size"] = axis_var.get()
         config_mod.plot_settings["tics_size"] = ticks_var.get()
         config_mod.plot_settings["xs_switch"] = xs_var.get()
-        # config_mod.plot_settings["save_fig"] = save_var.get()
+        
         config_mod.plot_settings["error_bar"] = error_var.get()
         config_mod.plot_settings["first_bin"] = bin_var.get()
         config_mod.plot_settings["latex"] = latex_var.get()
-
         config_mod.plot_settings["x_lim"] = xlim_var.get()
         config_mod.plot_settings["y_lim"] = ylim_var.get()
         config_mod.plot_settings["y2_lim"] = y2lim_var.get()
         config_mod.plot_settings["fig_title_switch"] = fig_title_var.get()
+        # save figure
+        config_mod.plot_settings['fig_x_dimension'] = x_fig_var.get()
+        config_mod.plot_settings['fig_y_dimension'] = y_fig_var.get()
+        config_mod.plot_settings['save_fig'] = save
+        config_mod.plot_settings['fig_dpi'] = dpi_var.get()
+
+        # save values to the config file
+        settings_mod.save_config()
 
     # insert FIRST plot CANVAS
     plot_variables()
@@ -240,7 +247,6 @@ def plot_window(root, tally_to_plot):
     axis_title.grid(column=0, row=0, sticky='nw', padx=2, pady=2)
     axis_spinbox = tk.ttk.Spinbox(size_frame, from_=5, to=20, textvariable=axis_var, wrap=True, width=4)
     axis_spinbox.grid(column=1, row=0, sticky='sne', padx=2, pady=2)
-
     ticks_spinbox = tk.ttk.Spinbox(size_frame, from_=5, to=20, textvariable=ticks_var, wrap=True, width=4)
     ticks_spinbox.grid(column=2, row=0, sticky='sne', padx=2, pady=2)
 
@@ -273,50 +279,50 @@ def plot_window(root, tally_to_plot):
     
     xs_frame = tk.LabelFrame(plot_option_frame2, text='Cross Section')
     xs_frame.grid(column=0, row=row_c, sticky='nswe', padx=2, pady=2)
+    xs_frame.columnconfigure(0, weight=1)
+    xs_frame.rowconfigure(0, weight=1)
     row_c += 1
 
     chk_xs = tk.Checkbutton(xs_frame, text='turn on a second Y axis', var=xs_var, state="disabled")
-    chk_xs.grid(column=0, row=0, sticky='nswe', padx=2, pady=2)
+    chk_xs.grid(column=0, row=0, sticky='nsw', padx=2, pady=2)
 
     button_xs = tk.ttk.Button(xs_frame, text='Read XS', command=lambda: [read_mod.read_xs(name_label), change_state2()])
-    button_xs.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=2, pady=2)
+    button_xs.grid(column=0, columnspan=4, row=1, sticky='nswe', padx=2, pady=2)
 
     file_label = tk.Label(xs_frame, text='File name:')
     file_label.grid(column=0, row=2, sticky='wn')
 
     name_label = tk.Label(xs_frame, text=' ')
-    name_label.grid(column=0, columnspan=2, row=3, sticky='wn')
+    name_label.grid(column=0, columnspan=4, row=3, sticky='wn')
 
     # name_label['text'] = str(config_mod.plot_settings["work_dir_path"])
 
-    # config (save, editor) --------------------------------------------------------------------------------------------
-    config_frame = tk.LabelFrame(plot_option_frame2, text='Export')
+    # config (editor) --------------------------------------------------------------------------------------------
+    config_frame = tk.LabelFrame(plot_option_frame2, text='Settings')
     config_frame.grid(column=0, row=row_c, sticky='nswe', padx=2, pady=2)
+    config_frame.columnconfigure(0, weight=1)
+    config_frame.rowconfigure(0, weight=1)
     row_c += 1
     row_f = 0   
 
-    button_settings = tk.ttk.Button(config_frame, text='Settings editor', command=lambda: editor_mod.open_lib(pathlib.Path('config_export'), plot_win, tally_to_plot))
-    button_settings.grid(column=0, columnspan=2, row=row_f, sticky='nswe', padx=2, pady=2)
+    button_settings = tk.ttk.Button(config_frame, text='Settings editor', command=lambda: editor_mod.open_lib('config_export', plot_win, tally_to_plot))
+    button_settings.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
     row_f += 1
 
-    button_legend = tk.ttk.Button(config_frame, text='Legend editor', command=lambda: editor_mod.open_lib(pathlib.Path('config_legend'), plot_win, tally_to_plot))
-    button_legend.grid(column=0, columnspan=2, row=row_f, sticky='nswe', padx=2, pady=2)
+    button_reload = tk.ttk.Button(config_frame, text='Reload settings', command=lambda: settings_mod.read_config("config_export"))
+    button_reload.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
     row_f += 1
 
     h_sep = tk.ttk.Separator(config_frame, orient='horizontal')
-    h_sep.grid(column=0, columnspan=2, row=row_f, sticky='nswe', padx=2, pady=2)
+    h_sep.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
     row_f += 1
 
-    button_reload = tk.ttk.Button(config_frame, text='Reload config', command=lambda: settings_mod.read_config("config_export"))
-    button_reload.grid(column=0, columnspan=2, row=row_f, sticky='nswe', padx=2, pady=2)
-    row_f += 1
+    button_legend = tk.ttk.Button(config_frame, text='Legend editor', command=lambda: editor_mod.open_lib('config_legend', plot_win, tally_to_plot))
+    button_legend.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
+    row_f += 1  
 
     h_sep_2 = tk.ttk.Separator(config_frame, orient='horizontal')
-    h_sep_2.grid(column=0, columnspan=2, row=row_f, sticky='nswe', padx=2, pady=2)
-    row_f += 1
-
-    chk_latex = tk.Checkbutton(config_frame, text='On/Off LaTeX', var=latex_var, state='disabled')
-    chk_latex.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
+    h_sep_2.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
     row_f += 1
 
     chk_xlim = tk.Checkbutton(config_frame, text='On/Off X axis limits', var=xlim_var)
@@ -333,6 +339,38 @@ def plot_window(root, tally_to_plot):
 
     chk_title = tk.Checkbutton(config_frame, text="On/Off figure title", var=fig_title_var)
     chk_title.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1
+
+    # save figure frame ------------------------------------------------------------------------------------------------
+    save_frame = tk.LabelFrame(plot_option_frame2, text='Save')
+    save_frame.grid(column=0, row=row_c, sticky='nswe', padx=2, pady=2)
+    save_frame.columnconfigure(0, weight=1)
+    save_frame.rowconfigure(0, weight=1)
+    row_c += 1
+    row_f = 0   
+
+    button_save = tk.ttk.Button(save_frame, text='Save figure', command=lambda: (plot_variables(True), plot_core.plot_to_canvas(tally_to_plot)))
+    button_save.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
+    row_f += 1
+
+    x_size_label = tk.Label(save_frame, text='X (cm)')
+    x_size_label.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
+    x_size_spinbox = tk.ttk.Spinbox(save_frame, from_=4, to=50, textvariable=x_fig_var , wrap=True, width=4)
+    x_size_spinbox.grid(column=1, row=row_f, sticky='sne', padx=2, pady=2)
+    y_size_label = tk.Label(save_frame, text='Y (cm)')
+    y_size_label.grid(column=2, row=row_f, sticky='nw', padx=2, pady=2)
+    y_size_spinbox = tk.ttk.Spinbox(save_frame, from_=4, to=50, textvariable=y_fig_var, wrap=True, width=4)
+    y_size_spinbox.grid(column=3, row=row_f, sticky='sne', padx=2, pady=2)
+    row_f += 1
+
+    dpi_label = tk.Label(save_frame, text='DPI')
+    dpi_label.grid(column=0, row=row_f, sticky='snw', padx=2, pady=2)
+    dpi_spinbox = tk.ttk.Spinbox(save_frame, from_=50, to=1000, textvariable=dpi_var , wrap=True, width=4)
+    dpi_spinbox.grid(column=1, row=row_f, sticky='snw', padx=2, pady=2)
+    row_f += 1
+
+    chk_latex = tk.Checkbutton(save_frame, text='On/Off LaTeX', var=latex_var, state='disabled')
+    chk_latex.grid(column=0, columnspan=4, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
 
     # replot frame -----------------------------------------------------------------------------------------------------
