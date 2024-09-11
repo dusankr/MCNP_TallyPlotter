@@ -23,21 +23,33 @@ def plot_to_canvas(tally):
     if config_mod.plot_settings["ratio"] != "no ratio":
         key = config_mod.plot_settings["ratio"]   # not necessary do like this...
 
-        if (config_mod.plot_settings["data_var"] == 'non'):
-            x_ratio, y_ratio, y_err_ratio = config_mod.tallies[key][3], config_mod.tallies[key][4], config_mod.tallies[key][5]
-        elif (config_mod.plot_settings["data_var"] == 'norm'):
-            x_ratio, y_ratio, y_err_ratio = config_mod.tallies[key][3], config_mod.tallies[key][7], config_mod.tallies[key][5]
+        if config_mod.plot_settings["data_var"] == 'norm' and config_mod.plot_settings["first_bin"] is True:
+            x_ratio, y_ratio, y_err_ratio = config_mod.tallies[key][3], config_mod.tallies[key][7][:], config_mod.tallies[key][5][:]  # normalized data
+            y_label = 'Tally / MeV / particle'
+        elif config_mod.plot_settings["data_var"] == 'norm' and config_mod.plot_settings["first_bin"] is False:
+            x_ratio, y_ratio, y_err_ratio = config_mod.tallies[key][3][1:], config_mod.tallies[key][7][1:], config_mod.tallies[key][5][1:]  # normalized data, without first bin
+            y_label = 'Tally / MeV / particle'
+        elif config_mod.plot_settings["data_var"] == 'non' and config_mod.plot_settings["first_bin"] is True:
+            x_ratio, y_ratio, y_err_ratio = config_mod.tallies[key][3], config_mod.tallies[key][4][:], config_mod.tallies[key][5][:]  # original data
+            y_label = 'Tally / particle'
+        elif config_mod.plot_settings["data_var"] == 'non' and config_mod.plot_settings["first_bin"] is False:
+            x_ratio, y_ratio, y_err_ratio = config_mod.tallies[key][3][1:], config_mod.tallies[key][4][1:], config_mod.tallies[key][5][1:] # original data, without first bin
 
         tally_to_plot.remove(key)   # remove tally name from the list for ratio plot
 
     # plot all chosen values
     for name in tally_to_plot:
-        if config_mod.plot_settings["data_var"] == 'norm':
+        if config_mod.plot_settings["data_var"] == 'norm' and config_mod.plot_settings["first_bin"] is True:
             x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][7][:], config_mod.tallies[name][5][:]  # normalized data
             y_label = 'Tally / MeV / particle'
-        elif config_mod.plot_settings["data_var"] == 'non':
+        elif config_mod.plot_settings["data_var"] == 'norm' and config_mod.plot_settings["first_bin"] is False:
+            x_data, y_data, y_data_err = config_mod.tallies[name][3][1:], config_mod.tallies[name][7][1:], config_mod.tallies[name][5][1:]  # normalized data, without first bin
+            y_label = 'Tally / MeV / particle'
+        elif config_mod.plot_settings["data_var"] == 'non' and config_mod.plot_settings["first_bin"] is True:
             x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4][:], config_mod.tallies[name][5][:]  # original data
             y_label = 'Tally / particle'
+        elif config_mod.plot_settings["data_var"] == 'non' and config_mod.plot_settings["first_bin"] is False:
+            x_data, y_data, y_data_err = config_mod.tallies[name][3][1:], config_mod.tallies[name][4][1:], config_mod.tallies[name][5][1:] # original data, without first bin
 
         # take the correct name for legend
         legend_name = config_mod.tallies[name][10]
@@ -46,6 +58,7 @@ def plot_to_canvas(tally):
         if config_mod.plot_settings["ratio"] != 'no ratio':
             y_label = 'Tally to Tally ratio (-)'
             if x_data != x_ratio:
+                print('Energy bins in tallies are not the same, ratio plot is not possible.')
                 continue  # skip this cycle step if energy bins in current tally have different step from reference tally
 
             for i in range(0, len(y_data)):  # calculate ratio values and their errors
@@ -132,7 +145,8 @@ def plot_to_canvas(tally):
         config_mod.ax.set_title(config_mod.plot_settings["fig_title"], fontsize=int(config_mod.plot_settings["fig_title_size"]))
 
     # TODO add plot size for export (note: config keys already exist)
-    # TODO independent path, file name
+    # TODO ask dialog
+    '''
     if config_mod.plot_settings["save_fig"] is True and config_mod.plot_settings["fig_format"] is not None and config_mod.plot_settings["fig_dpi"] is not None:
         try:
             config_mod.fig_id.savefig(config_mod.plot_settings["work_dir_path"] / pathlib.Path('fig_exp.' + config_mod.plot_settings["fig_format"]), format=config_mod.plot_settings["fig_format"], dpi=int(config_mod.plot_settings["fig_dpi"]))
@@ -140,7 +154,7 @@ def plot_to_canvas(tally):
             tk.messagebox.showerror('Read error', 'File might be opened and unavailable for plotter, please close it and then you can continue.')
         except Exception as e:
             tk.messagebox.showerror('Error', 'Something went wrong during saving the figure. Please check the settings and try again. Error: ' + str(e))
-
+    '''
     config_mod.canvas_id.draw()
 
 

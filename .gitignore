@@ -5,8 +5,9 @@
 /fp12/
 /new/
 /sven/
-/config_legend
+config_legend
 /test_plotter/
-/config_export
+config_export
 /env
 /modules/__pycache__
+.vscode

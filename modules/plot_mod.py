@@ -39,9 +39,6 @@ def plot_window(root, tally_to_plot):
                       'center right', 'lower center', 'upper center', 'center']
     legend_pos = tk.StringVar(value='best')  # Option Menu variable
 
-    edit_options = ["config_export", "config_legend"]
-    edit_var = tk.StringVar(value='config_export')
-
     # create a list of values for the ratio menu
     if len(tally_to_plot) > 1:
         ratio_options = ['no ratio'] + tally_to_plot
@@ -51,7 +48,7 @@ def plot_window(root, tally_to_plot):
     # radio button variable
     x_axis_var = tk.StringVar(value='linear')
     y_axis_var = tk.StringVar(value='linear')
-    data_var = tk.StringVar(value='non')
+    data_var = tk.StringVar(value='norm')
 
     ratio_sel = tk.StringVar(value='no ratio')  # Option Menu variable
     replot_var = tk.BooleanVar(value=False)  # Check box variable
@@ -67,8 +64,10 @@ def plot_window(root, tally_to_plot):
     grid_var = tk.StringVar(value='major')  # Option Menu variable
     grid_axis_var = tk.StringVar(value='both')  # Option Menu variable
     grid_on_var = tk.BooleanVar(value=True)  # Check box variable
-    save_var = tk.BooleanVar(value=False)  # Check box variable - save figure
+
+    # save_var = tk.BooleanVar(value=False)  # Check box variable - save figure
     error_var = tk.BooleanVar(value=True)  # Turn on error bars
+    bin_var = tk.BooleanVar(value=True)  # Turn on first bin
 
     xs_var = tk.BooleanVar(value=False)  # Check box variable - show XS data
 
@@ -164,8 +163,9 @@ def plot_window(root, tally_to_plot):
         config_mod.plot_settings["ax_label_size"] = axis_var.get()
         config_mod.plot_settings["tics_size"] = ticks_var.get()
         config_mod.plot_settings["xs_switch"] = xs_var.get()
-        config_mod.plot_settings["save_fig"] = save_var.get()
+        # config_mod.plot_settings["save_fig"] = save_var.get()
         config_mod.plot_settings["error_bar"] = error_var.get()
+        config_mod.plot_settings["first_bin"] = bin_var.get()
         config_mod.plot_settings["latex"] = latex_var.get()
 
         config_mod.plot_settings["x_lim"] = xlim_var.get()
@@ -207,12 +207,15 @@ def plot_window(root, tally_to_plot):
     data_inp_radio = tk.Radiobutton(data_inp_frame, text='non', variable=data_var, value='non', tristatevalue="z")
     data_inp_radio.grid(column=1, row=0, sticky='nswe', padx=2, pady=2)
 
-    chk_replot = tk.Checkbutton(data_inp_frame, text='show/hide error bars', var=error_var)
-    chk_replot.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=2, pady=2)
+    chk_error = tk.Checkbutton(data_inp_frame, text='show/hide error bars', var=error_var)
+    chk_error.grid(column=0, columnspan=2, row=1, sticky='nsw', padx=2, pady=2)
+
+    chk_bin = tk.Checkbutton(data_inp_frame, text='show/hide first bin', var=bin_var)
+    chk_bin.grid(column=0, columnspan=2, row=2, sticky='nsw', padx=2, pady=2)
 
     # plot_window(root, treeview_files, treeview_files.get_checked()
     ratio_menu = tk.OptionMenu(data_inp_frame, ratio_sel, *ratio_options)
-    ratio_menu.grid(column=0, columnspan=2, row=2, sticky='nswe', padx=2, pady=2)
+    ratio_menu.grid(column=0, columnspan=2, row=3, sticky='nswe', padx=2, pady=2)
 
     # LEGEND settings --------------------------------------------------------------------------------------------------
     legend_frame = tk.LabelFrame(plot_option_frame, text='Legend settings')
@@ -287,52 +290,48 @@ def plot_window(root, tally_to_plot):
     # name_label['text'] = str(config_mod.plot_settings["work_dir_path"])
 
     # config (save, editor) --------------------------------------------------------------------------------------------
-    save_frame = tk.LabelFrame(plot_option_frame2, text='Export')
-    save_frame.grid(column=0, row=row_c, sticky='nswe', padx=2, pady=2)
+    config_frame = tk.LabelFrame(plot_option_frame2, text='Export')
+    config_frame.grid(column=0, row=row_c, sticky='nswe', padx=2, pady=2)
     row_c += 1
+    row_f = 0   
 
-    row_f = 0
-    legend_menu = tk.OptionMenu(save_frame, edit_var, *edit_options)
-    legend_menu.grid(column=0, row=row_f, sticky='nswe', padx=2, pady=2)
-    row_f += 1
-
-    button_settings = tk.ttk.Button(save_frame, text='Editor settings/legend', command=lambda: editor_mod.open_lib(pathlib.Path(edit_var.get()), plot_win, tally_to_plot))
+    button_settings = tk.ttk.Button(config_frame, text='Settings editor', command=lambda: editor_mod.open_lib(pathlib.Path('config_export'), plot_win, tally_to_plot))
     button_settings.grid(column=0, columnspan=2, row=row_f, sticky='nswe', padx=2, pady=2)
     row_f += 1
 
-    h_sep = tk.ttk.Separator(save_frame, orient='horizontal')
+    button_legend = tk.ttk.Button(config_frame, text='Legend editor', command=lambda: editor_mod.open_lib(pathlib.Path('config_legend'), plot_win, tally_to_plot))
+    button_legend.grid(column=0, columnspan=2, row=row_f, sticky='nswe', padx=2, pady=2)
+    row_f += 1
+
+    h_sep = tk.ttk.Separator(config_frame, orient='horizontal')
     h_sep.grid(column=0, columnspan=2, row=row_f, sticky='nswe', padx=2, pady=2)
     row_f += 1
 
-    button_reload = tk.ttk.Button(save_frame, text='Reload config', command=lambda: settings_mod.read_config("config_export"))
+    button_reload = tk.ttk.Button(config_frame, text='Reload config', command=lambda: settings_mod.read_config("config_export"))
     button_reload.grid(column=0, columnspan=2, row=row_f, sticky='nswe', padx=2, pady=2)
     row_f += 1
 
-    h_sep_2 = tk.ttk.Separator(save_frame, orient='horizontal')
+    h_sep_2 = tk.ttk.Separator(config_frame, orient='horizontal')
     h_sep_2.grid(column=0, columnspan=2, row=row_f, sticky='nswe', padx=2, pady=2)
     row_f += 1
 
-    chk_save = tk.Checkbutton(save_frame, text='On/Off save figure', var=save_var)
-    chk_save.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
-    row_f += 1
-
-    chk_latex = tk.Checkbutton(save_frame, text='On/Off LaTeX', var=latex_var, state='disabled')
+    chk_latex = tk.Checkbutton(config_frame, text='On/Off LaTeX', var=latex_var, state='disabled')
     chk_latex.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
 
-    chk_xlim = tk.Checkbutton(save_frame, text='On/Off X axis limits', var=xlim_var)
+    chk_xlim = tk.Checkbutton(config_frame, text='On/Off X axis limits', var=xlim_var)
     chk_xlim.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
 
-    chk_ylim = tk.Checkbutton(save_frame, text='On/Off Y axis limits', var=ylim_var)
+    chk_ylim = tk.Checkbutton(config_frame, text='On/Off Y axis limits', var=ylim_var)
     chk_ylim.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
 
-    chk_y2lim = tk.Checkbutton(save_frame, text='On/Off Y2 axis limits', var=y2lim_var)
+    chk_y2lim = tk.Checkbutton(config_frame, text='On/Off Y2 axis limits', var=y2lim_var)
     chk_y2lim.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
 
-    chk_title = tk.Checkbutton(save_frame, text="On/Off figure title", var=fig_title_var)
+    chk_title = tk.Checkbutton(config_frame, text="On/Off figure title", var=fig_title_var)
     chk_title.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
 
@@ -355,7 +354,6 @@ def plot_window(root, tally_to_plot):
 
     # call replot when Option Menu is changed
     def my_callback(*args):
-        # plot_function(tally_to_plot)
         plot_variables()
         plot_core.plot_to_canvas(tally_to_plot)
 
@@ -372,8 +370,9 @@ def plot_window(root, tally_to_plot):
     grid_axis_var.trace_add('write', my_callback)
     ticks_var.trace_add('write', my_callback)
     xs_var.trace_add('write', my_callback)
-    save_var.trace_add('write', my_callback)
+    # save_var.trace_add('write', my_callback)
     error_var.trace_add('write', my_callback)
+    bin_var.trace_add('write', my_callback)
     xlim_var.trace_add('write', my_callback)
     ylim_var.trace_add('write', my_callback)
     y2lim_var.trace_add('write', my_callback)
@@ -396,8 +395,9 @@ def plot_window(root, tally_to_plot):
             grid_axis_var.trace_remove('write', grid_axis_var.trace_info()[0][1])
             ticks_var.trace_remove('write', ticks_var.trace_info()[0][1])
             xs_var.trace_remove('write', xs_var.trace_info()[0][1])
-            save_var.trace_remove('write', save_var.trace_info()[0][1])
+            # save_var.trace_remove('write', save_var.trace_info()[0][1])
             error_var.trace_remove('write', error_var.trace_info()[0][1])
+            bin_var.trace_remove('write', bin_var.trace_info()[0][1])
             xlim_var.trace_remove('write', xlim_var.trace_info()[0][1])
             ylim_var.trace_remove('write', ylim_var.trace_info()[0][1])
             y2lim_var.trace_remove('write', y2lim_var.trace_info()[0][1])
@@ -417,8 +417,9 @@ def plot_window(root, tally_to_plot):
             grid_axis_var.trace_add('write', my_callback)
             ticks_var.trace_add('write', my_callback)
             xs_var.trace_add('write', my_callback)
-            save_var.trace_add('write', my_callback)
+            # save_var.trace_add('write', my_callback)
             error_var.trace_add('write', my_callback)
+            bin_var.trace_add('write, my_callback')
             xlim_var.trace_add('write', my_callback)
             ylim_var.trace_add('write', my_callback)
             y2lim_var.trace_add('write', my_callback)

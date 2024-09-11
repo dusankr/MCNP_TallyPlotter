@@ -28,6 +28,7 @@ def create_config(fname):
             temp_file.write("#\n")
 
 
+# check if value is float and return True or False
 def is_float(element):
     try:
         float(element)
@@ -36,10 +37,24 @@ def is_float(element):
         return False
 
 
+# remove all empty lines from the config/legend file
+def remove_empty_lines(fname):
+    with open(fname, "r+", encoding='utf-8') as temp_file:
+        content = temp_file.readlines()
+        temp_file.seek(0)
+        temp_file.truncate()
+
+        for line in content:
+            if line != '\n':
+                temp_file.write(line)
+
+
 # read values from config file to program variables
 def read_config(fname):
     if not pathlib.Path(fname).is_file():
         create_config(fname)
+    
+    remove_empty_lines(fname)
 
     # read values from config files
     with open(fname,"r", encoding='utf-8') as temp_file:
@@ -69,7 +84,7 @@ def read_config(fname):
             #config_mod.plot_settings["work_dir_path"] = pathlib.Path.cwd()
         else:
             config_mod.plot_settings["work_dir_path"] = pathlib.Path(config_mod.plot_settings["work_dir_path"])
-    except:
+    except FileNotFoundError:
         config_mod.plot_settings["work_dir_path"] = pathlib.Path.cwd()
         
     try:
@@ -79,7 +94,7 @@ def read_config(fname):
             config_mod.plot_settings["xs_dir_path"] = pathlib.Path(config_mod.plot_settings["xs_dir_path"]).parent
         elif pathlib.Path(config_mod.plot_settings["xs_dir_path"]).is_dir():
             config_mod.plot_settings["xs_dir_path"] = pathlib.Path(config_mod.plot_settings["xs_dir_path"])
-    except:
+    except FileNotFoundError:
         config_mod.plot_settings["xs_dir_path"] = pathlib.Path.cwd()
         
     try:
@@ -89,7 +104,7 @@ def read_config(fname):
             config_mod.plot_settings["export_dir_path"] = pathlib.Path(config_mod.plot_settings["export_dir_path"]).parent
         elif pathlib.Path(config_mod.plot_settings["export_dir_path"]).is_dir():
             config_mod.plot_settings["export_dir_path"] = pathlib.Path(config_mod.plot_settings["export_dir_path"])
-    except:
+    except FileNotFoundError:
         config_mod.plot_settings["export_dir_path"] = pathlib.Path.cwd()
 
     print("Old work directory from config file is: " , config_mod.plot_settings["work_dir_path"])
@@ -130,6 +145,8 @@ def save_config():
 def readsave_legend(fname):
     if not pathlib.Path(fname).is_file():
         create_config(fname)
+    
+    remove_empty_lines(fname)
 
     # read values from config files
     with open(fname,"r+", encoding='utf-8') as temp_file:
