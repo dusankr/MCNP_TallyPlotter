@@ -90,7 +90,7 @@ def plot_window(root, tally_to_plot):
     # NEW Window definition---------------------------------------------------------------------------------------------
     plot_win = tk.Toplevel(root)
     plot_win.grab_set()      # the main window is locked until the new window is closed
-    plot_win.geometry('1200x650')
+    plot_win.geometry('1200x700')
 
     plot_win.title('Plotting window')
 
@@ -186,82 +186,143 @@ def plot_window(root, tally_to_plot):
 
     # region Description: all Tkinter Widgets used for plot settings
     # PLOT OPTION FRAME ------------------------------------------------------------------------------------------------
+    row_c = 0
 
-    # X AXIS Radio Button ----------------------------------------------------------------------------------------------
-    x_axis_frame = tk.LabelFrame(plot_option_frame, text='X axis settings')
-    x_axis_frame.grid(column=0, row=0, sticky='nwe', padx=2, pady=2)
+    # SCALE frame ------------------------------------------------------------------------------------------------------
+    scale_frame = tk.LabelFrame(plot_option_frame, text='Axis scale')
+    scale_frame.grid(column=0, row=row_c, sticky='nswe', padx=2, pady=2)
+    scale_frame.columnconfigure(0, weight=0)
+    scale_frame.columnconfigure(0, weight=0)
+    scale_frame.columnconfigure(0, weight=0)
+    row_c += 1
+    row_f = 0
 
-    x_lin_radio = tk.Radiobutton(x_axis_frame, text='linear', variable=x_axis_var, value='linear', tristatevalue="x")
-    x_lin_radio.grid(column=0, row=0, sticky='nswe', padx=2, pady=2)
-    x_log_radio = tk.Radiobutton(x_axis_frame, text='log', variable=x_axis_var, value='log', tristatevalue="x")
-    x_log_radio.grid(column=1, row=0, sticky='nswe', padx=2, pady=2)
+    x_scale_label = tk.Label(scale_frame, text='X axis:')
+    x_scale_label.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
+    x_lin_radio = tk.Radiobutton(scale_frame, text='linear', variable=x_axis_var, value='linear', tristatevalue="x")
+    x_lin_radio.grid(column=1, row=row_f, sticky='nw', padx=2, pady=2)
+    x_log_radio = tk.Radiobutton(scale_frame, text='log', variable=x_axis_var, value='log', tristatevalue="x")
+    x_log_radio.grid(column=2, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1
 
-    # Y AXIS Radio Button
-    y_axis_frame = tk.LabelFrame(plot_option_frame, text='Y axis settings')
-    y_axis_frame.grid(column=0, row=1, sticky='nwe', padx=2, pady=2)
+    y_scale_label = tk.Label(scale_frame, text='Y axis:')
+    y_scale_label.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
+    y_lin_radio = tk.Radiobutton(scale_frame, text='linear', variable=y_axis_var, value='linear', tristatevalue="y")
+    y_lin_radio.grid(column=1, row=row_f, sticky='nw', padx=2, pady=2)
+    y_log_radio = tk.Radiobutton(scale_frame, text='log', variable=y_axis_var, value='log', tristatevalue="y")
+    y_log_radio.grid(column=2, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1
 
-    y_lin_radio = tk.Radiobutton(y_axis_frame, text='linear', variable=y_axis_var, value='linear', tristatevalue="y")
-    y_lin_radio.grid(column=0, row=0, sticky='nswe', padx=2, pady=2)
-    y_log_radio = tk.Radiobutton(y_axis_frame, text='log', variable=y_axis_var, value='log', tristatevalue="y")
-    y_log_radio.grid(column=1, row=0, sticky='nswe', padx=2, pady=2)
-
-    # DATA Radio Button ------------------------------------------------------------------------------------------------
+    # DATA input ------------------------------------------------------------------------------------------------
     data_inp_frame = tk.LabelFrame(plot_option_frame, text='Data input')
-    data_inp_frame.grid(column=0, row=2, sticky='nswe', padx=2, pady=2)
+    data_inp_frame.grid(column=0, row=row_c, sticky='nswe', padx=2, pady=2)
+    data_inp_frame.columnconfigure(0, weight=0)
+    data_inp_frame.columnconfigure(1, weight=0)
+    data_inp_frame.columnconfigure(2, weight=1)
+    row_c += 1
+    row_f = 0
 
-    data_inp_radio = tk.Radiobutton(data_inp_frame, text='norm', variable=data_var, value='norm', tristatevalue="z")
-    data_inp_radio.grid(column=0, row=0, sticky='nswe', padx=2, pady=2)
+    data_inp_radio = tk.Radiobutton(data_inp_frame, text='en. normalization', variable=data_var, value='norm', tristatevalue="z")
+    data_inp_radio.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
     data_inp_radio = tk.Radiobutton(data_inp_frame, text='non', variable=data_var, value='non', tristatevalue="z")
-    data_inp_radio.grid(column=1, row=0, sticky='nswe', padx=2, pady=2)
+    data_inp_radio.grid(column=1, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1
 
     chk_error = tk.Checkbutton(data_inp_frame, text='show/hide error bars', var=error_var)
-    chk_error.grid(column=0, columnspan=2, row=1, sticky='nsw', padx=2, pady=2)
+    chk_error.grid(column=0, columnspan=2, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1
 
     chk_bin = tk.Checkbutton(data_inp_frame, text='show/hide first bin', var=bin_var)
-    chk_bin.grid(column=0, columnspan=2, row=2, sticky='nsw', padx=2, pady=2)
+    chk_bin.grid(column=0, columnspan=2, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1
 
     # plot_window(root, treeview_files, treeview_files.get_checked()
     ratio_menu = tk.OptionMenu(data_inp_frame, ratio_sel, *ratio_options)
-    ratio_menu.grid(column=0, columnspan=2, row=3, sticky='nswe', padx=2, pady=2)
+    ratio_menu.grid(column=0, columnspan=3, row=row_f, sticky='nwe', padx=2, pady=2)
+    row_f += 1
 
     # LEGEND settings --------------------------------------------------------------------------------------------------
     legend_frame = tk.LabelFrame(plot_option_frame, text='Legend settings')
-    legend_frame.grid(column=0, row=3, sticky='nswe', padx=2, pady=2)
+    legend_frame.grid(column=0, row=row_c, sticky='nswe', padx=2, pady=2)
     legend_frame.columnconfigure(0, weight=1)
-    legend_frame.rowconfigure(0, weight=1)
+    legend_frame.columnconfigure(1, weight=0)
+    row_c += 1
+    row_f = 0
 
-    # plot_window(root, treeview_files, treeview_files.get_checked()
     legend_menu = tk.OptionMenu(legend_frame, legend_pos, *legend_options)
-    legend_menu.grid(column=0, row=0, sticky='nswe', padx=2, pady=2)
-
+    legend_menu.grid(column=0, columnspan=3, row=row_f, sticky='nwe', padx=2, pady=2)
     leg_spinbox = tk.ttk.Spinbox(legend_frame, from_=5, to=20, textvariable=leg_var, wrap=True, width=4)
-    leg_spinbox.grid(column=1, row=0, sticky='e', padx=2, pady=2)
+    leg_spinbox.grid(column=3, row=row_f, sticky='nwe', padx=2, pady=2)
+    row_f += 1
 
-    # text size frame --------------------------------------------------------------------------------------------------
-    size_frame = tk.LabelFrame(plot_option_frame, text='Font size')
-    size_frame.grid(column=0, row=5, sticky='nswe', padx=2, pady=2)
-    size_frame.columnconfigure(0, weight=1)
-    size_frame.rowconfigure(0, weight=1)
+    h_sep3 = tk.ttk.Separator(legend_frame, orient='horizontal')
+    h_sep3.grid(column=0, columnspan=4, row=row_f, sticky='nwe', padx=2, pady=2)
+    row_f += 1
 
-    axis_title = tk.Label(size_frame, text='Axis/Tics')
-    axis_title.grid(column=0, row=0, sticky='nw', padx=2, pady=2)
-    axis_spinbox = tk.ttk.Spinbox(size_frame, from_=5, to=20, textvariable=axis_var, wrap=True, width=4)
-    axis_spinbox.grid(column=1, row=0, sticky='sne', padx=2, pady=2)
-    ticks_spinbox = tk.ttk.Spinbox(size_frame, from_=5, to=20, textvariable=ticks_var, wrap=True, width=4)
-    ticks_spinbox.grid(column=2, row=0, sticky='sne', padx=2, pady=2)
+    button_legend = tk.ttk.Button(legend_frame, text='Legend editor', command=lambda: editor_mod.open_lib('config_legend', plot_win, tally_to_plot))
+    button_legend.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
+    row_f += 1  
+
+    # FONT size frame --------------------------------------------------------------------------------------------------
+    font_size_frame = tk.LabelFrame(plot_option_frame, text='Font size')
+    font_size_frame.grid(column=0, row=row_c, sticky='nswe', padx=2, pady=2)
+    row_c += 1
+    row_f = 0
+
+    axis_title = tk.Label(font_size_frame, text='Axis/Tics')
+    axis_title.grid(column=0, columnspan=2, row=row_f, sticky='nw', padx=2, pady=2)
+    axis_spinbox = tk.ttk.Spinbox(font_size_frame, from_=5, to=20, textvariable=axis_var, wrap=True, width=4)
+    axis_spinbox.grid(column=2, row=row_f, sticky='nw', padx=2, pady=2)
+    ticks_spinbox = tk.ttk.Spinbox(font_size_frame, from_=5, to=20, textvariable=ticks_var, wrap=True, width=4)
+    ticks_spinbox.grid(column=3, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1
 
     # GRID settings ----------------------------------------------------------------------------------------------------
     grid_frame = tk.LabelFrame(plot_option_frame, text='Grid settings')
-    grid_frame.grid(column=0, row=6, sticky='nswe', padx=2, pady=2)
+    grid_frame.grid(column=0, row=row_c, sticky='nswe', padx=2, pady=2)
+    grid_frame.columnconfigure(0, weight=1)
+    grid_frame.columnconfigure(1, weight=1)
+    row_c += 1
+    row_f = 0
 
     grid_chk = tk.Checkbutton(grid_frame, text='Grid ON', var=grid_on_var, command=lambda: change_state())
-    grid_chk.grid(column=0, row=0, sticky='nswe', padx=2, pady=2)
+    grid_chk.grid(column=0, columnspan=2, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1
 
     grid_menu = tk.OptionMenu(grid_frame, grid_var, *grid_options)
-    grid_menu.grid(column=0, row=1, sticky='nswe', padx=2, pady=2)
-
+    grid_menu.grid(column=0, row=row_f, sticky='nsew', padx=2, pady=2)
     grid_axis_menu = tk.OptionMenu(grid_frame, grid_axis_var, *grid_axis_options)
-    grid_axis_menu.grid(column=1, row=1, sticky='nswe', padx=2, pady=2)
+    grid_axis_menu.grid(column=1, row=row_f, sticky='nsew', padx=2, pady=2)
+    row_f += 1
+
+    # SAVE figure frame ------------------------------------------------------------------------------------------------
+    save_frame = tk.LabelFrame(plot_option_frame, text='Save')
+    save_frame.grid(column=0, row=row_c, sticky='nswe', padx=2, pady=2)
+    #save_frame.columnconfigure(0, weight=1)
+    row_c += 1
+    row_f = 0   
+
+    button_save = tk.ttk.Button(save_frame, text='Save figure', command=lambda: (plot_variables(True), plot_core.plot_to_canvas(tally_to_plot)))
+    button_save.grid(column=0, columnspan=4, row=row_f, sticky='nwse', padx=2, pady=2)
+    row_f += 1
+
+    x_size_label = tk.Label(save_frame, text='X (cm)')
+    x_size_label.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
+    x_size_spinbox = tk.ttk.Spinbox(save_frame, from_=4, to=50, textvariable=x_fig_var , wrap=True, width=4)
+    x_size_spinbox.grid(column=1, row=row_f, sticky='nw', padx=2, pady=2)
+    y_size_label = tk.Label(save_frame, text='Y (cm)')
+    y_size_label.grid(column=2, row=row_f, sticky='nw', padx=2, pady=2)
+    y_size_spinbox = tk.ttk.Spinbox(save_frame, from_=4, to=50, textvariable=y_fig_var, wrap=True, width=4)
+    y_size_spinbox.grid(column=3, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1
+
+    dpi_label = tk.Label(save_frame, text='DPI')
+    dpi_label.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
+    dpi_spinbox = tk.ttk.Spinbox(save_frame, from_=50, to=1000, textvariable=dpi_var , wrap=True, width=4)
+    dpi_spinbox.grid(column=1, row=row_f, sticky='nw', padx=2, pady=2)
+    chk_latex = tk.Checkbutton(save_frame, text='On/Off LaTeX', var=latex_var, state='disabled')
+    chk_latex.grid(column=2, columnspan=2, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1
 
     """
     # RESTORE settings -------------------------------------------------------------------------------------------------
@@ -280,28 +341,56 @@ def plot_window(root, tally_to_plot):
     xs_frame = tk.LabelFrame(plot_option_frame2, text='Cross Section')
     xs_frame.grid(column=0, row=row_c, sticky='nswe', padx=2, pady=2)
     xs_frame.columnconfigure(0, weight=1)
-    xs_frame.rowconfigure(0, weight=1)
     row_c += 1
-
-    chk_xs = tk.Checkbutton(xs_frame, text='turn on a second Y axis', var=xs_var, state="disabled")
-    chk_xs.grid(column=0, row=0, sticky='nsw', padx=2, pady=2)
+    row_f = 0
 
     button_xs = tk.ttk.Button(xs_frame, text='Read XS', command=lambda: [read_mod.read_xs(name_label), change_state2()])
-    button_xs.grid(column=0, columnspan=4, row=1, sticky='nswe', padx=2, pady=2)
+    button_xs.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
+    row_f += 1
 
     file_label = tk.Label(xs_frame, text='File name:')
-    file_label.grid(column=0, row=2, sticky='wn')
+    file_label.grid(column=0, columnspan=4, row=row_f, sticky='wn')
+    row_f += 1
 
     name_label = tk.Label(xs_frame, text=' ')
-    name_label.grid(column=0, columnspan=4, row=3, sticky='wn')
+    name_label.grid(column=0, columnspan=4, row=2, sticky='wn')
+    row_f += 1
 
-    # name_label['text'] = str(config_mod.plot_settings["work_dir_path"])
+    h_sep1 = tk.ttk.Separator(xs_frame, orient='horizontal')
+    h_sep1.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
+    row_f += 1
+
+    chk_xs = tk.Checkbutton(xs_frame, text='show/hide XS Y axis', var=xs_var, state="disabled")
+    chk_xs.grid(column=0, columnspan=4, row=row_f, sticky='nsw', padx=2, pady=2)
+    row_f += 1
+
+    h_sep2 = tk.ttk.Separator(xs_frame, orient='horizontal')
+    h_sep2.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
+    row_f += 1
+
+    # cross section data min/max Y axis, two Entry widgets on one line together with labels min and max
+    xs_minmax_label = tk.Label(xs_frame, text='Secondary Y axis (XS data) limits:')
+    xs_minmax_label.grid(column=0, columnspan=4, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1
+
+    xs_min_label = tk.Label(xs_frame, text='Y min')
+    xs_min_label.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
+    xs_min_entry = tk.Entry(xs_frame, width=6)
+    xs_min_entry.grid(column=1, row=row_f, sticky='nw', padx=2, pady=2)
+    xs_max_label = tk.Label(xs_frame, text='Y max')
+    xs_max_label.grid(column=2, row=row_f, sticky='nw', padx=2, pady=2)
+    xs_max_entry = tk.Entry(xs_frame, width=6)
+    xs_max_entry.grid(column=3, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1
+
+    chk_y2lim = tk.Checkbutton(xs_frame, text='On/Off XS Y axis limits', var=y2lim_var)
+    chk_y2lim.grid(column=0, columnspan=4, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1
 
     # config (editor) --------------------------------------------------------------------------------------------
     config_frame = tk.LabelFrame(plot_option_frame2, text='Settings')
     config_frame.grid(column=0, row=row_c, sticky='nswe', padx=2, pady=2)
     config_frame.columnconfigure(0, weight=1)
-    config_frame.rowconfigure(0, weight=1)
     row_c += 1
     row_f = 0   
 
@@ -313,69 +402,66 @@ def plot_window(root, tally_to_plot):
     button_reload.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
     row_f += 1
 
-    h_sep = tk.ttk.Separator(config_frame, orient='horizontal')
-    h_sep.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
-    row_f += 1
-
-    button_legend = tk.ttk.Button(config_frame, text='Legend editor', command=lambda: editor_mod.open_lib('config_legend', plot_win, tally_to_plot))
-    button_legend.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
-    row_f += 1  
-
-    h_sep_2 = tk.ttk.Separator(config_frame, orient='horizontal')
-    h_sep_2.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
-    row_f += 1
-
-    chk_xlim = tk.Checkbutton(config_frame, text='On/Off X axis limits', var=xlim_var)
-    chk_xlim.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
-    row_f += 1
-
-    chk_ylim = tk.Checkbutton(config_frame, text='On/Off Y axis limits', var=ylim_var)
-    chk_ylim.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
-    row_f += 1
-
-    chk_y2lim = tk.Checkbutton(config_frame, text='On/Off Y2 axis limits', var=y2lim_var)
-    chk_y2lim.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
+    h_sep_4 = tk.ttk.Separator(config_frame, orient='horizontal')
+    h_sep_4.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
     row_f += 1
 
     chk_title = tk.Checkbutton(config_frame, text="On/Off figure title", var=fig_title_var)
-    chk_title.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
+    chk_title.grid(column=0, columnspan=4, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
 
-    # save figure frame ------------------------------------------------------------------------------------------------
-    save_frame = tk.LabelFrame(plot_option_frame2, text='Save')
-    save_frame.grid(column=0, row=row_c, sticky='nswe', padx=2, pady=2)
-    save_frame.columnconfigure(0, weight=1)
-    save_frame.rowconfigure(0, weight=1)
-    row_c += 1
-    row_f = 0   
-
-    button_save = tk.ttk.Button(save_frame, text='Save figure', command=lambda: (plot_variables(True), plot_core.plot_to_canvas(tally_to_plot)))
-    button_save.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
+    h_sep_5 = tk.ttk.Separator(config_frame, orient='horizontal')
+    h_sep_5.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
     row_f += 1
 
-    x_size_label = tk.Label(save_frame, text='X (cm)')
-    x_size_label.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
-    x_size_spinbox = tk.ttk.Spinbox(save_frame, from_=4, to=50, textvariable=x_fig_var , wrap=True, width=4)
-    x_size_spinbox.grid(column=1, row=row_f, sticky='sne', padx=2, pady=2)
-    y_size_label = tk.Label(save_frame, text='Y (cm)')
-    y_size_label.grid(column=2, row=row_f, sticky='nw', padx=2, pady=2)
-    y_size_spinbox = tk.ttk.Spinbox(save_frame, from_=4, to=50, textvariable=y_fig_var, wrap=True, width=4)
-    y_size_spinbox.grid(column=3, row=row_f, sticky='sne', padx=2, pady=2)
+    #------
+    x_minmax_label = tk.Label(config_frame, text='X axis limits:')
+    x_minmax_label.grid(column=0, columnspan=4, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
 
-    dpi_label = tk.Label(save_frame, text='DPI')
-    dpi_label.grid(column=0, row=row_f, sticky='snw', padx=2, pady=2)
-    dpi_spinbox = tk.ttk.Spinbox(save_frame, from_=50, to=1000, textvariable=dpi_var , wrap=True, width=4)
-    dpi_spinbox.grid(column=1, row=row_f, sticky='snw', padx=2, pady=2)
+    x_min_label = tk.Label(config_frame, text='X min')
+    x_min_label.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
+    x_min_entry = tk.Entry(config_frame, width=6)
+    x_min_entry.grid(column=1, row=row_f, sticky='nw', padx=2, pady=2)
+    x_max_label = tk.Label(config_frame, text='X max')
+    x_max_label.grid(column=2, row=row_f, sticky='nw', padx=2, pady=2)
+    x_max_entry = tk.Entry(config_frame, width=6)
+    x_max_entry.grid(column=3, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
 
-    chk_latex = tk.Checkbutton(save_frame, text='On/Off LaTeX', var=latex_var, state='disabled')
-    chk_latex.grid(column=0, columnspan=4, row=row_f, sticky='nw', padx=2, pady=2)
+    chk_xlim = tk.Checkbutton(config_frame, text='On/Off X axis limits', var=xlim_var)
+    chk_xlim.grid(column=0, columnspan=4, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
 
+    h_sep_6 = tk.ttk.Separator(config_frame, orient='horizontal')
+    h_sep_6.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
+    row_f += 1
+
+    #-------
+    y_minmax_label = tk.Label(config_frame, text='Y axis limits:')
+    y_minmax_label.grid(column=0, columnspan=4, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1
+
+    y_min_label = tk.Label(config_frame, text='Y min')
+    y_min_label.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
+    y_min_entry = tk.Entry(config_frame, width=6)
+    y_min_entry.grid(column=1, row=row_f, sticky='nw', padx=2, pady=2)
+    y_max_label = tk.Label(config_frame, text='Y max')
+    y_max_label.grid(column=2, row=row_f, sticky='nw', padx=2, pady=2)
+    y_max_entry = tk.Entry(config_frame, width=6)
+    y_max_entry.grid(column=3, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1
+
+    chk_ylim = tk.Checkbutton(config_frame, text='On/Off Y axis limits', var=ylim_var)
+    chk_ylim.grid(column=0, columnspan=4, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1   
+
+    # ------------------------------------------------------------------------------------------------------------------
     # replot frame -----------------------------------------------------------------------------------------------------
     replot_frame = tk.LabelFrame(option_frame, text='Replot')
     replot_frame.grid(column=0, columnspan=2, row=1, sticky='swe', padx=2, pady=2)
+    replot_frame.columnconfigure(0, weight=1)
+    replot_frame.columnconfigure(1, weight=1)
 
     chk_replot = tk.Checkbutton(replot_frame, text='disable immediate changes', var=replot_var, command=lambda: turn_off_replot())
     chk_replot.grid(column=0, row=0, sticky='swe', padx=2, pady=2)
