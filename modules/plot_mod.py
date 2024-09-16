@@ -31,7 +31,7 @@ def plot_window(root, tally_to_plot):
     # close the plot window if there are no tallies
     if tally_to_plot == None:
         return
-    
+
     # region Tkinter local variables ----------------------------------------------------------------------------------
     
     legend_options = ['best', 'upper right', 'upper left', 'lower left', 'lower right', 'right', 'center left',
@@ -74,6 +74,7 @@ def plot_window(root, tally_to_plot):
     xs_var = tk.BooleanVar(value=False)  # Check box variable - show XS data
     
     # Axes limits
+
     y_min_var = tk.StringVar(value='None')
     y_max_var = tk.StringVar(value='None')
     x_min_var = tk.StringVar(value='None')
@@ -575,3 +576,4 @@ def plot_window(root, tally_to_plot):
             y2_log_radio['state'] = 'disabled'
             xs_min_entry['state'] = 'disabled'
             xs_max_entry['state'] = 'disabled'
+   

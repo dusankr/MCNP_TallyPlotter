@@ -81,20 +81,27 @@ def plot_to_canvas(tally):
 
         if config_mod.plot_settings["error_bar"]:
             err = [a * b for a, b in zip(y_data_err, y_data)]  # abs error
-            lineerr = config_mod.ax.errorbar(x_data_center, y_data[1:], yerr=err[1:], xerr=0, color=p_color, marker='None', linestyle='None', capthick=0.7, capsize=2)
+            lineerr = config_mod.ax.errorbar(x_data_center, y_data[1:], yerr=err[1:], xerr=0, color=p_color, marker='None', linestyle='None', capthick=0.7, capsize=2)     
 
     # XS plot (if true, run) -------------------------------------------------------------------------------------------
     if config_mod.plot_settings["xs_switch"]:
         config_mod.ax2 = config_mod.ax.twinx()
+        
+        # set XS Y axis scale
+        config_mod.ax2.set_yscale(config_mod.plot_settings["y2_scale"])
+        # workaround, this setting does not work in a log
+        if config_mod.plot_settings["y2_scale"] == 'linear':
+            config_mod.ax2.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True)
 
+        # XS Y axis label
         if config_mod.plot_settings["y2_title"] is not None:
             config_mod.ax2.set_ylabel(config_mod.plot_settings["y2_title"],fontsize=config_mod.plot_settings["ax_label_size"])
         else:
             config_mod.plot_settings["y2_title"] = "Cross Section (barns)"
             config_mod.ax2.set_ylabel(config_mod.plot_settings["y2_title"], fontsize=config_mod.plot_settings["ax_label_size"])
-
-        config_mod.ax2.set_yscale("log")
-        config_mod.ax2.tick_params(axis='both', labelsize=config_mod.plot_settings["tics_size"])
+        
+        # XS tic settings
+        config_mod.ax2.tick_params(axis='y', labelsize=config_mod.plot_settings["tics_size"])
 
         for name in config_mod.xs_data.keys():
             p_color = next(config_mod.ax._get_lines.prop_cycler)['color']  # same color
@@ -102,10 +109,30 @@ def plot_to_canvas(tally):
 
         config_mod.ax2.legend(loc=config_mod.plot_settings["leg_pos"], fontsize=config_mod.plot_settings["leg_size"])
 
-    # axis limits ------------------------------------------------------------------------------------------------------
-    # if config_mod.plot_settings["x_lim"] is not None and config_mod.plot_settings["x_lim"] is True:
-    #     config_mod.ax.set_xlim(config_mod.plot_settings["x_min"], config_mod.plot_settings["x_max"])
+        try:
+            config_mod.ax2.set_ylim(config_mod.plot_settings["y2_min"], config_mod.plot_settings["y2_max"])
+        except Exception as e:
+            tk.messagebox.showerror('Error', 'Something went wrong during setting XS Y limits (usually user\'s value is not a number!). Error: ' + str(e))
     
+    # set X and Y axes SCALE -------------------------------------------------------------------------------------------
+    config_mod.ax.set_xscale(config_mod.plot_settings["x_scale"])
+    config_mod.ax.set_yscale(config_mod.plot_settings["y_scale"])
+
+    # workaround, this setting does not work in a log
+    if config_mod.plot_settings["x_scale"] == 'linear':
+        config_mod.ax.ticklabel_format(style='sci', axis='x', scilimits=(0, 0), useMathText=True)
+    
+    if config_mod.plot_settings["y_scale"] == 'linear':
+        config_mod.ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True)
+    
+    # axis limits ------------------------------------------------------------------------------------------------------
+    
+    # get x limits from the plot
+    '''
+    if config_mod.plot_settings["x_min"] is None or config_mod.plot_settings["x_max"] is None:
+        config_mod.plot_settings["x_min"], config_mod.plot_settings["x_max"] = config_mod.ax.get_xlim()
+        print(config_mod.plot_settings["x_min"], config_mod.plot_settings["x_max"])
+    '''
     try:
         config_mod.ax.set_xlim(config_mod.plot_settings["x_min"], config_mod.plot_settings["x_max"])
     except Exception as e:
@@ -116,12 +143,6 @@ def plot_to_canvas(tally):
     except Exception as e:
         tk.messagebox.showerror('Error', 'Something went wrong during setting Y limits (usually user\'s value is not a number!). Error: ' + str(e))
 
-    if config_mod.plot_settings["xs_switch"] is True:
-        try:
-            config_mod.ax2.set_ylim(config_mod.plot_settings["y2_min"], config_mod.plot_settings["y2_max"])
-        except Exception as e:
-            tk.messagebox.showerror('Error', 'Something went wrong during setting XS Y limits (usually user\'s value is not a number!). Error: ' + str(e))
-
     # plot settings ----------------------------------------------------------------------------------------------------
     if config_mod.plot_settings["xs_switch"]:
         lines, labels = config_mod.ax.get_legend_handles_labels()
@@ -130,8 +151,7 @@ def plot_to_canvas(tally):
     else:
         config_mod.ax.legend(loc=config_mod.plot_settings["leg_pos"], fontsize=config_mod.plot_settings["leg_size"])
 
-    config_mod.ax.set_xscale(config_mod.plot_settings["x_scale"])
-    config_mod.ax.set_yscale(config_mod.plot_settings["y_scale"])
+    # set grid
     config_mod.ax.grid(visible=config_mod.plot_settings["grid_switch"], which=config_mod.plot_settings["grid_opt"], axis=config_mod.plot_settings["grid_ax"])
 
     if config_mod.plot_settings["x_title"] is not None:
@@ -145,10 +165,6 @@ def plot_to_canvas(tally):
         config_mod.ax.set_ylabel(y_label, fontsize=config_mod.plot_settings["ax_label_size"])
 
     config_mod.ax.tick_params(axis='both', labelsize=config_mod.plot_settings["tics_size"])
-
-    # workaround, this setting does not work in a log
-    if config_mod.plot_settings["y_scale"] == 'linear':
-        config_mod.ax.ticklabel_format(style='sci', axis='y', scilimits=(0, 0), useMathText=True)
 
     if config_mod.plot_settings["fig_title_switch"] is True:
         config_mod.ax.set_title(config_mod.plot_settings["fig_title"], fontsize=int(config_mod.plot_settings["fig_title_size"]))
