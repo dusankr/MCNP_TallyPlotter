@@ -18,7 +18,6 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationTool
 import matplotlib
 import matplotlib.pyplot as plt     # MUST stay here!!!
 import tkinter as tk
-import pathlib
 
 
 #  Functions  ##########################################################################################################
@@ -48,10 +47,11 @@ def plot_window(root, tally_to_plot):
     # radio button variable
     x_axis_var = tk.StringVar(value='linear')
     y_axis_var = tk.StringVar(value='linear')
-    data_var = tk.StringVar(value='norm')
+    y2_axis_var = tk.StringVar(value='log')
+    data_var = tk.BooleanVar(value=True)
 
     ratio_sel = tk.StringVar(value='no ratio')  # Option Menu variable
-    replot_var = tk.BooleanVar(value=False)  # Check box variable
+    replot_var = tk.BooleanVar(value=False)
 
     # font size variables
     axis_var = tk.StringVar(value=12)  # SpinBox variable
@@ -64,21 +64,24 @@ def plot_window(root, tally_to_plot):
     grid_var = tk.StringVar(value='major')  # Option Menu variable
     grid_axis_var = tk.StringVar(value='both')  # Option Menu variable
     grid_on_var = tk.BooleanVar(value=True)  # Check box variable
-
-    # save_var = tk.BooleanVar(value=False)  # Check box variable - save figure
+    
+    # additional data modifiers
     error_var = tk.BooleanVar(value=True)  # Turn on error bars
     bin_var = tk.BooleanVar(value=True)  # Turn on first bin
-
-    xs_var = tk.BooleanVar(value=False)  # Check box variable - show XS data
-
-    xlim_var = tk.BooleanVar(value=False)  # Check box variable - use X axis limits
-    ylim_var = tk.BooleanVar(value=False)  # Check box variable - use Y axis limits
-    y2lim_var = tk.BooleanVar(value=False)  # Check box variable - use secondary Y axis limits
-
     fig_title_var = tk.BooleanVar(value=False)  # Check box variable - use figure title
-   
-    restore_var = tk.BooleanVar(value=True)    # check box variable restore settings from last session
-
+    
+    # XS data
+    xs_var = tk.BooleanVar(value=False)  # Check box variable - show XS data
+    
+    # Axes limits
+    y_min_var = tk.StringVar(value='None')
+    y_max_var = tk.StringVar(value='None')
+    x_min_var = tk.StringVar(value='None')
+    x_max_var = tk.StringVar(value='None')
+    y2_min_var = tk.StringVar(value='None')
+    y2_max_var = tk.StringVar(value='None')
+    # xlim_var = tk.BooleanVar(value=False)  # Check box variable - use X axis limits
+  
     # figure export variables
     x_fig_var = tk.DoubleVar(value=20)  # SpinBox variable
     y_fig_var = tk.DoubleVar(value=15)  # SpinBox variable
@@ -87,6 +90,7 @@ def plot_window(root, tally_to_plot):
 
     # endregion
 
+    # ------------------------------------------------------------------------------------------------------------------
     # NEW Window definition---------------------------------------------------------------------------------------------
     plot_win = tk.Toplevel(root)
     plot_win.grab_set()      # the main window is locked until the new window is closed
@@ -148,8 +152,6 @@ def plot_window(root, tally_to_plot):
 
     # save values from widgets into dictionary
     def plot_variables(save=False):
-        # if restore_var.get() == True:
-        #    old_settings()
 
         config_mod.plot_settings["ratio"] = ratio_sel.get()
         config_mod.plot_settings["data_var"] = data_var.get()
@@ -157,6 +159,7 @@ def plot_window(root, tally_to_plot):
         config_mod.plot_settings["leg_size"] = leg_var.get()
         config_mod.plot_settings["x_scale"] = x_axis_var.get()
         config_mod.plot_settings["y_scale"] = y_axis_var.get()
+        config_mod.plot_settings["y2_scale"] = y2_axis_var.get()
         config_mod.plot_settings["grid_switch"] = grid_on_var.get()
         config_mod.plot_settings["grid_opt"] = grid_var.get()
         config_mod.plot_settings["grid_ax"] = grid_axis_var.get()
@@ -167,9 +170,14 @@ def plot_window(root, tally_to_plot):
         config_mod.plot_settings["error_bar"] = error_var.get()
         config_mod.plot_settings["first_bin"] = bin_var.get()
         config_mod.plot_settings["latex"] = latex_var.get()
-        config_mod.plot_settings["x_lim"] = xlim_var.get()
-        config_mod.plot_settings["y_lim"] = ylim_var.get()
-        config_mod.plot_settings["y2_lim"] = y2lim_var.get()
+        # limits
+        config_mod.plot_settings["x_min"] = x_min_var.get()
+        config_mod.plot_settings["x_max"] = x_max_var.get()
+        config_mod.plot_settings["y_min"] = y_min_var.get()
+        config_mod.plot_settings["y_max"] = y_max_var.get()
+        config_mod.plot_settings["y2_min"] = y2_min_var.get()
+        config_mod.plot_settings["y2_max"] = y2_max_var.get()
+        # config_mod.plot_settings["x_lim"] = xlim_var.get()
         config_mod.plot_settings["fig_title_switch"] = fig_title_var.get()
         # save figure
         config_mod.plot_settings['fig_x_dimension'] = x_fig_var.get()
@@ -179,6 +187,7 @@ def plot_window(root, tally_to_plot):
 
         # save values to the config file
         settings_mod.save_config()
+        settings_mod.read_config("config_export")
 
     # insert FIRST plot CANVAS
     plot_variables()
@@ -213,32 +222,36 @@ def plot_window(root, tally_to_plot):
     y_log_radio.grid(column=2, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
 
+    y2_scale_label = tk.Label(scale_frame, text='Y2 axis:')
+    y2_scale_label.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
+    y2_lin_radio = tk.Radiobutton(scale_frame, text='linear', variable=y2_axis_var, value='linear', tristatevalue="y2", state='disabled')
+    y2_lin_radio.grid(column=1, row=row_f, sticky='nw', padx=2, pady=2)
+    y2_log_radio = tk.Radiobutton(scale_frame, text='log', variable=y2_axis_var, value='log', tristatevalue="y2", state='disabled')
+    y2_log_radio.grid(column=2, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1
+
     # DATA input ------------------------------------------------------------------------------------------------
     data_inp_frame = tk.LabelFrame(plot_option_frame, text='Data input')
     data_inp_frame.grid(column=0, row=row_c, sticky='nswe', padx=2, pady=2)
-    data_inp_frame.columnconfigure(0, weight=0)
-    data_inp_frame.columnconfigure(1, weight=0)
-    data_inp_frame.columnconfigure(2, weight=1)
+    data_inp_frame.columnconfigure(0, weight=1)
     row_c += 1
     row_f = 0
 
-    data_inp_radio = tk.Radiobutton(data_inp_frame, text='en. normalization', variable=data_var, value='norm', tristatevalue="z")
-    data_inp_radio.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
-    data_inp_radio = tk.Radiobutton(data_inp_frame, text='non', variable=data_var, value='non', tristatevalue="z")
-    data_inp_radio.grid(column=1, row=row_f, sticky='nw', padx=2, pady=2)
+    chk_norm = tk.Checkbutton(data_inp_frame, text='on/off en. normalization', var=data_var)
+    chk_norm.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
 
     chk_error = tk.Checkbutton(data_inp_frame, text='show/hide error bars', var=error_var)
-    chk_error.grid(column=0, columnspan=2, row=row_f, sticky='nw', padx=2, pady=2)
+    chk_error.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
 
     chk_bin = tk.Checkbutton(data_inp_frame, text='show/hide first bin', var=bin_var)
-    chk_bin.grid(column=0, columnspan=2, row=row_f, sticky='nw', padx=2, pady=2)
+    chk_bin.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
 
     # plot_window(root, treeview_files, treeview_files.get_checked()
     ratio_menu = tk.OptionMenu(data_inp_frame, ratio_sel, *ratio_options)
-    ratio_menu.grid(column=0, columnspan=3, row=row_f, sticky='nwe', padx=2, pady=2)
+    ratio_menu.grid(column=0, row=row_f, sticky='nwe', padx=2, pady=2)
     row_f += 1
 
     # LEGEND settings --------------------------------------------------------------------------------------------------
@@ -264,15 +277,17 @@ def plot_window(root, tally_to_plot):
     row_f += 1  
 
     # FONT size frame --------------------------------------------------------------------------------------------------
-    font_size_frame = tk.LabelFrame(plot_option_frame, text='Font size')
+    font_size_frame = tk.LabelFrame(plot_option_frame, text='Axis font size')
     font_size_frame.grid(column=0, row=row_c, sticky='nswe', padx=2, pady=2)
     row_c += 1
     row_f = 0
 
-    axis_title = tk.Label(font_size_frame, text='Axis/Tics')
-    axis_title.grid(column=0, columnspan=2, row=row_f, sticky='nw', padx=2, pady=2)
+    axis_title = tk.Label(font_size_frame, text='Label')
+    axis_title.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
     axis_spinbox = tk.ttk.Spinbox(font_size_frame, from_=5, to=20, textvariable=axis_var, wrap=True, width=4)
-    axis_spinbox.grid(column=2, row=row_f, sticky='nw', padx=2, pady=2)
+    axis_spinbox.grid(column=1, row=row_f, sticky='nw', padx=2, pady=2)
+    axis_title = tk.Label(font_size_frame, text='Tics')
+    axis_title.grid(column=2, row=row_f, sticky='nw', padx=2, pady=2)
     ticks_spinbox = tk.ttk.Spinbox(font_size_frame, from_=5, to=20, textvariable=ticks_var, wrap=True, width=4)
     ticks_spinbox.grid(column=3, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
@@ -285,7 +300,7 @@ def plot_window(root, tally_to_plot):
     row_c += 1
     row_f = 0
 
-    grid_chk = tk.Checkbutton(grid_frame, text='Grid ON', var=grid_on_var, command=lambda: change_state())
+    grid_chk = tk.Checkbutton(grid_frame, text='show/hide grid', var=grid_on_var, command=lambda: change_state())
     grid_chk.grid(column=0, columnspan=2, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
 
@@ -324,14 +339,6 @@ def plot_window(root, tally_to_plot):
     chk_latex.grid(column=2, columnspan=2, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
 
-    """
-    # RESTORE settings -------------------------------------------------------------------------------------------------
-    restore_frame = tk.LabelFrame(plot_option_frame, text='Restore settings')
-    restore_frame.grid(column=0, row=7, sticky='nswe', padx=2, pady=2)
-
-    restore_chk = tk.Checkbutton(restore_frame, text='Restore last session', var=restore_var, command=lambda: old_settings())
-    restore_chk.grid(column=0, row=0, sticky='nswe', padx=2, pady=2)
-    """
     # NEW COLUMN -------------------------------------------------------------------------------------------------------
     # ------------------------------------------------------------------------------------------------------------------
     
@@ -360,31 +367,8 @@ def plot_window(root, tally_to_plot):
     h_sep1.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
     row_f += 1
 
-    chk_xs = tk.Checkbutton(xs_frame, text='show/hide XS Y axis', var=xs_var, state="disabled")
+    chk_xs = tk.Checkbutton(xs_frame, text='show/hide XS Y axis', var=xs_var, state="disabled", command=lambda: change_state3())
     chk_xs.grid(column=0, columnspan=4, row=row_f, sticky='nsw', padx=2, pady=2)
-    row_f += 1
-
-    h_sep2 = tk.ttk.Separator(xs_frame, orient='horizontal')
-    h_sep2.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
-    row_f += 1
-
-    # cross section data min/max Y axis, two Entry widgets on one line together with labels min and max
-    xs_minmax_label = tk.Label(xs_frame, text='Secondary Y axis (XS data) limits:')
-    xs_minmax_label.grid(column=0, columnspan=4, row=row_f, sticky='nw', padx=2, pady=2)
-    row_f += 1
-
-    xs_min_label = tk.Label(xs_frame, text='Y min')
-    xs_min_label.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
-    xs_min_entry = tk.Entry(xs_frame, width=6)
-    xs_min_entry.grid(column=1, row=row_f, sticky='nw', padx=2, pady=2)
-    xs_max_label = tk.Label(xs_frame, text='Y max')
-    xs_max_label.grid(column=2, row=row_f, sticky='nw', padx=2, pady=2)
-    xs_max_entry = tk.Entry(xs_frame, width=6)
-    xs_max_entry.grid(column=3, row=row_f, sticky='nw', padx=2, pady=2)
-    row_f += 1
-
-    chk_y2lim = tk.Checkbutton(xs_frame, text='On/Off XS Y axis limits', var=y2lim_var)
-    chk_y2lim.grid(column=0, columnspan=4, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
 
     # config (editor) --------------------------------------------------------------------------------------------
@@ -398,7 +382,7 @@ def plot_window(root, tally_to_plot):
     button_settings.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
     row_f += 1
 
-    button_reload = tk.ttk.Button(config_frame, text='Reload settings', command=lambda: settings_mod.read_config("config_export"))
+    button_reload = tk.ttk.Button(config_frame, text='Reload config', command=lambda: settings_mod.read_config("config_export"))
     button_reload.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
     row_f += 1
 
@@ -410,51 +394,68 @@ def plot_window(root, tally_to_plot):
     chk_title.grid(column=0, columnspan=4, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
 
-    h_sep_5 = tk.ttk.Separator(config_frame, orient='horizontal')
+    # LIMITS frame --------------------------------------------------------------------------------------------
+    limits_frame = tk.LabelFrame(plot_option_frame2, text='Axes limits')
+    limits_frame.grid(column=0, row=row_c, sticky='nswe', padx=2, pady=2)
+    limits_frame.columnconfigure(0, weight=1)
+    row_c += 1
+    row_f = 0   
+
+    limits1_label = tk.Label(limits_frame, text='Limits usage:')
+    limits1_label.grid(column=0, columnspan=4, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1
+
+    limits2_label = tk.Label(limits_frame, text='None = auto')
+    limits2_label.grid(column=0, columnspan=4, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1
+    
+    limits3_label = tk.Label(limits_frame, text='apply: active cursor + hit Enter')
+    limits3_label.grid(column=0, columnspan=4, row=row_f, sticky='nw', padx=2, pady=2)
+    row_f += 1
+
+    h_sep_5 = tk.ttk.Separator(limits_frame, orient='horizontal')
     h_sep_5.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
     row_f += 1
 
-    #------
-    x_minmax_label = tk.Label(config_frame, text='X axis limits:')
-    x_minmax_label.grid(column=0, columnspan=4, row=row_f, sticky='nw', padx=2, pady=2)
-    row_f += 1
-
-    x_min_label = tk.Label(config_frame, text='X min')
+    x_min_label = tk.Label(limits_frame, text='X min')
     x_min_label.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
-    x_min_entry = tk.Entry(config_frame, width=6)
+    x_min_entry = tk.Entry(limits_frame, width=6, textvariable=x_min_var)
     x_min_entry.grid(column=1, row=row_f, sticky='nw', padx=2, pady=2)
-    x_max_label = tk.Label(config_frame, text='X max')
+    x_min_entry.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
+    x_max_label = tk.Label(limits_frame, text='X max')
     x_max_label.grid(column=2, row=row_f, sticky='nw', padx=2, pady=2)
-    x_max_entry = tk.Entry(config_frame, width=6)
+    x_max_entry = tk.Entry(limits_frame, width=6, textvariable=x_max_var)
     x_max_entry.grid(column=3, row=row_f, sticky='nw', padx=2, pady=2)
+    x_max_entry.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
     row_f += 1
 
-    chk_xlim = tk.Checkbutton(config_frame, text='On/Off X axis limits', var=xlim_var)
-    chk_xlim.grid(column=0, columnspan=4, row=row_f, sticky='nw', padx=2, pady=2)
-    row_f += 1
+    # chk_xlim = tk.Checkbutton(limits_frame, text='On/Off X axis limits', var=xlim_var)
+    # chk_xlim.grid(column=0, columnspan=4, row=row_f, sticky='nw', padx=2, pady=2)
+    # row_f += 1
 
-    h_sep_6 = tk.ttk.Separator(config_frame, orient='horizontal')
-    h_sep_6.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
-    row_f += 1
-
-    #-------
-    y_minmax_label = tk.Label(config_frame, text='Y axis limits:')
-    y_minmax_label.grid(column=0, columnspan=4, row=row_f, sticky='nw', padx=2, pady=2)
-    row_f += 1
-
-    y_min_label = tk.Label(config_frame, text='Y min')
+    y_min_label = tk.Label(limits_frame, text='Y min')
     y_min_label.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
-    y_min_entry = tk.Entry(config_frame, width=6)
+    y_min_entry = tk.Entry(limits_frame, width=6, textvariable=y_min_var)
     y_min_entry.grid(column=1, row=row_f, sticky='nw', padx=2, pady=2)
-    y_max_label = tk.Label(config_frame, text='Y max')
+    y_min_entry.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
+    y_max_label = tk.Label(limits_frame, text='Y max')
     y_max_label.grid(column=2, row=row_f, sticky='nw', padx=2, pady=2)
-    y_max_entry = tk.Entry(config_frame, width=6)
+    y_max_entry = tk.Entry(limits_frame, width=6, textvariable=y_max_var)
+    y_max_entry.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
     y_max_entry.grid(column=3, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
 
-    chk_ylim = tk.Checkbutton(config_frame, text='On/Off Y axis limits', var=ylim_var)
-    chk_ylim.grid(column=0, columnspan=4, row=row_f, sticky='nw', padx=2, pady=2)
-    row_f += 1   
+    xs_min_label = tk.Label(limits_frame, text='Y2 min')
+    xs_min_label.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
+    xs_min_entry = tk.Entry(limits_frame, width=6, textvariable=y2_min_var, state='disabled')
+    xs_min_entry.grid(column=1, row=row_f, sticky='nw', padx=2, pady=2)
+    xs_min_entry.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
+    xs_max_label = tk.Label(limits_frame, text='Y2 max')
+    xs_max_label.grid(column=2, row=row_f, sticky='nw', padx=2, pady=2)
+    xs_max_entry = tk.Entry(limits_frame, width=6, textvariable=y2_max_var, state='disabled')
+    xs_max_entry.grid(column=3, row=row_f, sticky='nw', padx=2, pady=2)
+    xs_max_entry.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
+    row_f += 1
 
     # ------------------------------------------------------------------------------------------------------------------
     # replot frame -----------------------------------------------------------------------------------------------------
@@ -463,7 +464,7 @@ def plot_window(root, tally_to_plot):
     replot_frame.columnconfigure(0, weight=1)
     replot_frame.columnconfigure(1, weight=1)
 
-    chk_replot = tk.Checkbutton(replot_frame, text='disable immediate changes', var=replot_var, command=lambda: turn_off_replot())
+    chk_replot = tk.Checkbutton(replot_frame, text='disable instant changes', var=replot_var, command=lambda: turn_off_replot())
     chk_replot.grid(column=0, row=0, sticky='swe', padx=2, pady=2)
 
     button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)), state='disabled')
@@ -486,6 +487,7 @@ def plot_window(root, tally_to_plot):
     ratio_sel.trace_add('write', my_callback)
     x_axis_var.trace_add('write', my_callback)
     y_axis_var.trace_add('write', my_callback)
+    y2_axis_var.trace_add('write', my_callback)
     data_var.trace_add('write', my_callback)
     axis_var.trace_add('write', my_callback)
     leg_var.trace_add('write', my_callback)
@@ -494,12 +496,9 @@ def plot_window(root, tally_to_plot):
     grid_axis_var.trace_add('write', my_callback)
     ticks_var.trace_add('write', my_callback)
     xs_var.trace_add('write', my_callback)
-    # save_var.trace_add('write', my_callback)
     error_var.trace_add('write', my_callback)
     bin_var.trace_add('write', my_callback)
-    xlim_var.trace_add('write', my_callback)
-    ylim_var.trace_add('write', my_callback)
-    y2lim_var.trace_add('write', my_callback)
+    # xlim_var.trace_add('write', my_callback)
     fig_title_var.trace_add('write', my_callback)
 
     # turn on-off online replot
@@ -511,6 +510,7 @@ def plot_window(root, tally_to_plot):
             ratio_sel.trace_remove('write', ratio_sel.trace_info()[0][1])
             x_axis_var.trace_remove('write', x_axis_var.trace_info()[0][1])
             y_axis_var.trace_remove('write', y_axis_var.trace_info()[0][1])
+            y2_axis_var.trace_remove('write', y_axis_var.trace_info()[0][1])
             data_var.trace_remove('write', data_var.trace_info()[0][1])
             axis_var.trace_remove('write', axis_var.trace_info()[0][1])
             leg_var.trace_remove('write', leg_var.trace_info()[0][1])
@@ -519,12 +519,9 @@ def plot_window(root, tally_to_plot):
             grid_axis_var.trace_remove('write', grid_axis_var.trace_info()[0][1])
             ticks_var.trace_remove('write', ticks_var.trace_info()[0][1])
             xs_var.trace_remove('write', xs_var.trace_info()[0][1])
-            # save_var.trace_remove('write', save_var.trace_info()[0][1])
             error_var.trace_remove('write', error_var.trace_info()[0][1])
             bin_var.trace_remove('write', bin_var.trace_info()[0][1])
-            xlim_var.trace_remove('write', xlim_var.trace_info()[0][1])
-            ylim_var.trace_remove('write', ylim_var.trace_info()[0][1])
-            y2lim_var.trace_remove('write', y2lim_var.trace_info()[0][1])
+            # xlim_var.trace_remove('write', xlim_var.trace_info()[0][1])
             fig_title_var.trace_remove('write', fig_title_var.trace_info()[0][1])
         else:
             button_replot['state'] = 'disabled'
@@ -533,6 +530,7 @@ def plot_window(root, tally_to_plot):
             ratio_sel.trace_add('write', my_callback)
             x_axis_var.trace_add('write', my_callback)
             y_axis_var.trace_add('write', my_callback)
+            y2_axis_var.trace_add('write', my_callback)
             data_var.trace_add('write', my_callback)
             axis_var.trace_add('write', my_callback)
             leg_var.trace_add('write', my_callback)
@@ -541,14 +539,13 @@ def plot_window(root, tally_to_plot):
             grid_axis_var.trace_add('write', my_callback)
             ticks_var.trace_add('write', my_callback)
             xs_var.trace_add('write', my_callback)
-            # save_var.trace_add('write', my_callback)
             error_var.trace_add('write', my_callback)
             bin_var.trace_add('write, my_callback')
-            xlim_var.trace_add('write', my_callback)
-            ylim_var.trace_add('write', my_callback)
-            y2lim_var.trace_add('write', my_callback)
+            # xlim_var.trace_add('write', my_callback)
             fig_title_var.trace_add('write', my_callback)
 
+
+    # enable/disable grid settings
     def change_state():
         if grid_on_var.get():
             grid_menu['state'] = 'normal'
@@ -558,39 +555,23 @@ def plot_window(root, tally_to_plot):
             grid_axis_menu['state'] = 'disabled'
 
 
+    # enable/disable XS checkbox if XS data are available
     def change_state2():
         if len(config_mod.xs_data.keys()) > 0:
             chk_xs['state'] = 'normal'
         else:
             chk_xs['state'] = 'disabled'
-
-
-
-    """
-    def old_settings():
-        x_axis_var.set(config_mod.plot_settings["x_scale"])
-        y_axis_var.set(config_mod.plot_settings["y_scale"])
-
-        data_var.set(config_mod.plot_settings["data_var"])
-        error_var.set(config_mod.plot_settings["error_bar"])
-
-        legend_pos.set(config_mod.plot_settings["leg_pos"])
-        leg_var.set(config_mod.plot_settings["leg_size"])
-
-        axis_var.set(config_mod.plot_settings["ax_label_size"])
-        ticks_var.get(config_mod.plot_settings["tics_size"])
-
-        grid_on_var.set(config_mod.plot_settings["grid_switch"])
-        grid_var.set(config_mod.plot_settings["grid_opt"])
-        grid_axis_var.set(config_mod.plot_settings["grid_ax"])
-
-        # TODO solve situation if those data were not read, XS similar problem
-        # ratio_sel.set(config_mod.plot_settings["ratio"])
-        # xs_var.set(config_mod.plot_settings["xs_switch"])
-        # save_var.set(config_mod.plot_settings["save_fig"])
-        # latex_var.set(config_mod.plot_settings["latex"])
-
-        xlim_var.set(config_mod.plot_settings["x_lim"])
-        ylim_var.set(config_mod.plot_settings["y_lim"])
-        y2lim_var.set(config_mod.plot_settings["y2_lim"])
-    """
+    
+    # enable/disable widgets connected to XS data based on
+    def change_state3():
+        if xs_var.get():
+            # active y2 scale, y2 limits
+            y2_lin_radio['state'] = 'normal'
+            y2_log_radio['state'] = 'normal'
+            xs_min_entry['state'] = 'normal'
+            xs_max_entry['state'] = 'normal'
+        else:
+            y2_lin_radio['state'] = 'disabled'
+            y2_log_radio['state'] = 'disabled'
+            xs_min_entry['state'] = 'disabled'
+            xs_max_entry['state'] = 'disabled'

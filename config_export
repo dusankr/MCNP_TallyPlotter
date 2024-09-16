@@ -9,9 +9,9 @@
 # initial mcnp output directory
 work_dir_path=C:\Users\367334.WIN\Desktop\all_canam_202408
 # initial export directory
-export_dir_path=C:\Users\dusan\Desktop\test_plotter\final_test.xlsx
+export_dir_path=C:\Users\367334.WIN\Desktop\all_canam_202408
 # initial XS dir
-xs_dir_path=C:\Users\dusan\Desktop\test_plotter
+xs_dir_path=C:\Users\367334.WIN\Desktop\all_canam_202408
 # figure resolution in DPI
 fig_x_dimension=20.0
 fig_y_dimension=15.0
@@ -21,7 +21,7 @@ x_title=Energie (MeV)
 y_title=Fluence neutronu (cm$^{-2}$MeV$^{-1}$)
 ax_label_size=12
 ratio=no ratio
-data_var=norm
+data_var=True
 leg_pos=best
 leg_size=10
 grid_switch=True
@@ -34,17 +34,15 @@ xs_switch=False
 y2_title=Cross Section (barns)
 error_bar=True
 latex=False
-x_lim=False
-x_min=1.0
-x_max=5.0
-y_lim=False
+x_min=None
+x_max=None
 y_min=None
-y_max=3.0
-y2_lim=False
+y_max=None
 y2_min=None
-y2_max=10000000000.0
+y2_max=None
 fig_title_switch=False
 fig_title=CANAM I test - 02
 fig_title_size=14.0
 save_fig=False
 first_bin=True
+y2_scale=log

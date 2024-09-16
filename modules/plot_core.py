@@ -23,32 +23,32 @@ def plot_to_canvas(tally):
     if config_mod.plot_settings["ratio"] != "no ratio":
         key = config_mod.plot_settings["ratio"]   # not necessary do like this...
 
-        if config_mod.plot_settings["data_var"] == 'norm' and config_mod.plot_settings["first_bin"] is True:
+        if config_mod.plot_settings["data_var"] is True and config_mod.plot_settings["first_bin"] is True:
             x_ratio, y_ratio, y_err_ratio = config_mod.tallies[key][3], config_mod.tallies[key][7][:], config_mod.tallies[key][5][:]  # normalized data
             y_label = 'Tally / MeV / particle'
-        elif config_mod.plot_settings["data_var"] == 'norm' and config_mod.plot_settings["first_bin"] is False:
+        elif config_mod.plot_settings["data_var"] is True and config_mod.plot_settings["first_bin"] is False:
             x_ratio, y_ratio, y_err_ratio = config_mod.tallies[key][3][1:], config_mod.tallies[key][7][1:], config_mod.tallies[key][5][1:]  # normalized data, without first bin
             y_label = 'Tally / MeV / particle'
-        elif config_mod.plot_settings["data_var"] == 'non' and config_mod.plot_settings["first_bin"] is True:
+        elif config_mod.plot_settings["data_var"] is False and config_mod.plot_settings["first_bin"] is True:
             x_ratio, y_ratio, y_err_ratio = config_mod.tallies[key][3], config_mod.tallies[key][4][:], config_mod.tallies[key][5][:]  # original data
             y_label = 'Tally / particle'
-        elif config_mod.plot_settings["data_var"] == 'non' and config_mod.plot_settings["first_bin"] is False:
+        elif config_mod.plot_settings["data_var"] is False and config_mod.plot_settings["first_bin"] is False:
             x_ratio, y_ratio, y_err_ratio = config_mod.tallies[key][3][1:], config_mod.tallies[key][4][1:], config_mod.tallies[key][5][1:] # original data, without first bin
 
         tally_to_plot.remove(key)   # remove tally name from the list for ratio plot
 
     # plot all chosen values
     for name in tally_to_plot:
-        if config_mod.plot_settings["data_var"] == 'norm' and config_mod.plot_settings["first_bin"] is True:
+        if config_mod.plot_settings["data_var"] is True and config_mod.plot_settings["first_bin"] is True:
             x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][7][:], config_mod.tallies[name][5][:]  # normalized data
             y_label = 'Tally / MeV / particle'
-        elif config_mod.plot_settings["data_var"] == 'norm' and config_mod.plot_settings["first_bin"] is False:
+        elif config_mod.plot_settings["data_var"] is True and config_mod.plot_settings["first_bin"] is False:
             x_data, y_data, y_data_err = config_mod.tallies[name][3][1:], config_mod.tallies[name][7][1:], config_mod.tallies[name][5][1:]  # normalized data, without first bin
             y_label = 'Tally / MeV / particle'
-        elif config_mod.plot_settings["data_var"] == 'non' and config_mod.plot_settings["first_bin"] is True:
+        elif config_mod.plot_settings["data_var"] is False and config_mod.plot_settings["first_bin"] is True:
             x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4][:], config_mod.tallies[name][5][:]  # original data
             y_label = 'Tally / particle'
-        elif config_mod.plot_settings["data_var"] == 'non' and config_mod.plot_settings["first_bin"] is False:
+        elif config_mod.plot_settings["data_var"] is False and config_mod.plot_settings["first_bin"] is False:
             x_data, y_data, y_data_err = config_mod.tallies[name][3][1:], config_mod.tallies[name][4][1:], config_mod.tallies[name][5][1:] # original data, without first bin
 
         # take the correct name for legend
@@ -103,15 +103,24 @@ def plot_to_canvas(tally):
         config_mod.ax2.legend(loc=config_mod.plot_settings["leg_pos"], fontsize=config_mod.plot_settings["leg_size"])
 
     # axis limits ------------------------------------------------------------------------------------------------------
-    if config_mod.plot_settings["x_lim"] is not None and config_mod.plot_settings["x_lim"] is True:
+    # if config_mod.plot_settings["x_lim"] is not None and config_mod.plot_settings["x_lim"] is True:
+    #     config_mod.ax.set_xlim(config_mod.plot_settings["x_min"], config_mod.plot_settings["x_max"])
+    
+    try:
         config_mod.ax.set_xlim(config_mod.plot_settings["x_min"], config_mod.plot_settings["x_max"])
+    except Exception as e:
+        tk.messagebox.showerror('Error', 'Something went wrong during setting X limits (usually user\'s value is not a number!). Error: ' + str(e))
 
-    if config_mod.plot_settings["y_lim"] is not None and config_mod.plot_settings["y_lim"] is True:
+    try:
         config_mod.ax.set_ylim(config_mod.plot_settings["y_min"], config_mod.plot_settings["y_max"])
+    except Exception as e:
+        tk.messagebox.showerror('Error', 'Something went wrong during setting Y limits (usually user\'s value is not a number!). Error: ' + str(e))
 
-
-    if config_mod.plot_settings["y2_lim"] is not None and config_mod.plot_settings["y2_lim"] is True and config_mod.plot_settings["xs_switch"] is True:
-        config_mod.ax2.set_ylim(config_mod.plot_settings["y2_min"], config_mod.plot_settings["y2_max"])
+    if config_mod.plot_settings["xs_switch"] is True:
+        try:
+            config_mod.ax2.set_ylim(config_mod.plot_settings["y2_min"], config_mod.plot_settings["y2_max"])
+        except Exception as e:
+            tk.messagebox.showerror('Error', 'Something went wrong during setting XS Y limits (usually user\'s value is not a number!). Error: ' + str(e))
 
     # plot settings ----------------------------------------------------------------------------------------------------
     if config_mod.plot_settings["xs_switch"]:
