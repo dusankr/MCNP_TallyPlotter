@@ -20,8 +20,10 @@ Users can run uncompiled code with necessary packages:
 - ttkwidgets
 - openpyxl (release v0.8 and older)
 - pandas (release v0.8.1 and newer)
-- matplotlib
+- matplotlib <3.8 (removed API for getting color cycle out of an Axes)
 - the rest of packages should be part of primary Python installation
+- pywin32 - with `virtualenv` on Windows might be necessary to install it too
+
 
 The easiest option is to use some virtual environment e.g. Conda environment. To recreate the Conda environment, for this project, run the following command:
 

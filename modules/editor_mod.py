@@ -13,6 +13,8 @@ from modules import plot_core
 
 # open library or any ascii file in text editor
 def open_lib(file_path, plot_win, tally):
+    file_path = pathlib.Path(file_path)
+    
     editor_win = tk.Toplevel()
     editor_win.grab_set()
     editor_win.minsize(500, 300)
@@ -58,7 +60,10 @@ def open_lib(file_path, plot_win, tally):
         elif pathlib.Path(file_path).name == "config_legend":
             settings_mod.readsave_legend("config_legend")
 
-        plot_core.plot_to_canvas(tally)
+        try:
+            plot_core.plot_to_canvas(tally)
+        except Exception as e:
+            tk.messagebox.showerror(title='Error', message=f'Error in settings value: {e}' + '\n' + 'Please close editor and update plot manualy.')
 
         # close an editor window and grab the plot window
         quit_m()

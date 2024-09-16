@@ -12,7 +12,7 @@ import ttkwidgets
 # GUI exit from program
 def ask_quit():
     if tk.messagebox.askokcancel('Quit', 'Do you want to quit now?'):
-        settings_mod.save_config()
+        # settings_mod.save_config()
         root.quit()     # stops mainloop
         root.destroy()  # this is necessary on Windows to prevent Fatal Python Error: PyEval_RestoreThread: NULL tstate
 
@@ -30,16 +30,7 @@ def selected_tally():
     
     return selection
 
-"""
-# check/uncheck all items in teh treeview
-def select_all():
-    for item in treeview_files.get_children():
-        if check_var.get():
-            treeview_files.change_state(item, state="checked")
-        else:
-            treeview_files.change_state(item, state="unchecked")
 
-"""
 def select_all_click():
     global check_on_click
     if check_on_click:
@@ -75,7 +66,7 @@ check_var = tk.BooleanVar(value=False)  # unchecked unchecked
 check_on_click = True
 
 # Main window parameters
-root.title('MCNP tally plotting')
+root.title('MCNP 2D tally plotter')
 # root.minsize(500, 300)
 # root.maxsize(1000, 600)
 # root.geometry('800x350')
@@ -153,9 +144,6 @@ button_plot.grid(column=2, row=0, sticky='ws')
 
 button_export = tk.ttk.Button(button_frame, text='Export tally to xlsx', command=lambda: export_mod.save_to_xlsx(selected_tally()), width=20)
 button_export.grid(column=3, row=0, sticky='ws')
-
-# chk_all = tk.Checkbutton(button_frame, text='check all', var=check_var, command=lambda: select_all())
-# chk_all.grid(column=4, row=0, sticky='ws', padx=5, pady=5)
 
 # -----------------------------------
 workdir_label = tk.Label(down_frame, text='Work directory: ')
