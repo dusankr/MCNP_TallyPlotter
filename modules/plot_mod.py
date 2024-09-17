@@ -86,7 +86,7 @@ def plot_window(root, tally_to_plot):
     # figure export variables
     x_fig_var = tk.DoubleVar(value=20)  # SpinBox variable
     y_fig_var = tk.DoubleVar(value=15)  # SpinBox variable
-    dpi_var = tk.DoubleVar(value=100)  # SpinBox variable
+    dpi_var = tk.DoubleVar(value=150)  # SpinBox variable
     latex_var = tk.BooleanVar(value=False)   # check box LaTeX
 
     # endregion

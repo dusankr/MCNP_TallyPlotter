@@ -17,6 +17,7 @@ def plot_to_canvas(tally):
 
     if config_mod.ax2 != None:
         config_mod.ax2.remove()
+        #config_mod.ax2.clear()
         config_mod.ax2 = None
 
     # read reference data for ratio plot
@@ -171,6 +172,9 @@ def plot_to_canvas(tally):
 
     # SAVE figure into folder with specific dimensions, DPI and format
     if config_mod.plot_settings["save_fig"] is True:
+        # store original figure size and reuse it after saving the figure
+        x_dim, y_dim = config_mod.fig_id.get_size_inches()
+        
         # set the figure size in cm
         config_mod.fig_id.set_size_inches(config_mod.plot_settings["fig_x_dimension"] / 2.54, config_mod.plot_settings["fig_y_dimension"] / 2.54)
         
@@ -187,17 +191,19 @@ def plot_to_canvas(tally):
 
         # save the figure
         try:
-            config_mod.fig_id.savefig(picture_path, format=config_mod.plot_settings["fig_format"], dpi=int(config_mod.plot_settings["fig_dpi"]))
+            config_mod.fig_id.savefig(picture_path, format=config_mod.plot_settings["fig_format"], dpi=int(config_mod.plot_settings["fig_dpi"]), bbox_inches='tight')
             tk.messagebox.showinfo('File saved', 'Figure was saved to the work directory:\n' + str(picture_path))
 
         except PermissionError:
             tk.messagebox.showerror('Read error', 'File might be opened and unavailable for plotter, please close it and then you can continue.')
         except Exception as e:
-            tk.messagebox.showerror('Error', 'Something went wrong during saving the figure. Please check the settings and try again. Error: ' + str(e))
+            tk.messagebox.showerror('Error', 'Something went wrong during saving the figure. Please check the settings and try again. Error: ' + str(e))  
 
-    else:
-        config_mod.canvas_id.draw()
+        # set the original figure size
+        config_mod.fig_id.set_size_inches(x_dim, y_dim)
 
+    # draw the plot        
+    config_mod.canvas_id.draw()
 
 # calculate a middle of energy intervals
 def interval_mid(x):
