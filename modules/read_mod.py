@@ -244,8 +244,14 @@ def read_tally(f_path, fname):
                             i += 1
                             line = content[i].split()
                             last = i
+                        
                         # add first energy
-                        energy = [cutoff_en] + energy  # neutron cut off E=1E-9 MeV, default photon and e- cut off 0.001 MeV
+                        if energy[0] > cutoff_en:
+                            energy = [cutoff_en] + energy
+                        else:
+                            energy = [0] + energy
+                            print("Cutoff energy is higher than the first energy in the tally, using the first energy as cutoff energy.")
+                        
                         # create normalized variables for dictionary instead of rewrite original values
                         flux_n = flux_norm(energy, flux)
 
@@ -284,7 +290,13 @@ def read_tally(f_path, fname):
                                 next_tally += 1
                                 line = content[next_tally].split()
                                 last = next_tally
-                            energy = [cutoff_en] + energy
+                            
+                            if energy[0] > cutoff_en:
+                                energy = [cutoff_en] + energy
+                            else:
+                                energy = [0] + energy
+                                print("Cutoff energy is higher than the first energy in the tally, using the first energy as cutoff energy.")
+                            
                             flux_n = flux_norm(energy, flux)
 
                             control_next_tally_connection = content[last + 2].split()
