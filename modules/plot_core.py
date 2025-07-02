@@ -77,7 +77,9 @@ def plot_to_canvas(tally):
         x_data_center = interval_mid(x_data)
 
         # plots
-        p_color = next(config_mod.ax._get_lines.prop_cycler)['color']  # same color for step and errorbar plot
+        # p_color = next(config_mod.ax._get_lines.prop_cycler)['color']  # same color for step and errorbar plot
+        p_color = config_mod.ax._get_lines.get_next_color()
+
         linestep, = config_mod.ax.step(x_data, y_data, color=p_color, label=legend_name)
 
         if config_mod.plot_settings["error_bar"]:

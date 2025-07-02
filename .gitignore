@@ -9,5 +9,6 @@ config_legend
 /test_plotter/
 config_export
 /env
+/env-test
 /modules/__pycache__
 .vscode

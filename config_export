@@ -7,7 +7,7 @@
 # e.g. $text_{lower index}$ $text^{upper index}$
 #
 # initial mcnp output directory
-work_dir_path=C:\MCNP_local\canam\brno_old_hpge_based_on_dubna_Cdet
+work_dir_path=C:\MCNP_local\02_Test-for-Plotter
 # initial export directory
 export_dir_path=C:\Users\367334.WIN\Desktop\all_canam_202408
 # initial XS dir
@@ -28,8 +28,8 @@ grid_switch=True
 grid_opt=major
 grid_ax=both
 tics_size=10
-x_scale=linear
-y_scale=linear
+x_scale=log
+y_scale=log
 xs_switch=False
 y2_title=Cross Section (barns)
 error_bar=True
