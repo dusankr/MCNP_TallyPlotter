@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
 # TODO what happens if cut off is higher than E_min???
-# TODO use MCNP Tools
-# TODO create own class for tally results?
+# TODO create own class for tally results
 # TODO create log file!
 # https://www.geeksforgeeks.org/how-to-log-a-python-exception/
 # https://docs.python.org/3/library/traceback.html
@@ -150,12 +149,14 @@ def read_tallies(treeview_files):
     for i in x:  # delete all items
         treeview_files.delete(i)
 
-    for i in config_mod.tallies.keys():  # fill treeview with new values
+    for key in config_mod.tallies.keys():  # fill treeview with new values
+        fname = key.rsplit('_', 1)[0]  # get file name from tally name
+
         treeview_files.insert('', index='end',
-                              values=[i, config_mod.tallies[i][0], config_mod.tallies[i][1], config_mod.tallies[i][2],
-                                      len(config_mod.tallies[i][3]) - 1, config_mod.tallies[i][6],
-                                      config_mod.tallies[i][3][1], config_mod.tallies[i][3][-1],
-                                      config_mod.tallies[i][8]])
+                              values=[fname, config_mod.tallies[key][0], config_mod.tallies[key][1], config_mod.tallies[key][2],
+                                      len(config_mod.tallies[key][3]) - 1, config_mod.tallies[key][6],
+                                      config_mod.tallies[key][3][1], config_mod.tallies[key][3][-1],
+                                      config_mod.tallies[key][8]])
 
 
 # read data from all tallies in one output file and add them into global dictionary

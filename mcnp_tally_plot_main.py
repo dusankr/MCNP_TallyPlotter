@@ -23,7 +23,8 @@ def selected_tally():
         # send selected tallies to plot_mod function
         selection = []
         for row in treeview_files.get_checked():
-            selection.append(treeview_files.item(row)['values'][0])
+            key = treeview_files.item(row)['values'][0] + '_' + str(treeview_files.item(row)['values'][1])  # get file name and tally number
+            selection.append(key)
     else:
         tk.messagebox.showerror('Input error', 'Please choose tally for plotting.')
         return None

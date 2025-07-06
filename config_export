@@ -7,7 +7,7 @@
 # e.g. $text_{lower index}$ $text^{upper index}$
 #
 # initial mcnp output directory
-work_dir_path=C:\MCNP_local\02_Test-for-Plotter
+work_dir_path=C:\Users\dusan\coding_rep\MCNP_TallyPlotter\test_files
 # initial export directory
 export_dir_path=C:\Users\367334.WIN\Desktop\all_canam_202408
 # initial XS dir
@@ -17,8 +17,9 @@ fig_x_dimension=20.0
 fig_y_dimension=15.0
 fig_format=png
 fig_dpi=150.0
-x_title=Energie (MeV)
-y_title=Fluence neutronu (cm$^{-2}$MeV$^{-1}$)
+x_title=Energy (MeV)
+# y_title=Arbitrary unit (cm$^{-2}$MeV$^{-1}$)
+y_title=Arbitrary unit
 ax_label_size=12
 ratio=no ratio
 data_var=True
@@ -34,8 +35,8 @@ xs_switch=False
 y2_title=Cross Section (barns)
 error_bar=True
 latex=False
-x_min=None
-x_max=None
+x_min=1e-1
+x_max=2e1
 y_min=None
 y_max=None
 y2_min=None
