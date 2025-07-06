@@ -30,9 +30,10 @@ def save_to_xlsx(sel_tally):
     merged_df = pd.DataFrame()
     # create new sheets
     for tally in sel_tally:
+        fname = tally.rsplit('_', 1)[0]  # get file name from tally name
 
         df_info = pd.DataFrame({
-            'information': ['Filename', tally, 'Tally number', config_mod.tallies[tally][0], 'Tally type', config_mod.tallies[tally][1], 'Tally particle', config_mod.tallies[tally][2], 'Comment', config_mod.tallies[tally][8]]
+            'information': ['Filename', fname, 'Tally number', config_mod.tallies[tally][0], 'Tally type', config_mod.tallies[tally][1], 'Tally particle', config_mod.tallies[tally][2], 'Comment', config_mod.tallies[tally][8]]
         })
 
         df_data = pd.DataFrame({

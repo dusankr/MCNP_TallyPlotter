@@ -10,5 +10,6 @@ config_legend
 config_export
 /env
 /env-test
+/env-venv
 /modules/__pycache__
 .vscode
