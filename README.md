@@ -11,16 +11,15 @@ Two main options:
 2. Download source files + install python with required libraries
 
 ### Executable files
-This option offers the most simple use of the MCNP tally plotter. User needs to download and install basic Python 3.8 or newer (works with different versions but this one is tested). Current files are available in Releases at the main page.
+This option offers the most simple use of the MCNP tally plotter. User needs to download and install basic Python 3 (not tested with releases older than 3.8). Current files are available in Releases at the main page.
 
-### Source files
-
-Users can run uncompiled code with necessary packages:
-- Python >=3.8
+### Source files - requirements
+Users can run binary files with following libraries:
+- Python
 - ttkwidgets
-- openpyxl (release v0.8 and older) - pandas dependecy
-- pandas (release v0.8.1 and newer)
-- matplotlib <3.8 (for current releases) and >3.8 for latest python files
+- openpyxl - pandas dependecy
+- pandas
+- matplotlib (release 0.8.3 and older works only with matplotlib <3.8 )
 - pywin32 (Windows only)
 
 Virtual environment is prefered option how to install necessary libraries (Conda, virtualenv, etc.). Program has to be started by running following command:
