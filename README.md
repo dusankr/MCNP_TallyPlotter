@@ -180,3 +180,18 @@ python mcnp_tally_plot_main.py
 - a string following a tally name is used as a name in figure legend.
 
 <img src="doc/mcnp_plotter/endf_xs_name.PNG" width="50%" height="50%" title="XS data file example downloaded from ENDF page.">
+
+## Compilation:
+The compilation was performed using the **PyInstaller** package within a **venv** environment, along with the necessary libraries required by the plotter. Below are the exact settings used for compiling on both Linux and Windows.
+
+A **venv** environment was chosen instead of **conda** to reduce the size of the final executable. This is because conda often installs a large number of optional libraries that are not needed, resulting in a significantly larger output.
+
+### Windows:
+```
+pyinstaller mcnp_tally_plot_main.py --onefile --noconsole --hiddenimport=matplotlib.backends.backend_pdf --hiddenimport=matplotlib.backends.backend_svg --hiddenimport=matplotlib.backends.backend_ps
+```
+
+### Linux:
+```
+pyinstaller mcnp_tally_plot_main.py --onefile --hiddenimport=matplotlib.backends.backend_pdf --hiddenimport=matplotlib.backends.backend_svg --hiddenimport=matplotlib.backends.backend_ps --hidden-import=PIL._tkinter_finder
+```
