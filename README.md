@@ -188,10 +188,32 @@ A **venv** environment was chosen instead of **conda** to reduce the size of the
 
 ### Windows:
 ```
-pyinstaller mcnp_tally_plot_main.py --onefile --noconsole --hiddenimport=matplotlib.backends.backend_pdf --hiddenimport=matplotlib.backends.backend_svg --hiddenimport=matplotlib.backends.backend_ps
+pyinstaller mcnp_tally_plot_main.py \
+--onefile \
+--noconsole \
+--hiddenimport=matplotlib.backends.backend_pdf \
+--hiddenimport=matplotlib.backends.backend_svg \
+--hiddenimport=matplotlib.backends.backend_ps
 ```
 
 ### Linux:
 ```
-pyinstaller mcnp_tally_plot_main.py --onefile --hiddenimport=matplotlib.backends.backend_pdf --hiddenimport=matplotlib.backends.backend_svg --hiddenimport=matplotlib.backends.backend_ps --hidden-import=PIL._tkinter_finder
+pyinstaller mcnp_tally_plot_main.py \
+  --onefile \
+  --noconsole \
+  --hiddenimport=matplotlib.backends.backend_pdf \
+  --hiddenimport=matplotlib.backends.backend_svg \
+  --hiddenimport=matplotlib.backends.backend_ps \
+  --hidden-import=PIL._tkinter_finder
+```
+
+### Mac:
+```
+pyinstaller mcnp_tally_plot_main.py \
+  --onefile \
+  --noconsole \
+  --hidden-import=matplotlib.backends.backend_pdf \
+  --hidden-import=matplotlib.backends.backend_svg \
+  --hidden-import=matplotlib.backends.backend_ps \
+  --hidden-import=PIL._tkinter_finder
 ```
