@@ -43,7 +43,7 @@ python mcnp_tally_plot_main.py
 
 * this plotter was created for quick and efficient visualization of 2D tally data extracted from MCNP output files,
 * despite different codes, this one has a Graphical User Interface and allows doing some basic plot modifications,
-* tested with some simple tally results from MCNPX, 6.1, 6.2 and 6.3, does **NOT** support  **mctal** (planned), **mdata**, **meshtal** and **runtpe** files,
+* tested with some simple tally results from MCNPX,MCNP 5, 6.1, 6.2 and 6.3, does **NOT** support  **mctal** (planned), **mdata**, **meshtal** and **runtpe** files,
 * [MCNP Tools package](https://github.com/lanl/mcnptools) for more advanced tally loading will be included in the near future (**mctal** support),
 * you can find a full description in the sections below,
 * simple XS data might be shown together with tally data (all XS were obtained from IAEA ENDF [webpage](https://www-nds.iaea.org/exfor/endf.htm)) - this is a temporary solution, in the future, there will be a possibility to use show XS data from MCNP ACE files.
