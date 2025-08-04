@@ -475,8 +475,8 @@ def plot_window(root, tally_to_plot):
 
     # label with description and entry for multiplier value, default value is 1.0
     # this value is used to multiply the tally values before plotting
-    multiplier_entry = tk.Entry(multiplier_frame, width=6, textvariable=multiplier_var)
-    multiplier_entry.grid(column=1, row=row_f, sticky='nw', padx=2, pady=2)
+    multiplier_entry = tk.Entry(multiplier_frame, width=6, textvariable=multiplier_var, justify="right")
+    multiplier_entry.grid(column=0, row=row_f, sticky='nwse', padx=2, pady=2)
     multiplier_entry.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
     row_f += 1    
 
