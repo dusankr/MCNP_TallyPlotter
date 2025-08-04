@@ -56,7 +56,8 @@ plot_settings = dict.fromkeys([
     "first_bin",
     "y2_scale",
     "y_scale",
-    "x_scale"
+    "x_scale",
+    "tally_multiplier"
 ])
 
 # second option how to create dict:

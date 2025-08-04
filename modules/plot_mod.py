@@ -74,7 +74,6 @@ def plot_window(root, tally_to_plot):
     xs_var = tk.BooleanVar(value=False)  # Check box variable - show XS data
     
     # Axes limits
-
     y_min_var = tk.StringVar(value='None')
     y_max_var = tk.StringVar(value='None')
     x_min_var = tk.StringVar(value='None')
@@ -82,6 +81,9 @@ def plot_window(root, tally_to_plot):
     y2_min_var = tk.StringVar(value='None')
     y2_max_var = tk.StringVar(value='None')
     # xlim_var = tk.BooleanVar(value=False)  # Check box variable - use X axis limits
+
+    # Tally multiplier
+    multiplier_var = tk.StringVar(value='1.0')  # SpinBox variable
   
     # figure export variables
     x_fig_var = tk.DoubleVar(value=20)  # SpinBox variable
@@ -171,6 +173,7 @@ def plot_window(root, tally_to_plot):
         config_mod.plot_settings["error_bar"] = error_var.get()
         config_mod.plot_settings["first_bin"] = bin_var.get()
         config_mod.plot_settings["latex"] = latex_var.get()
+        
         # limits
         config_mod.plot_settings["x_min"] = x_min_var.get()
         config_mod.plot_settings["x_max"] = x_max_var.get()
@@ -178,13 +181,18 @@ def plot_window(root, tally_to_plot):
         config_mod.plot_settings["y_max"] = y_max_var.get()
         config_mod.plot_settings["y2_min"] = y2_min_var.get()
         config_mod.plot_settings["y2_max"] = y2_max_var.get()
+        
         # config_mod.plot_settings["x_lim"] = xlim_var.get()
         config_mod.plot_settings["fig_title_switch"] = fig_title_var.get()
+        
         # save figure
         config_mod.plot_settings['fig_x_dimension'] = x_fig_var.get()
         config_mod.plot_settings['fig_y_dimension'] = y_fig_var.get()
         config_mod.plot_settings['save_fig'] = save
         config_mod.plot_settings['fig_dpi'] = dpi_var.get()
+
+        # Tally multiplier
+        config_mod.plot_settings['tally_multiplier'] = multiplier_var.get()
 
         # save values to the config file
         settings_mod.save_config()
@@ -402,7 +410,7 @@ def plot_window(root, tally_to_plot):
     row_c += 1
     row_f = 0   
 
-    limits1_label = tk.Label(limits_frame, text='Limits usage:')
+    limits1_label = tk.Label(limits_frame, text='Usage:')
     limits1_label.grid(column=0, columnspan=4, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
 
@@ -457,6 +465,20 @@ def plot_window(root, tally_to_plot):
     xs_max_entry.grid(column=3, row=row_f, sticky='nw', padx=2, pady=2)
     xs_max_entry.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
     row_f += 1
+
+    # tally multiplier frame -----------------------------------------------------------------------------------
+    multiplier_frame = tk.LabelFrame(plot_option_frame2, text='Tally multiplier')
+    multiplier_frame.grid(column=0, row=row_c, sticky='nswe', padx=2, pady=2)
+    multiplier_frame.columnconfigure(0, weight=1)
+    row_c += 1
+    row_f = 0
+
+    # label with description and entry for multiplier value, default value is 1.0
+    # this value is used to multiply the tally values before plotting
+    multiplier_entry = tk.Entry(multiplier_frame, width=6, textvariable=multiplier_var)
+    multiplier_entry.grid(column=1, row=row_f, sticky='nw', padx=2, pady=2)
+    multiplier_entry.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
+    row_f += 1    
 
     # ------------------------------------------------------------------------------------------------------------------
     # replot frame -----------------------------------------------------------------------------------------------------
