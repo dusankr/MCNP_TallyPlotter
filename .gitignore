@@ -1,3 +1,5 @@
+/config_legend
+/config_export
 /dist/
 /mcnp_tally_plot_main.spec
 /build/
@@ -5,9 +7,7 @@
 /fp12/
 /new/
 /sven/
-config_legend
 /test_plotter/
-config_export
 /env
 /env-test
 /env-venv
