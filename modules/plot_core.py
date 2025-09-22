@@ -55,6 +55,20 @@ def plot_to_canvas(tally):
         # take the correct name for legend
         legend_name = config_mod.tallies[name][10]
 
+        # check if the multiplier is set and multiply the data, if not set to 1.0 and show a warning
+        try:
+            float(config_mod.plot_settings["tally_multiplier"])
+            multiplier = True
+        except ValueError:
+            tk.messagebox.showwarning('Warning', 'Tally multiplier is not a number, using default value 1.0')
+            config_mod.plot_settings["tally_multiplier"] = 1.0
+            multiplier = False
+
+        if multiplier is True and config_mod.plot_settings["tally_multiplier"] != 1.0:
+            # multiply the data by the multiplier value
+            y_data = [y * config_mod.plot_settings["tally_multiplier"] for y in y_data]
+            # legend_name += ' × ' + str(config_mod.plot_settings["tally_multiplier"])
+
         # return ratio values
         if config_mod.plot_settings["ratio"] != 'no ratio':
             y_label = 'Tally to Tally ratio (-)'
