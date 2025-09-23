@@ -218,15 +218,33 @@ def read_tally(f_path, fname):
                             else:
                                 walking = walking + 1
 
-                        # find correct cut off for every tally
-                        for particle in cutoff_dict.keys():
-                            if tally_ptc[-1] == "s":  # some tallies are not in plural, do not know why -> cure this difference with "s"
-                                if tally_ptc[:-1] == particle:
-                                    cutoff_en = cutoff_dict[particle]
-                            elif tally_ptc == particle:
-                                cutoff_en = cutoff_dict[particle]
+                        # Robustly extract the particle type (tally_ptc)
+                        tally_ptc = None
+                        for j in range(1, 8):  # look ahead a few lines for the "tally for" line
+                            if i + j < len(content):
+                                line_lower = content[i + j].strip().lower()
+                                if line_lower.startswith("tally for"):
+                                    # Example: 'tally for  photons'
+                                    parts = line_lower.split()
+                                    if len(parts) >= 3:
+                                        tally_ptc = parts[2]
+                                    elif len(parts) == 2:
+                                        tally_ptc = parts[1]
+                                    break
+                        
+                        # Normalize plural to singular for key matching
+                        if tally_ptc and tally_ptc.endswith('s'):
+                            tally_ptc = tally_ptc[:-1]
+                        if tally_ptc:
+                            tally_ptc = tally_ptc.lower()
+                        
+                        # Assign the cutoff energy from cutoff_dict
+                        cutoff_en = cutoff_dict.get(tally_ptc)
+                        if cutoff_en is None:
+                            print(f"Could not determine cutoff energy for particle '{tally_ptc}'. Please check output file format or update cutoff_dict.")
+                            raise ValueError(f"Unknown particle type '{tally_ptc}' for cutoff energy assignment.")
 
-                        '''
+
                         # for tally F8 are the first two lines skipped:
                         # first value is a non-analog knock-on e- negativ scores
                         # epsilon bin (more details in manual)
@@ -234,7 +252,7 @@ def read_tally(f_path, fname):
                             i = data_start + 2
                         else:
                             i = data_start
-                        '''
+
                         i = data_start
 
                         line = content[i].split()
@@ -275,13 +293,13 @@ def read_tally(f_path, fname):
                             error = [0]
                             surface_or_cell = control_next_tally_connection
 
-                            '''
+
                             # for tally F8 are the first two lines skipped:
                             # first value is a non-analog knock-on e- negative scores
                             # epsilon bin (more details in manual)
                             if tally_type == 8:
                                 next_tally += 2
-                            '''
+
                             
                             line = content[next_tally].split()
                             while line[0] != 'total':
