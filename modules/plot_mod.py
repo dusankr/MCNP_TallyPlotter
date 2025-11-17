@@ -45,8 +45,8 @@ def plot_window(root, tally_to_plot):
         ratio_options = ['no ratio']
 
     # radio button variable
-    x_axis_var = tk.StringVar(value='linear')
-    y_axis_var = tk.StringVar(value='linear')
+    x_axis_var = tk.StringVar(value='log')
+    y_axis_var = tk.StringVar(value='log')
     y2_axis_var = tk.StringVar(value='log')
     data_var = tk.BooleanVar(value=True)
 

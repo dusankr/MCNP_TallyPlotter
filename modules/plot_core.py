@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
 # TODO turn off user setings? (titles...)
+# TODO set automaticaly lin/log based on data scale
 
 # libraries
 from modules import config_mod
