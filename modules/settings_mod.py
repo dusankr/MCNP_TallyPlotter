@@ -158,10 +158,10 @@ def readsave_legend(fname):
                 if content[i][0] != '#':
                     line = content[i].split("=", 1)
                     if line[0] == key:
-                        config_mod.tallies[key][10] = line[1].rstrip()
+                        config_mod.tallies[key].legend_name = line[1].rstrip()
                         break
                 if i == len(content) - 1:
-                    config_mod.tallies[key][10] = key
+                    config_mod.tallies[key].legend_name = key
                     content_n.append(key + '=' + key + '\n')
 
         # add new lines to the end of this file:

@@ -23,38 +23,33 @@ def plot_to_canvas(tally):
 
     # read reference data for ratio plot
     if config_mod.plot_settings["ratio"] != "no ratio":
-        key = config_mod.plot_settings["ratio"]   # not necessary do like this...
-
-        if config_mod.plot_settings["data_var"] is True and config_mod.plot_settings["first_bin"] is True:
-            x_ratio, y_ratio, y_err_ratio = config_mod.tallies[key][3], config_mod.tallies[key][7][:], config_mod.tallies[key][5][:]  # normalized data
-            y_label = 'Tally / MeV / particle'
-        elif config_mod.plot_settings["data_var"] is True and config_mod.plot_settings["first_bin"] is False:
-            x_ratio, y_ratio, y_err_ratio = config_mod.tallies[key][3][1:], config_mod.tallies[key][7][1:], config_mod.tallies[key][5][1:]  # normalized data, without first bin
-            y_label = 'Tally / MeV / particle'
-        elif config_mod.plot_settings["data_var"] is False and config_mod.plot_settings["first_bin"] is True:
-            x_ratio, y_ratio, y_err_ratio = config_mod.tallies[key][3], config_mod.tallies[key][4][:], config_mod.tallies[key][5][:]  # original data
-            y_label = 'Tally / particle'
-        elif config_mod.plot_settings["data_var"] is False and config_mod.plot_settings["first_bin"] is False:
-            x_ratio, y_ratio, y_err_ratio = config_mod.tallies[key][3][1:], config_mod.tallies[key][4][1:], config_mod.tallies[key][5][1:] # original data, without first bin
+        key = config_mod.plot_settings["ratio"]
+        reference_tally = config_mod.tallies[key]
+        
+        x_ratio, y_ratio, y_err_ratio = reference_tally.get_data(
+            normalized=config_mod.plot_settings["data_var"],
+            include_first_bin=config_mod.plot_settings["first_bin"]
+        )
+        
+        y_label = 'Tally / MeV / particle' if config_mod.plot_settings["data_var"] else 'Tally / particle'
 
         tally_to_plot.remove(key)   # remove tally name from the list for ratio plot
 
     # plot all chosen values
     for name in tally_to_plot:
-        if config_mod.plot_settings["data_var"] is True and config_mod.plot_settings["first_bin"] is True:
-            x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][7][:], config_mod.tallies[name][5][:]  # normalized data
-            y_label = 'Tally / MeV / particle'
-        elif config_mod.plot_settings["data_var"] is True and config_mod.plot_settings["first_bin"] is False:
-            x_data, y_data, y_data_err = config_mod.tallies[name][3][1:], config_mod.tallies[name][7][1:], config_mod.tallies[name][5][1:]  # normalized data, without first bin
-            y_label = 'Tally / MeV / particle'
-        elif config_mod.plot_settings["data_var"] is False and config_mod.plot_settings["first_bin"] is True:
-            x_data, y_data, y_data_err = config_mod.tallies[name][3], config_mod.tallies[name][4][:], config_mod.tallies[name][5][:]  # original data
-            y_label = 'Tally / particle'
-        elif config_mod.plot_settings["data_var"] is False and config_mod.plot_settings["first_bin"] is False:
-            x_data, y_data, y_data_err = config_mod.tallies[name][3][1:], config_mod.tallies[name][4][1:], config_mod.tallies[name][5][1:] # original data, without first bin
+        tally_obj = config_mod.tallies[name]
+        
+        # Get data using Tally method
+        x_data, y_data, y_data_err = tally_obj.get_data(
+            normalized=config_mod.plot_settings["data_var"],
+            include_first_bin=config_mod.plot_settings["first_bin"]
+        )
+        
+        # Set y_label based on normalization
+        y_label = 'Tally / MeV / particle' if config_mod.plot_settings["data_var"] else 'Tally / particle'
 
         # take the correct name for legend
-        legend_name = config_mod.tallies[name][10]
+        legend_name = tally_obj.legend_name
 
         # check if the multiplier is set and multiply the data, if not set to 1.0 and show a warning
         try:
@@ -73,26 +68,28 @@ def plot_to_canvas(tally):
         # return ratio values
         if config_mod.plot_settings["ratio"] != 'no ratio':
             y_label = 'Tally to Tally ratio (-)'
-            if x_data != x_ratio:
+            
+            # Use Tally method for ratio calculation
+            x_data, y_data, y_data_err, success = tally_obj.calculate_ratio(
+                reference_tally=reference_tally,
+                normalized=config_mod.plot_settings["data_var"],
+                include_first_bin=config_mod.plot_settings["first_bin"]
+            )
+            
+            if not success:
                 print('Energy bins in tallies are not the same, ratio plot is not possible.')
-                continue  # skip this cycle step if energy bins in current tally have different step from reference tally
-
-            for i in range(0, len(y_data)):  # calculate ratio values and their errors
-                if (y_data[i] != 0) and (y_ratio[i] != 0):  # only for non zero values
-                    y_data_err[i] = math.sqrt(y_data_err[i] ** 2 + y_err_ratio[i] ** 2)
-                    y_data[i] = y_data[i] / y_ratio[i]
-                else:
-                    y_data[i] = 0
-                    y_data_err[i] = 0
+                continue  # skip this cycle step if energy bins don't match
+            
             # return new curve title for ratio plot
-            legend_name = config_mod.tallies[name][10] + '/' + config_mod.tallies[config_mod.plot_settings["ratio"]][10]
+            legend_name = f"{tally_obj.legend_name}/{reference_tally.legend_name}"
 
 
         # calculate interval centers
-        x_data_center = interval_mid(x_data)
+        x_data_center = tally_obj.calculate_interval_centers(
+            include_first_bin=config_mod.plot_settings["first_bin"]
+        )
 
         # plots
-        # p_color = next(config_mod.ax._get_lines.prop_cycler)['color']  # same color for step and errorbar plot
         p_color = config_mod.ax._get_lines.get_next_color()
 
         linestep, = config_mod.ax.step(x_data, y_data, color=p_color, label=legend_name)
@@ -122,7 +119,7 @@ def plot_to_canvas(tally):
         config_mod.ax2.tick_params(axis='y', labelsize=config_mod.plot_settings["tics_size"])
 
         for name in config_mod.xs_data.keys():
-            p_color = next(config_mod.ax._get_lines.prop_cycler)['color']  # same color
+            p_color = config_mod.ax._get_lines.get_next_color()
             config_mod.ax2.plot(config_mod.xs_data[name][0], config_mod.xs_data[name][1], ls="--", label=name, color=p_color)
 
         config_mod.ax2.legend(loc=config_mod.plot_settings["leg_pos"], fontsize=config_mod.plot_settings["leg_size"])
@@ -222,10 +219,4 @@ def plot_to_canvas(tally):
     # draw the plot        
     config_mod.canvas_id.draw()
 
-# calculate a middle of energy intervals
-def interval_mid(x):
-    x_center = []
-    for i in range(0, len(x) - 1):
-        x_center.append(x[i] + (x[i + 1] - x[i]) / 2)
-
-    return x_center
+# Note: interval_mid() function removed - now use Tally.calculate_interval_centers() method instead

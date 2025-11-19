@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # TODO_list:
 # TODO what happens if cut off is higher than E_min???
-# TODO create own class for tally results
+# ✓ DONE: create own class for tally results (see modules/tally_data.py)
 # TODO create log file!
 # https://www.geeksforgeeks.org/how-to-log-a-python-exception/
 # https://docs.python.org/3/library/traceback.html
@@ -9,6 +9,7 @@
 
 # libraries
 from modules import config_mod, settings_mod
+from modules.tally_data import Tally
 import pathlib  # better and easier work with file and directory paths
 import tkinter as tk
 import os
@@ -151,12 +152,13 @@ def read_tallies(treeview_files):
 
     for key in config_mod.tallies.keys():  # fill treeview with new values
         fname = key.rsplit('_', 1)[0]  # get file name from tally name
+        tally = config_mod.tallies[key]
 
         treeview_files.insert('', index='end',
-                              values=[fname, config_mod.tallies[key][0], config_mod.tallies[key][1], config_mod.tallies[key][2],
-                                      len(config_mod.tallies[key][3]) - 1, config_mod.tallies[key][6],
-                                      config_mod.tallies[key][3][1], config_mod.tallies[key][3][-1],
-                                      config_mod.tallies[key][8]])
+                              values=[fname, tally.tally_num, tally.tally_type, tally.particle,
+                                      tally.num_bins, tally.cutoff_energy,
+                                      tally.energy_min, tally.energy_max,
+                                      tally.comment])
 
 
 # read data from all tallies in one output file and add them into global dictionary
@@ -268,7 +270,18 @@ def read_tally(f_path, fname):
                             more_items_in_one_tally = False
 
                         while more_items_in_one_tally == True:
-                            config_mod.tallies[fname.stem + '_' + str(tally_num) + "_" + str(surface_or_cell[0]) + "_" + str(surface_or_cell[1])] = [tally_num, tally_type, tally_ptc, energy, flux, error, cutoff_en, flux_n, com_loaded, None, None]
+                            config_mod.tallies[fname.stem + '_' + str(tally_num) + "_" + str(surface_or_cell[0]) + "_" + str(surface_or_cell[1])] = Tally(
+                                tally_num=tally_num,
+                                tally_type=tally_type,
+                                particle=tally_ptc,
+                                energy=energy,
+                                flux=flux,
+                                error=error,
+                                cutoff_energy=cutoff_en,
+                                flux_normalized=flux_n,
+                                comment=com_loaded,
+                                legend_name=None
+                            )
 
                             energy = []
                             flux = [0]
@@ -320,10 +333,32 @@ def read_tally(f_path, fname):
                             if len(control_next_tally_connection) > 1 and save_talies == control_next_tally_connection[1]:
                                 print("---> next tally included...")
                                 print(str(surface_or_cell[0]) + str(surface_or_cell[1]) + "  ---  line" + str(last + 4))
-                                config_mod.tallies[fname.stem + '_' + str(tally_num) + "_" + str(surface_or_cell[0]) + "_" + str(surface_or_cell[1])] = [tally_num, tally_type, tally_ptc, energy, flux, error, cutoff_en, flux_n, com_loaded, None, None]
+                                config_mod.tallies[fname.stem + '_' + str(tally_num) + "_" + str(surface_or_cell[0]) + "_" + str(surface_or_cell[1])] = Tally(
+                                    tally_num=tally_num,
+                                    tally_type=tally_type,
+                                    particle=tally_ptc,
+                                    energy=energy,
+                                    flux=flux,
+                                    error=error,
+                                    cutoff_energy=cutoff_en,
+                                    flux_normalized=flux_n,
+                                    comment=com_loaded,
+                                    legend_name=None
+                                )
                                 # print("last_tallies.....")
                             else:
-                                config_mod.tallies[fname.stem + '_' + str(tally_num)] = [tally_num, tally_type, tally_ptc, energy, flux, error, cutoff_en, flux_n, com_loaded, None, None]
+                                config_mod.tallies[fname.stem + '_' + str(tally_num)] = Tally(
+                                    tally_num=tally_num,
+                                    tally_type=tally_type,
+                                    particle=tally_ptc,
+                                    energy=energy,
+                                    flux=flux,
+                                    error=error,
+                                    cutoff_energy=cutoff_en,
+                                    flux_normalized=flux_n,
+                                    comment=com_loaded,
+                                    legend_name=None
+                                )
                                 print("---> This file does not contain more items per tally\n")
 
                             # josef20220202-end

@@ -31,16 +31,17 @@ def save_to_xlsx(sel_tally):
     # create new sheets
     for tally in sel_tally:
         fname = tally.rsplit('_', 1)[0]  # get file name from tally name
+        tally_obj = config_mod.tallies[tally]
 
         df_info = pd.DataFrame({
-            'information': ['Filename', fname, 'Tally number', config_mod.tallies[tally][0], 'Tally type', config_mod.tallies[tally][1], 'Tally particle', config_mod.tallies[tally][2], 'Comment', config_mod.tallies[tally][8]]
+            'information': ['Filename', fname, 'Tally number', tally_obj.tally_num, 'Tally type', tally_obj.tally_type, 'Tally particle', tally_obj.particle, 'Comment', tally_obj.comment]
         })
 
         df_data = pd.DataFrame({
-            'energy (MeV)': config_mod.tallies[tally][3],
-            'flux': config_mod.tallies[tally][4],
-            'flux norm. per MeV': config_mod.tallies[tally][7],
-            'error': config_mod.tallies[tally][5],
+            'energy (MeV)': tally_obj.energy,
+            'flux': tally_obj.flux,
+            'flux norm. per MeV': tally_obj.flux_normalized,
+            'error': tally_obj.error,
         })
 
         # add empty column
