@@ -150,15 +150,21 @@ def read_tallies(treeview_files):
     for i in x:  # delete all items
         treeview_files.delete(i)
 
+    row_count = 0
     for key in config_mod.tallies.keys():  # fill treeview with new values
         fname = key.rsplit('_', 1)[0]  # get file name from tally name
         tally = config_mod.tallies[key]
 
-        treeview_files.insert('', index='end',
+        # Alternate between evenrow and oddrow tags for light gray stripes
+        row_tag = "oddrow" if row_count % 2 == 0 else "evenrow"
+        row_count += 1
+
+        row_id = treeview_files.insert('', index='end',
                               values=[fname, tally.tally_num, tally.tally_type, tally.particle,
                                       tally.num_bins, tally.cutoff_energy,
                                       tally.energy_min, tally.energy_max,
-                                      tally.comment])
+                                      tally.comment],
+                              tags=("unchecked", row_tag))
 
 
 # read data from all tallies in one output file and add them into global dictionary

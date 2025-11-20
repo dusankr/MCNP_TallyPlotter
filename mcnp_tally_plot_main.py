@@ -53,6 +53,17 @@ def treeview_sort_column(tree, col, reverse):
     for index, (val, child) in enumerate(data):
         tree.move(child, '', index)
 
+    # Re-apply alternating row colors after sorting while preserving checkbox state
+    for index, (val, child) in enumerate(data):
+        row_tag = "oddrow" if index % 2 == 0 else "evenrow"
+        # Get current tags (checkbox state: "checked" or "unchecked")
+        current_tags = tree.item(child, 'tags')
+        # Preserve the checkbox state tag and add the color tag
+        checkbox_state = [tag for tag in current_tags if tag in ("checked", "unchecked")]
+        # Set tags with both checkbox state and color tag
+        new_tags = tuple(checkbox_state) + (row_tag,)
+        tree.item(child, tags=new_tags)
+
     # rearrange items in sorted positions
     tree.heading(col, command=lambda: treeview_sort_column(tree, col, not reverse))
 
@@ -73,6 +84,15 @@ root.title('MCNP 2D tally plotter')
 # root.geometry('800x350')
 style = tk.ttk.Style()
 # style.theme_use('vista')
+
+# Configure treeview with row borders/gridlines
+style.configure("Treeview", rowheight=25, background="#ffffff", fieldbackground="#ffffff", relief="solid", borderwidth=1)
+style.configure("Treeview.Heading", background="#d0d0d0", foreground="black", borderwidth=1, relief="raised")
+
+# Configure selection colors
+style.map('Treeview', 
+          background=[('selected', '#0078d7')], 
+          foreground=[('selected', 'white')])
 
 root.columnconfigure(0, weight=1)
 root.rowconfigure(0, weight=1)
@@ -129,6 +149,17 @@ tree_y_scroll.grid(sticky='wens', column=5, row=0, rowspan=5, padx=5, pady=5)
 
 treeview_files.configure(xscrollcommand=tree_x_scroll.set)
 treeview_files.configure(yscrollcommand=tree_y_scroll.set)
+
+# Enable grid lines to separate rows
+# Note: gridlines parameter may not work on all ttk themes
+try:
+    treeview_files.configure(show='tree headings')
+except:
+    pass
+
+# Configure tag colors for alternating rows with higher contrast
+treeview_files.tag_configure("oddrow", background="#ffffff", foreground="#000000")
+treeview_files.tag_configure("evenrow", background="#d9e8f5", foreground="#000000")
 
 # widgets in DOWN frame in GUI -----------------------------------------------------------------------------------------
 button_frame = tk.Frame(down_frame)
