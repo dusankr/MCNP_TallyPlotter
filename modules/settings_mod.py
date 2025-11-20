@@ -117,8 +117,15 @@ def save_config():
     with open("config_export", "r+", encoding='utf-8') as temp_file:
         content = temp_file.readlines()
         content_n = []
+        
+        # List of settings that should NOT be saved to config file (transient flags)
+        exclude_from_save = ['save_fig']
 
         for key, val in zip(config_mod.plot_settings.keys(), config_mod.plot_settings.values()):
+            # Skip transient flags that should not be persisted
+            if key in exclude_from_save:
+                continue
+                
             i = 0
             while i < len(content):
                 if (content[i][0] != "#"):

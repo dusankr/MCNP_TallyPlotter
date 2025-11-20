@@ -204,6 +204,8 @@ def plot_to_canvas(tally):
         # check if folder exists
         if not pathlib.Path.exists(picture_path.parent) or str(picture_path) == '.':
             tk.messagebox.showerror('Input error', 'No directory and file were selected.')
+            # Reset save_fig flag even if user cancels
+            config_mod.plot_settings["save_fig"] = False
             return
 
         # extract format from the path
@@ -221,6 +223,9 @@ def plot_to_canvas(tally):
 
         # set the original figure size
         config_mod.fig_id.set_size_inches(x_dim, y_dim)
+        
+        # Reset save_fig flag after saving is complete
+        config_mod.plot_settings["save_fig"] = False
 
     # draw the plot        
     config_mod.canvas_id.draw()
