@@ -52,18 +52,20 @@ def plot_to_canvas(tally):
         legend_name = tally_obj.legend_name
 
         # check if the multiplier is set and multiply the data, if not set to 1.0 and show a warning
-        try:
-            float(config_mod.plot_settings["tally_multiplier"])
-            multiplier = True
-        except ValueError:
-            tk.messagebox.showwarning('Warning', 'Tally multiplier is not a number, using default value 1.0')
-            config_mod.plot_settings["tally_multiplier"] = 1.0
-            multiplier = False
+        # Skip multiplier for ratio plots
+        if config_mod.plot_settings["ratio"] == 'no ratio':
+            try:
+                float(config_mod.plot_settings["tally_multiplier"])
+                multiplier = True
+            except ValueError:
+                tk.messagebox.showwarning('Warning', 'Tally multiplier is not a number, using default value 1.0')
+                config_mod.plot_settings["tally_multiplier"] = 1.0
+                multiplier = False
 
-        if multiplier is True and config_mod.plot_settings["tally_multiplier"] != 1.0:
-            # multiply the data by the multiplier value
-            y_data = [y * config_mod.plot_settings["tally_multiplier"] for y in y_data]
-            # legend_name += ' × ' + str(config_mod.plot_settings["tally_multiplier"])
+            if multiplier is True and config_mod.plot_settings["tally_multiplier"] != 1.0:
+                # multiply the data by the multiplier value
+                y_data = [y * config_mod.plot_settings["tally_multiplier"] for y in y_data]
+                # legend_name += ' × ' + str(config_mod.plot_settings["tally_multiplier"])
 
         # return ratio values
         if config_mod.plot_settings["ratio"] != 'no ratio':
@@ -79,6 +81,10 @@ def plot_to_canvas(tally):
             if not success:
                 print('Energy bins in tallies are not the same, ratio plot is not possible.')
                 continue  # skip this cycle step if energy bins don't match
+            
+            # Use custom y_ratio_title if provided
+            if config_mod.plot_settings["y_ratio_title"] is not None:
+                y_label = config_mod.plot_settings["y_ratio_title"]
             
             # return new curve title for ratio plot
             legend_name = f"{tally_obj.legend_name}/{reference_tally.legend_name}"
