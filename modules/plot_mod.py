@@ -85,6 +85,10 @@ def plot_window(root, tally_to_plot):
     # Tally multiplier
     multiplier_var = tk.StringVar(value='1.0')  # SpinBox variable
   
+    # Line options
+    line_style_var = tk.BooleanVar(value=True)  # Check box variable - unique line style by file
+    line_width_var = tk.DoubleVar(value=1.4)  # SpinBox variable - line width
+
     # figure export variables
     x_fig_var = tk.DoubleVar(value=20)  # SpinBox variable
     y_fig_var = tk.DoubleVar(value=15)  # SpinBox variable
@@ -193,6 +197,10 @@ def plot_window(root, tally_to_plot):
 
         # Tally multiplier
         config_mod.plot_settings['tally_multiplier'] = multiplier_var.get()
+
+        # Line options
+        config_mod.plot_settings['line_style_by_file'] = line_style_var.get()
+        config_mod.plot_settings['line_width'] = line_width_var.get()
 
         # save values to the config file
         settings_mod.save_config()
@@ -480,6 +488,27 @@ def plot_window(root, tally_to_plot):
     multiplier_entry.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
     row_f += 1    
 
+    # Line options frame -----------------------------------------------------------------------------------------------
+    line_options_frame = tk.LabelFrame(plot_option_frame2, text='Line options')
+    line_options_frame.grid(column=0, row=row_c, sticky='nswe', padx=2, pady=2)
+    line_options_frame.columnconfigure(0, weight=1)
+    row_c += 1
+    row_f = 0
+
+    # Checkbox for unique line style based on filename
+    chk_line_style = tk.Checkbutton(line_options_frame, text='Unique linestyle by file', var=line_style_var, command=lambda: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
+    chk_line_style.grid(column=0, columnspan=2, row=row_f, sticky='w', padx=2, pady=2)
+    row_f += 1
+
+    # Line width spinbox on same row as label
+    line_width_label = tk.Label(line_options_frame, text='Line width:')
+    line_width_label.grid(column=0, row=row_f, sticky='w', padx=2, pady=2)
+    
+    line_width_spinbox = tk.ttk.Spinbox(line_options_frame, from_=0.2, to=5.0, increment=0.2, textvariable=line_width_var, wrap=True, width=5)
+    line_width_spinbox.grid(column=1, row=row_f, sticky='w', padx=2, pady=2)
+    line_width_spinbox.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
+    row_f += 1
+
     # ------------------------------------------------------------------------------------------------------------------
     # replot frame -----------------------------------------------------------------------------------------------------
     replot_frame = tk.LabelFrame(option_frame, text='Replot')
@@ -523,6 +552,8 @@ def plot_window(root, tally_to_plot):
     bin_var.trace_add('write', my_callback)
     # xlim_var.trace_add('write', my_callback)
     fig_title_var.trace_add('write', my_callback)
+    line_style_var.trace_add('write', my_callback)
+    line_width_var.trace_add('write', my_callback)
 
     # turn on-off online replot
     def turn_off_replot():
@@ -533,7 +564,7 @@ def plot_window(root, tally_to_plot):
             ratio_sel.trace_remove('write', ratio_sel.trace_info()[0][1])
             x_axis_var.trace_remove('write', x_axis_var.trace_info()[0][1])
             y_axis_var.trace_remove('write', y_axis_var.trace_info()[0][1])
-            y2_axis_var.trace_remove('write', y_axis_var.trace_info()[0][1])
+            y2_axis_var.trace_remove('write', y2_axis_var.trace_info()[0][1])
             data_var.trace_remove('write', data_var.trace_info()[0][1])
             axis_var.trace_remove('write', axis_var.trace_info()[0][1])
             leg_var.trace_remove('write', leg_var.trace_info()[0][1])
@@ -546,6 +577,8 @@ def plot_window(root, tally_to_plot):
             bin_var.trace_remove('write', bin_var.trace_info()[0][1])
             # xlim_var.trace_remove('write', xlim_var.trace_info()[0][1])
             fig_title_var.trace_remove('write', fig_title_var.trace_info()[0][1])
+            line_style_var.trace_remove('write', line_style_var.trace_info()[0][1])
+            line_width_var.trace_remove('write', line_width_var.trace_info()[0][1])
         else:
             button_replot['state'] = 'disabled'
 
@@ -566,6 +599,8 @@ def plot_window(root, tally_to_plot):
             bin_var.trace_add('write, my_callback')
             # xlim_var.trace_add('write', my_callback)
             fig_title_var.trace_add('write', my_callback)
+            line_style_var.trace_add('write', my_callback)
+            line_width_var.trace_add('write', my_callback)
 
 
     # enable/disable grid settings

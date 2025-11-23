@@ -58,7 +58,9 @@ plot_settings = dict.fromkeys([
     "y_scale",
     "x_scale",
     "tally_multiplier",
-    "y_ratio_title"
+    "y_ratio_title",
+    "line_style_by_file",
+    "line_width"
 ])
 
 # second option how to create dict:

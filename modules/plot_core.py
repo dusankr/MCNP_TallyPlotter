@@ -21,6 +21,28 @@ def plot_to_canvas(tally):
         #config_mod.ax2.clear()
         config_mod.ax2 = None
 
+    # Define line styles for different file groups (solid, dashed, dotted, dashdot)
+    available_linestyles = ['-', '--', ':', '-.']
+    
+    # Extract unique file names from selected tallies and create line style mapping
+    # Only if line_style_by_file setting is enabled
+    file_to_linestyle = {}
+    if config_mod.plot_settings.get("line_style_by_file", True) and config_mod.plot_settings["ratio"] == 'no ratio':
+        unique_files = []
+        for name in tally_to_plot:
+            fname = name.rsplit('_', 1)[0]  # Extract file name from tally key
+            if fname not in unique_files:
+                unique_files.append(fname)
+        
+        # Assign line styles to files, or default to solid if too many files
+        if len(unique_files) <= len(available_linestyles):
+            for i, fname in enumerate(unique_files):
+                file_to_linestyle[fname] = available_linestyles[i]
+        else:
+            # Too many files, use solid for all
+            for fname in unique_files:
+                file_to_linestyle[fname] = '-'
+
     # read reference data for ratio plot
     if config_mod.plot_settings["ratio"] != "no ratio":
         key = config_mod.plot_settings["ratio"]
@@ -97,8 +119,18 @@ def plot_to_canvas(tally):
 
         # plots
         p_color = config_mod.ax._get_lines.get_next_color()
+        
+        # Determine line style based on file name (solid for ratio plots or if disabled)
+        if config_mod.plot_settings["ratio"] != 'no ratio' or not config_mod.plot_settings.get("line_style_by_file", True):
+            line_style = '-'  # Solid line for ratio plots or if line style by file is disabled
+        else:
+            fname = name.rsplit('_', 1)[0]  # Extract file name
+            line_style = file_to_linestyle.get(fname, '-')  # Default to solid if not found
 
-        linestep, = config_mod.ax.step(x_data, y_data, color=p_color, label=legend_name)
+        # Get line width from settings, default to 1.5 if not set
+        line_width = config_mod.plot_settings.get("line_width", 1.5)
+
+        linestep, = config_mod.ax.step(x_data, y_data, color=p_color, label=legend_name, linestyle=line_style, linewidth=line_width)
 
         if config_mod.plot_settings["error_bar"]:
             err = [a * b for a, b in zip(y_data_err, y_data)]  # abs error
@@ -198,8 +230,8 @@ def plot_to_canvas(tally):
         # set the figure size in cm
         config_mod.fig_id.set_size_inches(config_mod.plot_settings["fig_x_dimension"] / 2.54, config_mod.plot_settings["fig_y_dimension"] / 2.54)
         
-        # get the work directory path and file format from a file save as dialog, available formats: png, pdf, ps, eps and svg
-        picture_path = pathlib.Path(tk.filedialog.asksaveasfilename(initialdir=config_mod.plot_settings["work_dir_path"], title='Choose folder and file name without an extension:', filetypes=[("PNG files", "*.png"), ("PDF files", "*.pdf"), ("SVG files", "*.svg"), ("EPS files", "*.eps"), ("PS files", "*.ps")], defaultextension=".png"))
+        # get the export directory path and file format from a file save as dialog, available formats: png, pdf, ps, eps and svg
+        picture_path = pathlib.Path(tk.filedialog.asksaveasfilename(initialdir=config_mod.plot_settings["export_dir_path"], title='Choose folder and file name without an extension:', filetypes=[("PNG files", "*.png"), ("PDF files", "*.pdf"), ("SVG files", "*.svg"), ("EPS files", "*.eps"), ("PS files", "*.ps")], defaultextension=".png"))
         
         # check if folder exists
         if not pathlib.Path.exists(picture_path.parent) or str(picture_path) == '.':
@@ -208,13 +240,16 @@ def plot_to_canvas(tally):
             config_mod.plot_settings["save_fig"] = False
             return
 
+        # Update export directory path to remember the last used location
+        config_mod.plot_settings["export_dir_path"] = picture_path.parent
+
         # extract format from the path
         config_mod.plot_settings["fig_format"] = picture_path.suffix[1:]
 
         # save the figure
         try:
             config_mod.fig_id.savefig(picture_path, format=config_mod.plot_settings["fig_format"], dpi=int(config_mod.plot_settings["fig_dpi"]), bbox_inches='tight')
-            tk.messagebox.showinfo('File saved', 'Figure was saved to the work directory:\n' + str(picture_path))
+            tk.messagebox.showinfo('File saved', 'Figure was saved to the export directory:\n' + str(picture_path))
 
         except PermissionError:
             tk.messagebox.showerror('Read error', 'File might be opened and unavailable for plotter, please close it and then you can continue.')
