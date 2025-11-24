@@ -2,7 +2,7 @@
 # TODO_list:
 
 # LIBRARIES
-from modules import read_mod, plot_mod, settings_mod, export_mod
+from modules import read_mod, plot_mod, settings_mod, export_mod, config_mod
 # GUI libraries
 import tkinter as tk
 import ttkwidgets
@@ -100,7 +100,17 @@ root.rowconfigure(0, weight=1)
 root.protocol('WM_DELETE_WINDOW', ask_quit)  # program end
 # ----------------------------------------------------------------------------------------------------------------------
 # modules executed at startup
-settings_mod.read_config("config_export")   # read settings from config_export file
+settings_mod.read_config("config.toml")   # read settings from config file
+
+# Checkbox variable for using saved config
+use_saved_config_var = tk.BooleanVar(value=False)
+
+# Function to open plot window with config handling
+def open_plot_window():
+    """Open plot window, resetting settings to defaults if checkbox is unchecked."""
+    if not use_saved_config_var.get():
+        settings_mod.reset_plot_settings_to_defaults()
+    plot_mod.plot_window(root, selected_tally())
 
 # MENU (not used due to problems on Mac devices) -----------------------------------------------------------------------
 # does NOT work at MAC devices...
@@ -171,8 +181,12 @@ button_file.grid(column=0, row=0, sticky='ws')
 button_update = tk.ttk.Button(button_frame, text='Update directory', state='disabled', command=lambda: read_mod.read_folder(treeview_files), width=20)
 button_update.grid(column=1, row=0, sticky='ws')
 
-button_plot = tk.ttk.Button(button_frame, text='Plot data', command=lambda: plot_mod.plot_window(root, selected_tally()), width=20)
+button_plot = tk.ttk.Button(button_frame, text='Plot data', command=open_plot_window, width=20)
 button_plot.grid(column=2, row=0, sticky='ws')
+
+# Checkbox for using saved config
+chk_use_config = tk.Checkbutton(button_frame, text='Use saved config', var=use_saved_config_var)
+chk_use_config.grid(column=4, row=0, sticky='ws', padx=10)
 
 button_export = tk.ttk.Button(button_frame, text='Export tally to xlsx', command=lambda: export_mod.save_to_xlsx(selected_tally()), width=20)
 button_export.grid(column=3, row=0, sticky='ws')

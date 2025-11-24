@@ -13,3 +13,5 @@
 /modules/__pycache__
 /.vscode
 .vscode
+*.old
+*.toml

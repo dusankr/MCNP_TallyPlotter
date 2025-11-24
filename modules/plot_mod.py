@@ -21,6 +21,20 @@ import tkinter as tk
 
 
 #  Functions  ##########################################################################################################
+def convert_none_string(value):
+    """Convert string 'None' or 'none' to Python None, try to convert to float if possible."""
+    if isinstance(value, str):
+        if value.strip().lower() in ('none', ''):
+            return None
+        try:
+            return float(value)
+        except ValueError:
+            # If it's not a valid number, show error and return None
+            tk.messagebox.showerror('Input Error', f'Invalid numeric value: "{value}"\nPlease enter a number or "None" for auto limits.')
+            return None
+    return value
+
+
 # create new Top level window and plot data
 def plot_window(root, tally_to_plot):
     def quit_m():
@@ -36,7 +50,7 @@ def plot_window(root, tally_to_plot):
     
     legend_options = ['best', 'upper right', 'upper left', 'lower left', 'lower right', 'right', 'center left',
                       'center right', 'lower center', 'upper center', 'center']
-    legend_pos = tk.StringVar(value='best')  # Option Menu variable
+    legend_pos = tk.StringVar(value=config_mod.plot_settings.get('leg_pos', 'best'))
 
     # create a list of values for the ratio menu
     if len(tally_to_plot) > 1:
@@ -44,56 +58,63 @@ def plot_window(root, tally_to_plot):
     else:
         ratio_options = ['no ratio']
 
-    # radio button variable
-    x_axis_var = tk.StringVar(value='log')
-    y_axis_var = tk.StringVar(value='log')
-    y2_axis_var = tk.StringVar(value='log')
-    data_var = tk.BooleanVar(value=True)
+    # radio button variable - load from config
+    x_axis_var = tk.StringVar(value=config_mod.plot_settings.get('x_scale', 'log'))
+    y_axis_var = tk.StringVar(value=config_mod.plot_settings.get('y_scale', 'log'))
+    y2_axis_var = tk.StringVar(value=config_mod.plot_settings.get('y2_scale', 'log'))
+    data_var = tk.BooleanVar(value=config_mod.plot_settings.get('data_var', True))
 
-    ratio_sel = tk.StringVar(value='no ratio')  # Option Menu variable
+    ratio_sel = tk.StringVar(value=config_mod.plot_settings.get('ratio', 'no ratio'))
     replot_var = tk.BooleanVar(value=False)
 
-    # font size variables
-    axis_var = tk.StringVar(value=12)  # SpinBox variable
-    leg_var = tk.StringVar(value=10)  # SpinBox variable
-    ticks_var = tk.StringVar(value=10)  # SpinBox variable
+    # font size variables - load from config
+    axis_var = tk.StringVar(value=str(config_mod.plot_settings.get('ax_label_size', 12)))
+    leg_var = tk.StringVar(value=str(config_mod.plot_settings.get('leg_size', 10)))
+    ticks_var = tk.StringVar(value=str(config_mod.plot_settings.get('tics_size', 10)))
 
-    # grid variables
+    # grid variables - load from config
     grid_options = ['major', 'minor', 'both']
     grid_axis_options = ['both', 'x', 'y']
-    grid_var = tk.StringVar(value='major')  # Option Menu variable
-    grid_axis_var = tk.StringVar(value='both')  # Option Menu variable
-    grid_on_var = tk.BooleanVar(value=True)  # Check box variable
+    grid_var = tk.StringVar(value=config_mod.plot_settings.get('grid_opt', 'major'))
+    grid_axis_var = tk.StringVar(value=config_mod.plot_settings.get('grid_ax', 'both'))
+    grid_on_var = tk.BooleanVar(value=config_mod.plot_settings.get('grid_switch', True))
     
-    # additional data modifiers
-    error_var = tk.BooleanVar(value=True)  # Turn on error bars
-    bin_var = tk.BooleanVar(value=True)  # Turn on first bin
-    fig_title_var = tk.BooleanVar(value=False)  # Check box variable - use figure title
+    # additional data modifiers - load from config
+    error_var = tk.BooleanVar(value=config_mod.plot_settings.get('error_bar', True))
+    bin_var = tk.BooleanVar(value=config_mod.plot_settings.get('first_bin', True))
+    fig_title_var = tk.BooleanVar(value=config_mod.plot_settings.get('fig_title_switch', False))
     
-    # XS data
-    xs_var = tk.BooleanVar(value=False)  # Check box variable - show XS data
+    # XS data - load from config
+    xs_var = tk.BooleanVar(value=config_mod.plot_settings.get('xs_switch', False))
     
-    # Axes limits
-    y_min_var = tk.StringVar(value='None')
-    y_max_var = tk.StringVar(value='None')
-    x_min_var = tk.StringVar(value='None')
-    x_max_var = tk.StringVar(value='None')
-    y2_min_var = tk.StringVar(value='None')
-    y2_max_var = tk.StringVar(value='None')
+    # Axes limits - initialize from config (None = auto, keep as string "None")
+    x_min_val = config_mod.plot_settings.get('x_min')
+    x_max_val = config_mod.plot_settings.get('x_max')
+    y_min_val = config_mod.plot_settings.get('y_min')
+    y_max_val = config_mod.plot_settings.get('y_max')
+    y2_min_val = config_mod.plot_settings.get('y2_min')
+    y2_max_val = config_mod.plot_settings.get('y2_max')
+    
+    x_min_var = tk.StringVar(value='None' if x_min_val is None else str(x_min_val))
+    x_max_var = tk.StringVar(value='None' if x_max_val is None else str(x_max_val))
+    y_min_var = tk.StringVar(value='None' if y_min_val is None else str(y_min_val))
+    y_max_var = tk.StringVar(value='None' if y_max_val is None else str(y_max_val))
+    y2_min_var = tk.StringVar(value='None' if y2_min_val is None else str(y2_min_val))
+    y2_max_var = tk.StringVar(value='None' if y2_max_val is None else str(y2_max_val))
     # xlim_var = tk.BooleanVar(value=False)  # Check box variable - use X axis limits
 
-    # Tally multiplier
-    multiplier_var = tk.StringVar(value='1.0')  # SpinBox variable
+    # Tally multiplier - load from config
+    multiplier_var = tk.StringVar(value=str(config_mod.plot_settings.get('tally_multiplier', 1.0)))
   
-    # Line options
-    line_style_var = tk.BooleanVar(value=True)  # Check box variable - unique line style by file
-    line_width_var = tk.DoubleVar(value=1.4)  # SpinBox variable - line width
+    # Line options - load from config
+    line_style_var = tk.BooleanVar(value=config_mod.plot_settings.get('line_style_by_file', True))
+    line_width_var = tk.DoubleVar(value=config_mod.plot_settings.get('line_width', 1.5))
 
-    # figure export variables
-    x_fig_var = tk.DoubleVar(value=20)  # SpinBox variable
-    y_fig_var = tk.DoubleVar(value=15)  # SpinBox variable
-    dpi_var = tk.DoubleVar(value=150)  # SpinBox variable
-    latex_var = tk.BooleanVar(value=False)   # check box LaTeX
+    # figure export variables - load from config
+    x_fig_var = tk.DoubleVar(value=config_mod.plot_settings.get('fig_x_dimension', 20))
+    y_fig_var = tk.DoubleVar(value=config_mod.plot_settings.get('fig_y_dimension', 15))
+    dpi_var = tk.DoubleVar(value=config_mod.plot_settings.get('fig_dpi', 150))
+    latex_var = tk.BooleanVar(value=config_mod.plot_settings.get('latex', False))
 
     # endregion
 
@@ -178,13 +199,13 @@ def plot_window(root, tally_to_plot):
         config_mod.plot_settings["first_bin"] = bin_var.get()
         config_mod.plot_settings["latex"] = latex_var.get()
         
-        # limits
-        config_mod.plot_settings["x_min"] = x_min_var.get()
-        config_mod.plot_settings["x_max"] = x_max_var.get()
-        config_mod.plot_settings["y_min"] = y_min_var.get()
-        config_mod.plot_settings["y_max"] = y_max_var.get()
-        config_mod.plot_settings["y2_min"] = y2_min_var.get()
-        config_mod.plot_settings["y2_max"] = y2_max_var.get()
+        # limits - convert string "None" to Python None or float
+        config_mod.plot_settings["x_min"] = convert_none_string(x_min_var.get())
+        config_mod.plot_settings["x_max"] = convert_none_string(x_max_var.get())
+        config_mod.plot_settings["y_min"] = convert_none_string(y_min_var.get())
+        config_mod.plot_settings["y_max"] = convert_none_string(y_max_var.get())
+        config_mod.plot_settings["y2_min"] = convert_none_string(y2_min_var.get())
+        config_mod.plot_settings["y2_max"] = convert_none_string(y2_max_var.get())
         
         # config_mod.plot_settings["x_lim"] = xlim_var.get()
         config_mod.plot_settings["fig_title_switch"] = fig_title_var.get()
@@ -195,8 +216,11 @@ def plot_window(root, tally_to_plot):
         config_mod.plot_settings['save_fig'] = save
         config_mod.plot_settings['fig_dpi'] = dpi_var.get()
 
-        # Tally multiplier
-        config_mod.plot_settings['tally_multiplier'] = multiplier_var.get()
+        # Tally multiplier - convert string to float
+        try:
+            config_mod.plot_settings['tally_multiplier'] = float(multiplier_var.get())
+        except ValueError:
+            config_mod.plot_settings['tally_multiplier'] = 1.0
 
         # Line options
         config_mod.plot_settings['line_style_by_file'] = line_style_var.get()
@@ -204,7 +228,7 @@ def plot_window(root, tally_to_plot):
 
         # save values to the config file
         settings_mod.save_config()
-        settings_mod.read_config("config_export")
+        settings_mod.read_config("config.toml")
 
     # insert FIRST plot CANVAS
     plot_variables()
@@ -439,11 +463,13 @@ def plot_window(root, tally_to_plot):
     x_min_entry = tk.Entry(limits_frame, width=6, textvariable=x_min_var)
     x_min_entry.grid(column=1, row=row_f, sticky='nw', padx=2, pady=2)
     x_min_entry.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
+    x_min_entry.bind('<FocusOut>', lambda event: plot_variables())
     x_max_label = tk.Label(limits_frame, text='X max')
     x_max_label.grid(column=2, row=row_f, sticky='nw', padx=2, pady=2)
     x_max_entry = tk.Entry(limits_frame, width=6, textvariable=x_max_var)
     x_max_entry.grid(column=3, row=row_f, sticky='nw', padx=2, pady=2)
     x_max_entry.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
+    x_max_entry.bind('<FocusOut>', lambda event: plot_variables())
     row_f += 1
 
     # chk_xlim = tk.Checkbutton(limits_frame, text='On/Off X axis limits', var=xlim_var)
@@ -455,10 +481,12 @@ def plot_window(root, tally_to_plot):
     y_min_entry = tk.Entry(limits_frame, width=6, textvariable=y_min_var)
     y_min_entry.grid(column=1, row=row_f, sticky='nw', padx=2, pady=2)
     y_min_entry.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
+    y_min_entry.bind('<FocusOut>', lambda event: plot_variables())
     y_max_label = tk.Label(limits_frame, text='Y max')
     y_max_label.grid(column=2, row=row_f, sticky='nw', padx=2, pady=2)
     y_max_entry = tk.Entry(limits_frame, width=6, textvariable=y_max_var)
     y_max_entry.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
+    y_max_entry.bind('<FocusOut>', lambda event: plot_variables())
     y_max_entry.grid(column=3, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
 
@@ -467,11 +495,13 @@ def plot_window(root, tally_to_plot):
     xs_min_entry = tk.Entry(limits_frame, width=6, textvariable=y2_min_var, state='disabled')
     xs_min_entry.grid(column=1, row=row_f, sticky='nw', padx=2, pady=2)
     xs_min_entry.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
+    xs_min_entry.bind('<FocusOut>', lambda event: plot_variables())
     xs_max_label = tk.Label(limits_frame, text='Y2 max')
     xs_max_label.grid(column=2, row=row_f, sticky='nw', padx=2, pady=2)
     xs_max_entry = tk.Entry(limits_frame, width=6, textvariable=y2_max_var, state='disabled')
     xs_max_entry.grid(column=3, row=row_f, sticky='nw', padx=2, pady=2)
     xs_max_entry.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
+    xs_max_entry.bind('<FocusOut>', lambda event: plot_variables())
     row_f += 1
 
     # tally multiplier frame -----------------------------------------------------------------------------------
@@ -504,7 +534,7 @@ def plot_window(root, tally_to_plot):
     line_width_label = tk.Label(line_options_frame, text='Line width:')
     line_width_label.grid(column=0, row=row_f, sticky='w', padx=2, pady=2)
     
-    line_width_spinbox = tk.ttk.Spinbox(line_options_frame, from_=0.2, to=5.0, increment=0.2, textvariable=line_width_var, wrap=True, width=5)
+    line_width_spinbox = tk.ttk.Spinbox(line_options_frame, from_=0.1, to=5.0, increment=0.1, textvariable=line_width_var, wrap=True, width=5)
     line_width_spinbox.grid(column=1, row=row_f, sticky='w', padx=2, pady=2)
     line_width_spinbox.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
     row_f += 1
@@ -596,7 +626,7 @@ def plot_window(root, tally_to_plot):
             ticks_var.trace_add('write', my_callback)
             xs_var.trace_add('write', my_callback)
             error_var.trace_add('write', my_callback)
-            bin_var.trace_add('write, my_callback')
+            bin_var.trace_add('write', my_callback)
             # xlim_var.trace_add('write', my_callback)
             fig_title_var.trace_add('write', my_callback)
             line_style_var.trace_add('write', my_callback)

@@ -162,10 +162,12 @@ def plot_to_canvas(tally):
 
         config_mod.ax2.legend(loc=config_mod.plot_settings["leg_pos"], fontsize=config_mod.plot_settings["leg_size"])
 
-        try:
-            config_mod.ax2.set_ylim(config_mod.plot_settings["y2_min"], config_mod.plot_settings["y2_max"])
-        except Exception as e:
-            tk.messagebox.showerror('Error', 'Something went wrong during setting XS Y limits (usually user\'s value is not a number!). Error: ' + str(e))
+        # Set y2 limits - allow setting just min or max or both
+        if config_mod.plot_settings["y2_min"] is not None or config_mod.plot_settings["y2_max"] is not None:
+            try:
+                config_mod.ax2.set_ylim(bottom=config_mod.plot_settings["y2_min"], top=config_mod.plot_settings["y2_max"])
+            except Exception as e:
+                tk.messagebox.showerror('Error', 'Something went wrong during setting XS Y limits (usually user\'s value is not a number!). Error: ' + str(e))
     
     # set X and Y axes SCALE -------------------------------------------------------------------------------------------
     config_mod.ax.set_xscale(config_mod.plot_settings["x_scale"])
@@ -186,15 +188,19 @@ def plot_to_canvas(tally):
         config_mod.plot_settings["x_min"], config_mod.plot_settings["x_max"] = config_mod.ax.get_xlim()
         print(config_mod.plot_settings["x_min"], config_mod.plot_settings["x_max"])
     '''
-    try:
-        config_mod.ax.set_xlim(config_mod.plot_settings["x_min"], config_mod.plot_settings["x_max"])
-    except Exception as e:
-        tk.messagebox.showerror('Error', 'Something went wrong during setting X limits (usually user\'s value is not a number!). Error: ' + str(e))
+    # Set x limits - allow setting just min or max or both
+    if config_mod.plot_settings["x_min"] is not None or config_mod.plot_settings["x_max"] is not None:
+        try:
+            config_mod.ax.set_xlim(left=config_mod.plot_settings["x_min"], right=config_mod.plot_settings["x_max"])
+        except Exception as e:
+            tk.messagebox.showerror('Error', 'Something went wrong during setting X limits (usually user\'s value is not a number!). Error: ' + str(e))
 
-    try:
-        config_mod.ax.set_ylim(config_mod.plot_settings["y_min"], config_mod.plot_settings["y_max"])
-    except Exception as e:
-        tk.messagebox.showerror('Error', 'Something went wrong during setting Y limits (usually user\'s value is not a number!). Error: ' + str(e))
+    # Set y limits - allow setting just min or max or both
+    if config_mod.plot_settings["y_min"] is not None or config_mod.plot_settings["y_max"] is not None:
+        try:
+            config_mod.ax.set_ylim(bottom=config_mod.plot_settings["y_min"], top=config_mod.plot_settings["y_max"])
+        except Exception as e:
+            tk.messagebox.showerror('Error', 'Something went wrong during setting Y limits (usually user\'s value is not a number!). Error: ' + str(e))
 
     # plot settings ----------------------------------------------------------------------------------------------------
     if config_mod.plot_settings["xs_switch"]:

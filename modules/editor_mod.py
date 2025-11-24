@@ -13,6 +13,7 @@ from modules import plot_core
 
 # open library or any ascii file in text editor
 def open_lib(file_path, plot_win, tally):
+    
     file_path = pathlib.Path(file_path)
     
     editor_win = tk.Toplevel()
@@ -55,10 +56,11 @@ def open_lib(file_path, plot_win, tally):
         # tk.messagebox.showinfo(title='Config file', message='Config file was modified and saved.')
 
         # read again config file
-        if pathlib.Path(file_path).name == "config_export":
-            settings_mod.read_config("config_export")
-        elif pathlib.Path(file_path).name == "config_legend":
-            settings_mod.readsave_legend("config_legend")
+        fname = pathlib.Path(file_path).name
+        if fname == "config.toml":
+            settings_mod.read_config("config.toml")
+        elif fname == "legend.toml":
+            settings_mod.readsave_legend("legend.toml")
 
         try:
             plot_core.plot_to_canvas(tally)

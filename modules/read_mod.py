@@ -411,11 +411,6 @@ def read_xs(name_label):
                 else:
                     i += 1
 
-        # print all XS from file in CMD
-        print("All XS from ", config_mod.plot_settings["xs_dir_path"].name, " file:")
-        for nam in config_mod.xs_data.keys():
-            print(nam)
-
         name_label["text"] = config_mod.plot_settings["xs_dir_path"].name
 
     except:
