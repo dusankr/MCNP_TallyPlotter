@@ -137,17 +137,35 @@ treeview_files.grid(sticky='wens', column=0, columnspan=5, row=0, rowspan=5)
 # somehow hide the first ghost column
 treeview_files['show'] = 'headings', 'tree'
 
-treeview_files['columns'] = ('File', 'Tally number', 'Tally type', 'Particle', 'Number of values', 'E_cut-off (MeV)', 'E_min (MeV)', 'E_max (MeV)', 'comment')
+# Define column widths (in pixels) for each column
+TREEVIEW_COLUMN_WIDTHS = {
+    'File': 150,
+    'Tally number': 80,
+    'Tally type': 60,
+    'Particle': 60,
+    'Number of values': 105,
+    'E_cut-off (MeV)': 95,
+    'E_min (MeV)': 80,
+    'E_max (MeV)': 80,
+    'Checks': 55,
+    'Rel. Error': 60,
+    'VoV': 50,
+    'Slope': 50,
+    'FoM': 70,
+    'comment': 200
+}
 
-for col_name in ['File', 'Tally number', 'Tally type', 'Particle', 'Number of values', 'E_min (MeV)', 'E_max (MeV)', 'E_cut-off (MeV)', "comment"]:
-    treeview_files.column(col_name, width=100, stretch=True)
+treeview_files['columns'] = ('File', 'Tally number', 'Tally type', 'Particle', 'Number of values', 'E_cut-off (MeV)', 'E_min (MeV)', 'E_max (MeV)', 'Checks', 'Rel. Error', 'VoV', 'Slope', 'FoM', 'comment')
+
+for col_name in treeview_files['columns']:
+    col_width = TREEVIEW_COLUMN_WIDTHS.get(col_name, 100)  # Default to 100 if not specified
+    treeview_files.column(col_name, width=col_width, stretch=True)
     treeview_files.heading(col_name, text=col_name, command=lambda _col=col_name: treeview_sort_column(treeview_files, _col, False))
 
 # allows chose all items in the treeview by clicking on the heading
 treeview_files.heading('#0', text='(un)check all', anchor='w', command=lambda: select_all_click())
 
 treeview_files.column('#0',anchor='w', width=75, stretch=False)
-treeview_files.column('File', width=150, stretch=False)
 
 # Treeview X-scrollbar
 tree_x_scroll = tk.ttk.Scrollbar(up_frame, orient='horizontal', command=treeview_files.xview)

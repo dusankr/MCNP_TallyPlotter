@@ -90,6 +90,94 @@ def flux_norm(energy, flux):
     return fl_n
 
 
+# parse statistical check information from MCNP output
+def parse_statistical_checks(content, start_index, tally_num):
+    """
+    Parse the statistical check table that appears after tally data.
+    
+    Args:
+        content: List of lines from MCNP output file
+        start_index: Index to start searching from (after 'total' line)
+        tally_num: Tally number to verify in table title
+    
+    Returns:
+        Tuple of (checks_passed, relative_error, variance_of_variance, figure_of_merit, slope)
+        All as strings, or 'N/A' if parsing fails
+    """
+    checks_passed = "N/A"
+    relative_error = "N/A"
+    variance_of_variance = "N/A"
+    figure_of_merit = "N/A"
+    slope = "N/A"
+    
+    try:
+        # Search for the statistical check table header
+        i = start_index
+        max_search_lines = 200  # Extended search range for tables that appear later
+        table_found = False
+        
+        while i < len(content) and i < start_index + max_search_lines:
+            line = content[i].lower()
+            
+            # Look for the specific table header string
+            if not table_found and "results of 10 statistical checks for the estimated answer for the tally fluctuation chart (tfc) bin of tally" in line:
+                # Verify tally number matches in the header
+                if str(tally_num) in content[i]:
+                    table_found = True
+                    # Found the correct table, now look for the "observed" row
+                    j = i
+                    while j < len(content) and j < i + 50:
+                        obs_line = content[j]
+                        # Check if line starts with "observed" after optional spaces
+                        if obs_line.lstrip().startswith("observed"):
+                            # Parse the observed line by splitting on whitespace
+                            parts = obs_line.split()
+                            # Index 0: "observed"
+                            # Index 1: behavior (e.g., "random")
+                            # Index 2: relative error value
+                            # Index 3-4: yes/no indicators
+                            # Index 5: variance of variance value
+                            # Index 6-9: more indicators
+                            # Index 10: slope value
+                            if len(parts) >= 11:
+                                relative_error = parts[2]
+                                variance_of_variance = parts[5]
+                                slope = parts[10]
+                            
+                            # Now look for "passed?" line to count checks
+                            k = j + 1
+                            while k < len(content) and k < j + 5:
+                                passed_line = content[k]
+                                if passed_line.lstrip().startswith("passed?"):
+                                    # Count "yes" occurrences
+                                    pass_parts = passed_line.split()
+                                    yes_count = pass_parts.count("yes")
+                                    total_checks = 10  # Standard MCNP statistical checks
+                                    checks_passed = f"{yes_count}/{total_checks}"
+                                    break
+                                k += 1
+                            break
+                        j += 1
+                    # Don't break here - continue searching for FoM
+            
+            # Look for FoM line (can appear before or after the table)
+            # Line format:   fom = (histories/minute)*(f(x) signal-to-noise ratio)**2 = (1.966E+05)*( 4.088E-03)**2 = (1.966E+05)*(1.671E-05) = 3.284E+00
+            line_stripped = content[i].strip()
+            if line_stripped.startswith("fom =") and "(histories/minute)" in line_stripped:
+                # Extract the final value after the last '='
+                parts = line_stripped.split('=')
+                if len(parts) >= 4:
+                    figure_of_merit = parts[-1].strip()
+            
+            i += 1
+    
+    except Exception as e:
+        # If parsing fails, return N/A values
+        print(f"Warning: Could not parse statistical checks for tally {tally_num}: {e}")
+    
+    return checks_passed, relative_error, variance_of_variance, figure_of_merit, slope
+
+
 # check if file is hidden in Windows folder
 def file_is_hidden(p):
     if os.name != 'nt':
@@ -159,11 +247,16 @@ def read_tallies(treeview_files):
         row_tag = "oddrow" if row_count % 2 == 0 else "evenrow"
         row_count += 1
 
+        # Replace empty or --- comments with N/A
+        comment_display = tally.comment if tally.comment and tally.comment != "---" else "N/A"
+        
         row_id = treeview_files.insert('', index='end',
                               values=[fname, tally.tally_num, tally.tally_type, tally.particle,
                                       tally.num_bins, tally.cutoff_energy,
                                       tally.energy_min, tally.energy_max,
-                                      tally.comment],
+                                      tally.checks_passed, tally.relative_error,
+                                      tally.variance_of_variance, tally.slope,
+                                      tally.figure_of_merit, comment_display],
                               tags=("unchecked", row_tag))
 
 
@@ -264,6 +357,10 @@ def read_tally(f_path, fname):
                         # create normalized variables for dictionary instead of rewrite original values
                         flux_n = flux_norm(energy, flux)
 
+                        # Parse statistical checks (after 'total' line)
+                        stat_checks = parse_statistical_checks(content, last, tally_num)
+                        checks_passed, rel_error, vov, fom, slope_val = stat_checks
+
                         control_next_tally_connection = content[last + 2].split()
                         #print("control prirazeni", control_next_tally_connection)
                         if len(control_next_tally_connection) != 0 and control_next_tally_connection[0] == surface_or_cell[0] and control_next_tally_connection[1].isdigit():  # second word must be digit, for point detector (tally5) there is dvo data file for one tally - collide and uncolide results, first world is the same, but second is not digit!
@@ -286,7 +383,12 @@ def read_tally(f_path, fname):
                                 cutoff_energy=cutoff_en,
                                 flux_normalized=flux_n,
                                 comment=com_loaded,
-                                legend_name=None
+                                legend_name=None,
+                                checks_passed=checks_passed,
+                                relative_error=rel_error,
+                                variance_of_variance=vov,
+                                figure_of_merit=fom,
+                                slope=slope_val
                             )
 
                             energy = []
@@ -349,7 +451,12 @@ def read_tally(f_path, fname):
                                     cutoff_energy=cutoff_en,
                                     flux_normalized=flux_n,
                                     comment=com_loaded,
-                                    legend_name=None
+                                    legend_name=None,
+                                    checks_passed=checks_passed,
+                                    relative_error=rel_error,
+                                    variance_of_variance=vov,
+                                    figure_of_merit=fom,
+                                    slope=slope_val
                                 )
                                 # print("last_tallies.....")
                             else:
@@ -363,7 +470,12 @@ def read_tally(f_path, fname):
                                     cutoff_energy=cutoff_en,
                                     flux_normalized=flux_n,
                                     comment=com_loaded,
-                                    legend_name=None
+                                    legend_name=None,
+                                    checks_passed=checks_passed,
+                                    relative_error=rel_error,
+                                    variance_of_variance=vov,
+                                    figure_of_merit=fom,
+                                    slope=slope_val
                                 )
                                 print("---> This file does not contain more items per tally\n")
 

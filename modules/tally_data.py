@@ -23,6 +23,11 @@ class Tally:
         flux_normalized (List[float]): Flux normalized per MeV
         comment (str): Comment from MCNP input file
         legend_name (str): Name to use in plot legends
+        checks_passed (str): Statistical checks passed (e.g., '8/10' or 'N/A')
+        relative_error (str): Relative error from statistical check (e.g., '0.00' or 'N/A')
+        variance_of_variance (str): Variance of the variance (e.g., '0.00' or 'N/A')
+        figure_of_merit (str): Figure of merit (e.g., '3.356E+00' or 'N/A')
+        slope (str): PDF slope from statistical check (e.g., '10.00' or 'N/A')
     """
     
     def __init__(self, 
@@ -35,7 +40,12 @@ class Tally:
                  cutoff_energy: float,
                  flux_normalized: List[float],
                  comment: str = "---",
-                 legend_name: Optional[str] = None):
+                 legend_name: Optional[str] = None,
+                 checks_passed: str = "N/A",
+                 relative_error: str = "N/A",
+                 variance_of_variance: str = "N/A",
+                 figure_of_merit: str = "N/A",
+                 slope: str = "N/A"):
         """
         Initialize a Tally object.
         
@@ -50,6 +60,11 @@ class Tally:
             flux_normalized: Flux normalized per MeV
             comment: Comment from MCNP input file
             legend_name: Name to use in plot legends (defaults to tally_num if None)
+            checks_passed: Statistical checks passed (e.g., '8/10')
+            relative_error: Relative error from statistical check
+            variance_of_variance: Variance of the variance
+            figure_of_merit: Figure of merit
+            slope: PDF slope from statistical check
         """
         self.tally_num = tally_num
         self.tally_type = tally_type
@@ -61,6 +76,11 @@ class Tally:
         self.flux_normalized = flux_normalized
         self.comment = comment
         self.legend_name = legend_name if legend_name is not None else str(tally_num)
+        self.checks_passed = checks_passed
+        self.relative_error = relative_error
+        self.variance_of_variance = variance_of_variance
+        self.figure_of_merit = figure_of_merit
+        self.slope = slope
     
     @property
     def num_bins(self) -> int:
