@@ -113,8 +113,8 @@ def plot_window(root, tally_to_plot):
     line_width_var = tk.DoubleVar(value=config_mod.plot_settings.get('line_width', 1.5))
 
     # figure export variables - load from config
-    x_fig_var = tk.DoubleVar(value=config_mod.plot_settings.get('fig_x_dimension', 20))
-    y_fig_var = tk.DoubleVar(value=config_mod.plot_settings.get('fig_y_dimension', 15))
+    x_fig_var = tk.DoubleVar(value=config_mod.plot_settings.get('fig_x_dimension', 25))
+    y_fig_var = tk.DoubleVar(value=config_mod.plot_settings.get('fig_y_dimension', 20))
     dpi_var = tk.DoubleVar(value=config_mod.plot_settings.get('fig_dpi', 150))
     latex_var = tk.BooleanVar(value=config_mod.plot_settings.get('latex', False))
 
