@@ -290,6 +290,37 @@ def save_config(fname="config.toml"):
         tomli_w.dump(toml_data, f)
 
 
+def create_multipliers_config(fname="multipliers.toml"):
+    """Create a new multipliers config file with preset values."""
+    default_multipliers = {
+        "multipliers": {
+            "Lujan-100uA": {"value": 6.2415091E14, "description": "Lujan Center 100 uA"},
+            "Lujan-80uA": {"value": 4.9932073E14, "description": "Lujan Center 80 uA"},
+        }
+    }
+    
+    with open(fname, "wb") as f:
+        tomli_w.dump(default_multipliers, f)
+
+
+def get_multiplier_presets(fname="multipliers.toml"):
+    """Read multiplier presets from multipliers.toml file and return as dictionary.
+    Returns dict with format: {key: {'value': float, 'description': str}}
+    """
+    if not pathlib.Path(fname).is_file():
+        create_multipliers_config(fname)
+    
+    try:
+        with open(fname, "rb") as f:
+            toml_data = tomllib.load(f)
+        
+        multipliers = toml_data.get("multipliers", {})
+        return multipliers
+    except Exception as e:
+        print(f"Warning: Could not read multiplier presets: {e}")
+        return {}
+
+
 def create_legend_config(fname="legend.toml"):
     """Create a new legend config file."""
     with open(fname, "w", encoding='utf-8') as f:

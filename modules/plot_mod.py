@@ -103,8 +103,10 @@ def plot_window(root, tally_to_plot):
     y2_max_var = tk.StringVar(value='None' if y2_max_val is None else str(y2_max_val))
     # xlim_var = tk.BooleanVar(value=False)  # Check box variable - use X axis limits
 
-    # Tally multiplier - load from config
+    # Tally multiplier - load from config and get presets
     multiplier_var = tk.StringVar(value=str(config_mod.plot_settings.get('tally_multiplier', 1.0)))
+    multiplier_presets = settings_mod.get_multiplier_presets()
+    multiplier_mode_var = tk.StringVar(value="default")  # default, preset_key, or custom
   
     # Line options - load from config
     line_style_var = tk.BooleanVar(value=config_mod.plot_settings.get('line_style_by_file', True))
@@ -216,10 +218,23 @@ def plot_window(root, tally_to_plot):
         config_mod.plot_settings['save_fig'] = save
         config_mod.plot_settings['fig_dpi'] = dpi_var.get()
 
-        # Tally multiplier - convert string to float
-        try:
-            config_mod.plot_settings['tally_multiplier'] = float(multiplier_var.get())
-        except ValueError:
+        # Tally multiplier - handle preset or custom value
+        mode = multiplier_mode_var.get()
+        if mode == "custom":
+            # Use value from entry field
+            try:
+                config_mod.plot_settings['tally_multiplier'] = float(multiplier_var.get())
+            except ValueError:
+                config_mod.plot_settings['tally_multiplier'] = 1.0
+        elif mode.startswith("preset_"):
+            # Use preset value
+            preset_key = mode.replace("preset_", "")
+            presets = settings_mod.get_multiplier_presets()
+            if preset_key in presets:
+                config_mod.plot_settings['tally_multiplier'] = presets[preset_key]["value"]
+            else:
+                config_mod.plot_settings['tally_multiplier'] = 1.0
+        else:  # "default"
             config_mod.plot_settings['tally_multiplier'] = 1.0
 
         # Line options
@@ -364,17 +379,17 @@ def plot_window(root, tally_to_plot):
 
     x_size_label = tk.Label(save_frame, text='X (cm)')
     x_size_label.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
-    x_size_spinbox = tk.ttk.Spinbox(save_frame, from_=4, to=50, textvariable=x_fig_var , wrap=True, width=4)
+    x_size_spinbox = tk.ttk.Spinbox(save_frame, from_=4, to=50, textvariable=x_fig_var , wrap=True, width=5)
     x_size_spinbox.grid(column=1, row=row_f, sticky='nw', padx=2, pady=2)
     y_size_label = tk.Label(save_frame, text='Y (cm)')
     y_size_label.grid(column=2, row=row_f, sticky='nw', padx=2, pady=2)
-    y_size_spinbox = tk.ttk.Spinbox(save_frame, from_=4, to=50, textvariable=y_fig_var, wrap=True, width=4)
+    y_size_spinbox = tk.ttk.Spinbox(save_frame, from_=4, to=50, textvariable=y_fig_var, wrap=True, width=5)
     y_size_spinbox.grid(column=3, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
 
     dpi_label = tk.Label(save_frame, text='DPI')
     dpi_label.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
-    dpi_spinbox = tk.ttk.Spinbox(save_frame, from_=50, to=1000, textvariable=dpi_var , wrap=True, width=4)
+    dpi_spinbox = tk.ttk.Spinbox(save_frame, from_=50, to=1000, textvariable=dpi_var , wrap=True, width=5)
     dpi_spinbox.grid(column=1, row=row_f, sticky='nw', padx=2, pady=2)
     chk_latex = tk.Checkbutton(save_frame, text='On/Off LaTeX', var=latex_var, state='disabled')
     chk_latex.grid(column=2, columnspan=2, row=row_f, sticky='nw', padx=2, pady=2)
@@ -511,12 +526,49 @@ def plot_window(root, tally_to_plot):
     row_c += 1
     row_f = 0
 
+    def on_multiplier_preset_change(*args):
+        """Update entry field when preset is selected."""
+        mode = multiplier_mode_var.get()
+        if mode == "custom":
+            multiplier_entry['state'] = 'normal'
+        elif mode.startswith("preset_"):
+            preset_key = mode.replace("preset_", "")
+            if preset_key in multiplier_presets:
+                multiplier_var.set(str(multiplier_presets[preset_key]["value"]))
+                multiplier_entry['state'] = 'disabled'
+        else:  # "default"
+            multiplier_var.set("1.0")
+            multiplier_entry['state'] = 'disabled'
+    
+    multiplier_mode_var.trace_add('write', on_multiplier_preset_change)
+
+    # Build preset menu options - Default first, then presets, then custom
+    preset_options = [("Default (1.0)", "default")]
+    for key, data in multiplier_presets.items():
+        preset_options.append((data["description"], f"preset_{key}"))
+    preset_options.append(("Custom value", "custom"))
+    
+    multiplier_preset_label = tk.Label(multiplier_frame, text='Preset:')
+    multiplier_preset_label.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
+    multiplier_preset_menu = tk.OptionMenu(multiplier_frame, multiplier_mode_var, *[opt[1] for opt in preset_options])
+    multiplier_preset_menu.grid(column=1, row=row_f, sticky='nswe', padx=2, pady=2)
+    multiplier_preset_menu.config(width=20)
+    # Update menu labels
+    menu = multiplier_preset_menu['menu']
+    menu.delete(0, 'end')
+    for label, value in preset_options:
+        menu.add_command(label=label, command=lambda v=value: multiplier_mode_var.set(v))
+    row_f += 1
+
     # label with description and entry for multiplier value, default value is 1.0
     # this value is used to multiply the tally values before plotting
-    multiplier_entry = tk.Entry(multiplier_frame, width=6, textvariable=multiplier_var, justify="right")
-    multiplier_entry.grid(column=0, row=row_f, sticky='nwse', padx=2, pady=2)
+    multiplier_label = tk.Label(multiplier_frame, text='Value:')
+    multiplier_label.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
+    multiplier_entry = tk.Entry(multiplier_frame, width=20, textvariable=multiplier_var, justify="right", state='disabled')
+    multiplier_entry.grid(column=1, row=row_f, sticky='nswe', padx=2, pady=2)
     multiplier_entry.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
-    row_f += 1    
+    multiplier_entry.bind('<FocusOut>', lambda event: (multiplier_mode_var.set("custom"), plot_variables()))
+    row_f += 1
 
     # Line options frame -----------------------------------------------------------------------------------------------
     line_options_frame = tk.LabelFrame(plot_option_frame2, text='Line options')
@@ -534,7 +586,7 @@ def plot_window(root, tally_to_plot):
     line_width_label = tk.Label(line_options_frame, text='Line width:')
     line_width_label.grid(column=0, row=row_f, sticky='w', padx=2, pady=2)
     
-    line_width_spinbox = tk.ttk.Spinbox(line_options_frame, from_=0.1, to=5.0, increment=0.1, textvariable=line_width_var, wrap=True, width=5)
+    line_width_spinbox = tk.ttk.Spinbox(line_options_frame, from_=0.1, to=5.0, increment=0.1, textvariable=line_width_var, wrap=True, width=6)
     line_width_spinbox.grid(column=1, row=row_f, sticky='w', padx=2, pady=2)
     line_width_spinbox.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
     row_f += 1
@@ -584,6 +636,7 @@ def plot_window(root, tally_to_plot):
     fig_title_var.trace_add('write', my_callback)
     line_style_var.trace_add('write', my_callback)
     line_width_var.trace_add('write', my_callback)
+    multiplier_mode_var.trace_add('write', my_callback)
 
     # turn on-off online replot
     def turn_off_replot():
@@ -609,6 +662,7 @@ def plot_window(root, tally_to_plot):
             fig_title_var.trace_remove('write', fig_title_var.trace_info()[0][1])
             line_style_var.trace_remove('write', line_style_var.trace_info()[0][1])
             line_width_var.trace_remove('write', line_width_var.trace_info()[0][1])
+            multiplier_mode_var.trace_remove('write', multiplier_mode_var.trace_info()[0][1])
         else:
             button_replot['state'] = 'disabled'
 
@@ -631,6 +685,7 @@ def plot_window(root, tally_to_plot):
             fig_title_var.trace_add('write', my_callback)
             line_style_var.trace_add('write', my_callback)
             line_width_var.trace_add('write', my_callback)
+            multiplier_mode_var.trace_add('write', my_callback)
 
 
     # enable/disable grid settings
