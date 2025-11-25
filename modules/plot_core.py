@@ -101,8 +101,11 @@ def plot_to_canvas(tally):
             )
             
             if not success:
-                print('Energy bins in tallies are not the same, ratio plot is not possible.')
-                continue  # skip this cycle step if energy bins don't match
+                error_msg = (f"Cannot create ratio plot!\n\n"
+                           f"Tallies '{tally_obj.legend_name}' and '{reference_tally.legend_name}' have different energy bins.\n\n"
+                           f"Ratio plots require tallies with identical energy binning (same bin count and bin boundaries).")
+                tk.messagebox.showerror('Ratio Plot Error', error_msg)
+                return  # Stop plotting entirely
             
             # Use custom y_ratio_title if provided
             if config_mod.plot_settings["y_ratio_title"] is not None:
