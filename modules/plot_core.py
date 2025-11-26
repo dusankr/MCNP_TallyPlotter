@@ -137,7 +137,11 @@ def plot_to_canvas(tally):
 
         if config_mod.plot_settings["error_bar"]:
             err = [a * b for a, b in zip(y_data_err, y_data)]  # abs error
-            lineerr = config_mod.ax.errorbar(x_data_center, y_data[1:], yerr=err[1:], xerr=0, color=p_color, marker='None', linestyle='None', capthick=0.7, capsize=2)     
+            # Scale error bar thickness and cap size with line width
+            err_linewidth = line_width * 0.7  # Error bar lines slightly thinner than main line
+            err_capthick = line_width * 0.7   # Cap thickness matches error bar line
+            err_capsize = line_width * 1.5    # Cap size scales proportionally
+            lineerr = config_mod.ax.errorbar(x_data_center, y_data[1:], yerr=err[1:], xerr=0, color=p_color, marker='None', linestyle='None', linewidth=err_linewidth, capthick=err_capthick, capsize=err_capsize)     
 
     # XS plot (if true, run) -------------------------------------------------------------------------------------------
     if config_mod.plot_settings["xs_switch"]:
