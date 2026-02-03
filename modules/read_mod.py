@@ -300,6 +300,13 @@ def read_tally(f_path, fname):
                             com_loaded = "---"  # IF TALLY IS COMMENTED IN MCNP, IT WILL BE WRITTEN, OTHER WAY, ONLY "--"
                         line = content[i + 1 + comment_int].split()
                         tally_type = int(line[2])
+                        
+                        # Skip tally type 6 (heating tally) - it doesn't have energy bins structure
+                        if tally_type == 6:
+                            print(f"Skipping tally {tally_num} (type 6 - heating tally, no energy bins)")
+                            i += 1
+                            continue
+                        
                         line = content[i + 2 + comment_int].split()
                         tally_ptc = line[1]
 
