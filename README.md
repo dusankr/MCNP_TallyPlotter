@@ -43,7 +43,7 @@ python mcnp_tally_plot_main.py
 
 * this plotter was created for quick and efficient visualization of 2D tally data extracted from MCNP output files,
 * despite different codes, this one has a Graphical User Interface and allows doing some basic plot modifications,
-* tested with some simple tally results from MCNPX, 6.1, 6.2 and 6.3, does **NOT** support  **mctal** (planned), **mdata**, **meshtal** and **runtpe** files,
+* tested with some simple tally results from MCNPX,MCNP 5, 6.1, 6.2 and 6.3, does **NOT** support  **mctal** (planned), **mdata**, **meshtal** and **runtpe** files,
 * [MCNP Tools package](https://github.com/lanl/mcnptools) for more advanced tally loading will be included in the near future (**mctal** support),
 * you can find a full description in the sections below,
 * simple XS data might be shown together with tally data (all XS were obtained from IAEA ENDF [webpage](https://www-nds.iaea.org/exfor/endf.htm)) - this is a temporary solution, in the future, there will be a possibility to use show XS data from MCNP ACE files.
@@ -58,10 +58,12 @@ python mcnp_tally_plot_main.py
   - **Export tally to xlsx** - all selected tally are saved to `.xsls` file. User has to choose the `.xsls` file name in the saving dialog. All tally are saved into single sheet.
   - **(un)check all** - this function is activated by left mouse button by clicking on column name (un)check all. It checks or unchecks all tallies in the list.
   - **sort by column** - this function is activated by left mouse button by clicking on column name. It sorts all tallies by the selected column.
-
+ - **Export to separate xslx**: Previously, selecting tallies from multiple output files and clicking "Export tally to xlsx" merged everything           into a single Excel file.
+      A new "Export to separate xlsx" button has been added. It asks for an output directory, groups the selected tallies by their source output       file, and writes one .xlsx per output named after the original file (e.g. Anif5.xlsx). The original single-file export button is unchanged.
+   
 <figure>
   <img
-  src="doc/mcnp_plotter/main_win_empty.PNG"
+  src="doc/mcnp_plotter/main_win_empty2.png"
   width="75%"
   height="75%"
   alt="Main window without data">
@@ -84,7 +86,7 @@ python mcnp_tally_plot_main.py
 
 <figure>
   <img
-  src="doc/mcnp_plotter/main_win_data.PNG"
+  src="doc/mcnp_plotter/main_win_data2.png"
   width="75%"
   height="75%"
   alt="Main window with data">

@@ -146,6 +146,9 @@ button_plot.grid(column=2, row=0, sticky='ws')
 button_export = tk.ttk.Button(button_frame, text='Export tally to xlsx', command=lambda: export_mod.save_to_xlsx(selected_tally()), width=20)
 button_export.grid(column=3, row=0, sticky='ws')
 
+button_export_sep = tk.ttk.Button(button_frame, text='Export to separate xlsx', command=lambda: export_mod.save_to_xlsx_separate(selected_tally()), width=22)
+button_export_sep.grid(column=4, row=0, sticky='ws')
+
 # -----------------------------------
 workdir_label = tk.Label(down_frame, text='Work directory: ')
 workdir_label.grid(column=0, row=1, sticky='ws')
