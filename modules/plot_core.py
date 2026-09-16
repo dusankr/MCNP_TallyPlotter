@@ -4,13 +4,16 @@
 # TODO set automaticaly lin/log based on data scale
 
 # libraries
-from modules import config_mod
+from modules import config_mod, settings_mod
 import math
 import pathlib
 import tkinter as tk
 
 
 def plot_to_canvas(tally):
+
+    # Refresh labels for editor saves, manual updates, and reopened plot windows.
+    settings_mod.readsave_legend()
 
     tally_to_plot = tally[:]
 

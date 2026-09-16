@@ -45,7 +45,10 @@ class Tally:
                  relative_error: str = "N/A",
                  variance_of_variance: str = "N/A",
                  figure_of_merit: str = "N/A",
-                 slope: str = "N/A"):
+                 slope: str = "N/A",
+                 nps: Optional[int] = None,
+                 total: Optional[float] = None,
+                 total_error: Optional[float] = None):
         """
         Initialize a Tally object.
         
@@ -65,6 +68,9 @@ class Tally:
             variance_of_variance: Variance of the variance
             figure_of_merit: Figure of merit
             slope: PDF slope from statistical check
+            nps: Histories actually used for this tally (None if unavailable)
+            total: Reported energy-integrated tally value
+            total_error: Relative error of the reported total
         """
         self.tally_num = tally_num
         self.tally_type = tally_type
@@ -81,6 +87,9 @@ class Tally:
         self.variance_of_variance = variance_of_variance
         self.figure_of_merit = figure_of_merit
         self.slope = slope
+        self.nps = nps
+        self.total = total
+        self.total_error = total_error
     
     @property
     def num_bins(self) -> int:

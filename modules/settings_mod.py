@@ -5,8 +5,12 @@
 # libraries
 from modules import config_mod
 import pathlib
+import shutil
 import tomllib
 import tomli_w
+
+
+LEGEND_CONFIG_FILE = "legend.toml"
 
 
 # Mapping between TOML structure and flat plot_settings dictionary
@@ -321,7 +325,7 @@ def get_multiplier_presets(fname="multipliers.toml"):
         return {}
 
 
-def create_legend_config(fname="legend.toml"):
+def create_legend_config(fname=LEGEND_CONFIG_FILE):
     """Create a new legend config file."""
     with open(fname, "w", encoding='utf-8') as f:
         f.write("# Legend name mappings for tallies\n")
@@ -330,10 +334,15 @@ def create_legend_config(fname="legend.toml"):
         f.write("[legend]\n")
 
 
-def readsave_legend(fname="legend.toml"):
+def readsave_legend(fname=LEGEND_CONFIG_FILE):
     """Read and save tally names to the legend config file (TOML format)."""
     if not pathlib.Path(fname).is_file():
-        create_legend_config(fname)
+        legacy_path = pathlib.Path(fname).with_name("config_legend")
+        if pathlib.Path(fname).name == LEGEND_CONFIG_FILE and legacy_path.is_file():
+            # Preserve existing mappings when upgrading to the TOML filename.
+            shutil.copyfile(legacy_path, fname)
+        else:
+            create_legend_config(fname)
     
     # Read TOML legend file
     try:

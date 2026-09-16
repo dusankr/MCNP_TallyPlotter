@@ -14,6 +14,8 @@ import pathlib  # better and easier work with file and directory paths
 import tkinter as tk
 import os
 import traceback
+import re
+from decimal import Decimal, InvalidOperation
 
 # lib for Windows API (nt is name for win OS)
 if os.name == 'nt':  # return OS system name
@@ -21,6 +23,29 @@ if os.name == 'nt':  # return OS system name
 
 
 #  Functions  ##########################################################################################################
+def parse_tally_nps(header):
+    """Read actual histories from a tally header, never from the input NPS card."""
+    match = re.search(r"\bnps\s*=\s*(\S+)", header, re.IGNORECASE)
+    if match is None:
+        return None
+    try:
+        value = Decimal(match[1].replace('D', 'E').replace('d', 'e'))
+        if value.is_finite() and value > 0 and value == value.to_integral_value():
+            return int(value)
+    except InvalidOperation:
+        pass
+    return None
+
+
+def parse_tally_total(line):
+    """Keep a tally plottable even when its printed total is unavailable."""
+    parts = line.split()
+    try:
+        return float(parts[1]), float(parts[2])
+    except (ValueError, IndexError):
+        return None, None
+
+
 # return cutoff value from output or use a default value
 def cutoff_func(content):
     # default values table 2-2. in MCNP6.2 manual (MeV):
@@ -231,8 +256,13 @@ def read_tallies(treeview_files):
         print("\t" + file)
 
     # read legend names
-    settings_mod.readsave_legend("config_legend")
+    settings_mod.readsave_legend()
 
+    refresh_tally_tree(treeview_files)
+
+
+def refresh_tally_tree(treeview_files):
+    """Refresh displayed rows without re-reading the source files."""
     # fill treeview part
     x = treeview_files.get_children()  # get id of all items in treeview
     for i in x:  # delete all items
@@ -250,8 +280,9 @@ def read_tallies(treeview_files):
         # Replace empty or --- comments with N/A
         comment_display = tally.comment if tally.comment and tally.comment != "---" else "N/A"
         
-        row_id = treeview_files.insert('', index='end',
+        row_id = treeview_files.insert('', index='end', iid=key,
                               values=[fname, tally.tally_num, tally.tally_type, tally.particle,
+                                      tally.nps if tally.nps is not None else 'N/A',
                                       tally.num_bins, tally.cutoff_energy,
                                       tally.energy_min, tally.energy_max,
                                       tally.checks_passed, tally.relative_error,
@@ -285,6 +316,7 @@ def read_tally(f_path, fname):
                 if len(line) != 0:  # skip empty lines (try to find a better solution?)
                     if '1tally' == line[0] and line[1].isdigit():
                         tally_num = line[1]
+                        tally_nps = parse_tally_nps(content[i])
                         line = content[i + 1].split()
 
                         comment_loading = []
@@ -363,14 +395,15 @@ def read_tally(f_path, fname):
                         
                         # create normalized variables for dictionary instead of rewrite original values
                         flux_n = flux_norm(energy, flux)
+                        total, total_error = parse_tally_total(content[last])
 
                         # Parse statistical checks (after 'total' line)
                         stat_checks = parse_statistical_checks(content, last, tally_num)
                         checks_passed, rel_error, vov, fom, slope_val = stat_checks
 
-                        control_next_tally_connection = content[last + 2].split()
+                        control_next_tally_connection = content[last + 2].split() if last + 2 < len(content) else []
                         #print("control prirazeni", control_next_tally_connection)
-                        if len(control_next_tally_connection) != 0 and control_next_tally_connection[0] == surface_or_cell[0] and control_next_tally_connection[1].isdigit():  # second word must be digit, for point detector (tally5) there is dvo data file for one tally - collide and uncolide results, first world is the same, but second is not digit!
+                        if len(control_next_tally_connection) >= 2 and control_next_tally_connection[0] == surface_or_cell[0] and control_next_tally_connection[1].isdigit():  # second word must be digit, for point detector (tally5) there is dvo data file for one tally - collide and uncolide results, first world is the same, but second is not digit!
                             print(str(surface_or_cell[0]) + str(surface_or_cell[1]) + "  ---  line" + str(last + 2))
                             next_tally = last + 4
                             more_items_in_one_tally = True
@@ -395,7 +428,10 @@ def read_tally(f_path, fname):
                                 relative_error=rel_error,
                                 variance_of_variance=vov,
                                 figure_of_merit=fom,
-                                slope=slope_val
+                                slope=slope_val,
+                                nps=tally_nps,
+                                total=total,
+                                total_error=total_error
                             )
 
                             energy = []
@@ -427,12 +463,13 @@ def read_tally(f_path, fname):
                                 print("Cutoff energy is higher than the first energy in the tally, using the first energy as cutoff energy.")
                             
                             flux_n = flux_norm(energy, flux)
+                            total, total_error = parse_tally_total(content[last])
 
-                            control_next_tally_connection = content[last + 2].split()
+                            control_next_tally_connection = content[last + 2].split() if last + 2 < len(content) else []
 
                             # temporary bug fix, solve an empty list if there is not a next tally
-                            if not control_next_tally_connection:
-                                control_next_tally_connection.extend(["empty", 0])
+                            if len(control_next_tally_connection) < 2:
+                                control_next_tally_connection = ["empty", 0]
 
                             if control_next_tally_connection[0] == surface_or_cell[0]:
                                 print("---> next tally included...")
@@ -463,7 +500,10 @@ def read_tally(f_path, fname):
                                     relative_error=rel_error,
                                     variance_of_variance=vov,
                                     figure_of_merit=fom,
-                                    slope=slope_val
+                                    slope=slope_val,
+                                    nps=tally_nps,
+                                    total=total,
+                                    total_error=total_error
                                 )
                                 # print("last_tallies.....")
                             else:
@@ -482,7 +522,10 @@ def read_tally(f_path, fname):
                                     relative_error=rel_error,
                                     variance_of_variance=vov,
                                     figure_of_merit=fom,
-                                    slope=slope_val
+                                    slope=slope_val,
+                                    nps=tally_nps,
+                                    total=total,
+                                    total_error=total_error
                                 )
                                 print("---> This file does not contain more items per tally\n")
 

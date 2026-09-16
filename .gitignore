@@ -1,17 +1,26 @@
-/config_legend
-/config_export
-/dist/
-/mcnp_tally_plot_main.spec
-/build/
-/data/
-/fp12/
-/new/
-/sven/
-/env
-/env-test
-/env-venv
-/modules/__pycache__
-/.vscode
+# VS Code settings
 .vscode
+# possible virtual environment folders
+.venv
+.env
+.conda
+venv
+env
+conda
+# specific files
+*.log
+*.aux
 *.old
+# config files and folders
 *.toml
+config_legend
+config_export
+# build folders (pyinstaller, etc.)
+dist/
+build/
+mcnp_tally_plot_main.spec
+# Python cache folders
+__pycache__/
+modules/__pycache__
+# other 
+doc/MCNP 6-3-1 manual.pdf.pdf

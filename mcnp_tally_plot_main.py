@@ -2,7 +2,7 @@
 # TODO_list:
 
 # LIBRARIES
-from modules import read_mod, plot_mod, settings_mod, export_mod, config_mod
+from modules import read_mod, plot_mod, settings_mod, export_mod, config_mod, merge_mod
 # GUI libraries
 import tkinter as tk
 import ttkwidgets
@@ -23,8 +23,7 @@ def selected_tally():
         # send selected tallies to plot_mod function
         selection = []
         for row in treeview_files.get_checked():
-            key = treeview_files.item(row)['values'][0] + '_' + str(treeview_files.item(row)['values'][1])  # get file name and tally number
-            selection.append(key)
+            selection.append(row)  # Tree row IDs are the exact tally keys, including cell/surface suffixes.
     else:
         tk.messagebox.showerror('Input error', 'Please choose tally for plotting.')
         return None
@@ -143,6 +142,7 @@ TREEVIEW_COLUMN_WIDTHS = {
     'Tally number': 80,
     'Tally type': 60,
     'Particle': 60,
+    'NPS': 100,
     'Number of values': 105,
     'E_cut-off (MeV)': 95,
     'E_min (MeV)': 80,
@@ -155,7 +155,7 @@ TREEVIEW_COLUMN_WIDTHS = {
     'comment': 200
 }
 
-treeview_files['columns'] = ('File', 'Tally number', 'Tally type', 'Particle', 'Number of values', 'E_cut-off (MeV)', 'E_min (MeV)', 'E_max (MeV)', 'Checks', 'Rel. Error', 'VoV', 'Slope', 'FoM', 'comment')
+treeview_files['columns'] = ('File', 'Tally number', 'Tally type', 'Particle', 'NPS', 'Number of values', 'E_cut-off (MeV)', 'E_min (MeV)', 'E_max (MeV)', 'Checks', 'Rel. Error', 'VoV', 'Slope', 'FoM', 'comment')
 
 for col_name in treeview_files['columns']:
     col_width = TREEVIEW_COLUMN_WIDTHS.get(col_name, 100)  # Default to 100 if not specified
@@ -204,10 +204,19 @@ button_plot.grid(column=2, row=0, sticky='ws')
 
 # Checkbox for using saved config
 chk_use_config = tk.Checkbutton(button_frame, text='Use saved config', var=use_saved_config_var)
-chk_use_config.grid(column=4, row=0, sticky='ws', padx=10)
+chk_use_config.grid(column=5, row=0, sticky='ws', padx=10)
 
 button_export = tk.ttk.Button(button_frame, text='Export tally to xlsx', command=lambda: export_mod.save_to_xlsx(selected_tally()), width=20)
 button_export.grid(column=3, row=0, sticky='ws')
+
+normalize_merge_var = tk.BooleanVar(value=False)
+button_merge = tk.ttk.Button(button_frame, text='Merge tallies',
+                             command=lambda: merge_mod.merge_selected_tallies(
+                                 treeview_files, normalize_by_nps=normalize_merge_var.get()), width=20)
+button_merge.grid(column=4, row=0, sticky='ws')
+chk_normalize_merge = tk.ttk.Checkbutton(button_frame, text='Normalize merge by total NPS',
+                                        variable=normalize_merge_var)
+chk_normalize_merge.grid(column=4, columnspan=2, row=1, sticky='w', pady=(3, 0))
 
 # -----------------------------------
 workdir_label = tk.Label(down_frame, text='Work directory: ')

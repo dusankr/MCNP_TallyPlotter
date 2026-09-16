@@ -328,7 +328,7 @@ def plot_window(root, tally_to_plot):
     h_sep3.grid(column=0, columnspan=4, row=row_f, sticky='nwe', padx=2, pady=2)
     row_f += 1
 
-    button_legend = tk.ttk.Button(legend_frame, text='Legend editor', command=lambda: editor_mod.open_lib('config_legend', plot_win, tally_to_plot))
+    button_legend = tk.ttk.Button(legend_frame, text='Legend editor', command=lambda: editor_mod.open_lib(settings_mod.LEGEND_CONFIG_FILE, plot_win, tally_to_plot))
     button_legend.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
     row_f += 1  
 
