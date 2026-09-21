@@ -42,14 +42,14 @@ those must be accounted for before their contributions are added.
 
 The output retains the common NPS as a convention for this summed response;
 it is **not** the total number of independently pooled histories. The result is
-named `merged_<timestamp>.o`. Different source definitions alone do not ensure
+named `filename1+filename2+filenameX_<tally_number>.o`. Different source definitions alone do not ensure
 statistical independence: shared histories or random streams can require
 covariance terms that ordinary output tables do not provide.
 
 ## Optional: normalize by total NPS
 
 Check **Normalize merge by total NPS**. Positive, known NPS is required for each
-input, but counts may differ. The result is `merged_<timestamp>_NPSnorm.o`, with
+input, but counts may differ. The result is `filename1+filename2+filenameX_<tally_number>_NPSnorm.o`, with
 the sum of input NPS recorded in its tally header.
 
 The MCNP pooled-history calculation is:

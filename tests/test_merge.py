@@ -130,7 +130,7 @@ class MergeTests(unittest.TestCase):
                    ('b', self.tally_from_history_scores([[1, 0], [0, 4], [3, 0]])),
                    ('c', self.tally_from_history_scores([[2, 1], [1, 4]]))]
         path, first = merge_mod.save_merged_tally(sources[:2], self.directory, normalize_by_nps=True)
-        self.assertTrue(path.name.endswith('_NPSnorm.o'))
+        self.assertEqual(path.name, 'a+b_4_NPSnorm.o')
         self.assertIn('NPS-normalized', path.read_text())
         read_mod.read_tally(self.directory, path)
         loaded = config_mod.tallies[f'{path.stem}_4']
@@ -160,7 +160,7 @@ class MergeTests(unittest.TestCase):
             with self.subTest(particle=particle, cutoff=cutoff):
                 source = tally(particle=particle, cutoff_energy=cutoff, energy=energies)
                 path, merged = merge_mod.save_merged_tally([('a', source), ('b', source)], self.directory)
-                self.assertRegex(path.name, r'^merged_\d{8}_\d{6}_\d{6}\.o$')
+                self.assertEqual(path.name, 'a+b_4.o')
                 config_mod.tallies.clear()
                 read_mod.read_tally(self.directory, path)
                 self.assertNotIn(path.name, config_mod.non_output)
@@ -170,6 +170,7 @@ class MergeTests(unittest.TestCase):
                     self.assertEqual(getattr(loaded, attr), getattr(merged, attr), attr)
                 again = merge_mod.merge_tallies([('merged', loaded), ('original', source)])
                 self.assertEqual(again.flux, [0, 6, 9])
+                path.unlink()
 
     def test_nps_parser_uses_actual_tally_header(self):
         for token, expected in [('10000000000000001', 10000000000000001),
@@ -179,15 +180,20 @@ class MergeTests(unittest.TestCase):
             self.assertEqual(read_mod.parse_tally_nps(f'1tally 4 nps = {token}'), expected)
         self.assertIsNone(read_mod.parse_tally_nps('nps 1000000'))
 
-    def test_timestamp_collision_does_not_overwrite_existing_file(self):
-        from datetime import datetime
-        with patch.object(merge_mod, 'datetime') as clock:
-            clock.now.return_value = datetime(2026, 9, 16, 12, 30)
-            path, _ = merge_mod.save_merged_tally([('a', tally()), ('b', tally())], self.directory)
-            original = path.read_bytes()
-            with self.assertRaises(FileExistsError):
-                merge_mod.save_merged_tally([('c', tally()), ('d', tally())], self.directory)
-            self.assertEqual(path.read_bytes(), original)
+    def test_filename_collision_does_not_overwrite_existing_file(self):
+        path, _ = merge_mod.save_merged_tally([('a', tally()), ('b', tally())], self.directory)
+        original = path.read_bytes()
+        with self.assertRaises(FileExistsError):
+            merge_mod.save_merged_tally([('a', tally()), ('b', tally())], self.directory)
+        self.assertEqual(path.read_bytes(), original)
+
+    def test_names_use_source_stems_for_single_and_multiple_item_tallies(self):
+        sources = [('run_one.v1_14', tally(tally_num='14')),
+                   ('run_two_14_cell_2', tally(tally_num='14')),
+                   ('run_three_24_surface_10', tally(tally_num='24'))]
+        for normalize, suffix in [(False, ''), (True, '_NPSnorm')]:
+            path, _ = merge_mod.save_merged_tally(sources, self.directory, normalize_by_nps=normalize)
+            self.assertEqual(path.name, f'run_one.v1+run_two+run_three_14{suffix}.o')
 
     def test_reader_allows_plotting_when_merge_metadata_is_missing(self):
         path = self.directory / 'unknown.o'
@@ -243,7 +249,7 @@ class MergeTests(unittest.TestCase):
             merge_mod.merge_selected_tallies(tree)
         dialogs.showinfo.assert_called_once()
         self.assertEqual(len(config_mod.tallies), 3)
-        self.assertEqual(len(list(self.directory.glob('merged_*.o'))), 1)
+        self.assertEqual([p.name for p in self.directory.glob('*.o')], ['a+b_4.o'])
         key = f'{config_mod.output_files[0].stem}_4'
         tree.change_state.assert_called_once_with(key, 'checked')
 

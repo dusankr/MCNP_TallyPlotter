@@ -3,8 +3,8 @@
 See doc/tally_merge.md for the manual references, formulas, and assumptions.
 """
 
-from datetime import datetime
 import math
+import re
 from pathlib import Path
 from tkinter import messagebox
 
@@ -124,8 +124,12 @@ def save_merged_tally(named_tallies, directory, normalize_by_nps=False):
     lines.extend([f' total {merged.total:.17e} {merged.total_error:.17e}\n',
                   '\n', ' end of merged tally\n'])
     suffix = '_NPSnorm' if normalize_by_nps else ''
-    output = Path(directory) / f'merged_{datetime.now():%Y%m%d_%H%M%S_%f}{suffix}.o'
-    # Exclusive creation avoids overwriting an existing result even on a timestamp collision.
+    # Reader keys are <file stem>_<tally number>[_<cell/surface>_<item number>].
+    # Strip only that suffix, preserving underscores and dots in the file stem.
+    source_names = [re.sub(rf'_{re.escape(str(tally.tally_num))}(?:_[^_]+_\d+)?$', '', key)
+                    for key, tally in named_tallies]
+    output = Path(directory) / f'{"+".join(source_names)}_{merged.tally_num}{suffix}.o'
+    # Keep existing files intact when the same sources are merged again.
     with output.open('x', encoding='utf-8') as stream:
         try:
             stream.writelines(lines)
@@ -146,6 +150,10 @@ def merge_selected_tallies(treeview, normalize_by_nps=False):
                                           normalize_by_nps=normalize_by_nps)
     except (ValueError, OverflowError, KeyError) as exc:
         messagebox.showwarning('Cannot merge tallies', str(exc))
+        return
+    except FileExistsError as exc:
+        messagebox.showwarning('Merged file already exists',
+                               f'The merged file already exists and was not overwritten:\n{exc.filename}')
         return
     except OSError as exc:
         messagebox.showerror('Could not save merged tally', str(exc))

@@ -210,13 +210,15 @@ button_export = tk.ttk.Button(button_frame, text='Export tally to xlsx', command
 button_export.grid(column=3, row=0, sticky='ws')
 
 normalize_merge_var = tk.BooleanVar(value=False)
-button_merge = tk.ttk.Button(button_frame, text='Merge tallies',
+merge_frame = tk.LabelFrame(button_frame)
+merge_frame.grid(column=4, row=0, sticky='ws', padx=(5, 0))
+button_merge = tk.ttk.Button(merge_frame, text='Merge tallies',
                              command=lambda: merge_mod.merge_selected_tallies(
                                  treeview_files, normalize_by_nps=normalize_merge_var.get()), width=20)
-button_merge.grid(column=4, row=0, sticky='ws')
-chk_normalize_merge = tk.ttk.Checkbutton(button_frame, text='Normalize merge by total NPS',
+button_merge.grid(column=0, row=0, sticky='w')
+chk_normalize_merge = tk.ttk.Checkbutton(merge_frame, text='Total NPS normalization',
                                         variable=normalize_merge_var)
-chk_normalize_merge.grid(column=4, columnspan=2, row=1, sticky='w', pady=(3, 0))
+chk_normalize_merge.grid(column=1, row=0, sticky='w', padx=(5, 0))
 
 # -----------------------------------
 workdir_label = tk.Label(down_frame, text='Work directory: ')
