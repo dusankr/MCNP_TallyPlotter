@@ -2,7 +2,7 @@
 # TODO_list:
 
 # LIBRARIES
-from modules import read_mod, plot_mod, settings_mod, export_mod, config_mod, merge_mod
+from modules import read_mod, plot_mod, settings_mod, export_mod, config_mod, merge_mod, treeview_mod
 # GUI libraries
 import tkinter as tk
 import ttkwidgets
@@ -41,30 +41,6 @@ def select_all_click():
         for item in treeview_files.get_children():
             treeview_files.change_state(item, state="unchecked")
         check_on_click = True
-
-
-# sort data in columns in treeview
-def treeview_sort_column(tree, col, reverse):
-    data = [(tree.set(child, col), child) for child in tree.get_children('')]
-    data.sort(reverse=reverse)
-
-    # rearrange items in sorted positions
-    for index, (val, child) in enumerate(data):
-        tree.move(child, '', index)
-
-    # Re-apply alternating row colors after sorting while preserving checkbox state
-    for index, (val, child) in enumerate(data):
-        row_tag = "oddrow" if index % 2 == 0 else "evenrow"
-        # Get current tags (checkbox state: "checked" or "unchecked")
-        current_tags = tree.item(child, 'tags')
-        # Preserve the checkbox state tag and add the color tag
-        checkbox_state = [tag for tag in current_tags if tag in ("checked", "unchecked")]
-        # Set tags with both checkbox state and color tag
-        new_tags = tuple(checkbox_state) + (row_tag,)
-        tree.item(child, tags=new_tags)
-
-    # rearrange items in sorted positions
-    tree.heading(col, command=lambda: treeview_sort_column(tree, col, not reverse))
 
 
 #  MAIN CODE  ##########################################################################################################
@@ -160,7 +136,7 @@ treeview_files['columns'] = ('File', 'Tally number', 'Tally type', 'Particle', '
 for col_name in treeview_files['columns']:
     col_width = TREEVIEW_COLUMN_WIDTHS.get(col_name, 100)  # Default to 100 if not specified
     treeview_files.column(col_name, width=col_width, stretch=True)
-    treeview_files.heading(col_name, text=col_name, command=lambda _col=col_name: treeview_sort_column(treeview_files, _col, False))
+    treeview_files.heading(col_name, text=col_name, command=lambda _col=col_name: treeview_mod.sort_treeview_column(treeview_files, _col, False))
 
 # allows chose all items in the treeview by clicking on the heading
 treeview_files.heading('#0', text='(un)check all', anchor='w', command=lambda: select_all_click())
