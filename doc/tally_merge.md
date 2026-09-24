@@ -108,6 +108,22 @@ the precision of reconstructed statistics. Do not include an original run again
 when merging a result that already contains it; the plotter has no complete
 history-overlap tracking.
 
+## Batch source-sum merge
+
+**Batch merge all tallies** disables **Total NPS normalization**. It ignores checkbox selection and scans all currently loaded original
+tallies. It creates one source-sum output for each group with at least two members
+that has the same tally number, cell or surface item identity, NPS, particle, tally
+type, cutoff, and exact energy boundaries. Tallies with no compatible partner are
+reported and left unchanged. The cell/surface identity prevents separate items within
+the same tally from being merged together merely because their energy binning matches.
+
+Previously generated merge results are excluded from batch input. This prevents a
+second batch invocation from counting a prior output a second time. If a file with the
+same source-name-based filename already exists, it is preserved and the batch summary
+reports that group as not merged. All successful groups are written as separate tally blocks
+in one `source1+source2+..._batch_merged.o` output, preserving a single reloadable result
+file while retaining cell and surface identities.
+
 The regression tests compare normalized results with statistics calculated
 directly from synthetic per-history scores, including unequal NPS, different
 run means, sequential merges, and output/reload round trips.

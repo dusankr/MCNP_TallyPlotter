@@ -195,6 +195,97 @@ class MergeTests(unittest.TestCase):
             path, _ = merge_mod.save_merged_tally(sources, self.directory, normalize_by_nps=normalize)
             self.assertEqual(path.name, f'run_one.v1+run_two+run_three_14{suffix}.o')
 
+    def test_batch_groups_by_tally_number_and_all_source_sum_conditions(self):
+        merged_result = tally(comment='Merged source sum: old inputs')
+        config_mod.tallies.update(
+            source_a_4=tally(), source_b_4=tally(),
+            source_a_14=tally(tally_num='14'), source_b_14=tally(tally_num='14'),
+            source_a_24_cell_1=tally(tally_num='24'), source_b_24_cell_1=tally(tally_num='24'),
+            # Each of these differs from the compatible source_a/source_b groups.
+            different_nps_4=tally(nps=2), photon_4=tally(particle='photons'),
+            other_binning_4=tally(energy=[0, 0.2, 1]),
+            merged_old_4=merged_result,
+        )
+        output, completed, unmatched, skipped_merged, failures = merge_mod.batch_merge_tallies(self.directory)
+        self.assertEqual(output.name, 'source_a+source_b_batch_merged.o')
+        self.assertEqual([entry['merged'].tally_num for entry in completed], ['4', '14', '24'])
+        self.assertTrue(all(entry['merged'].nps == 1000000 for entry in completed))
+        self.assertEqual(unmatched, 3)
+        self.assertEqual(skipped_merged, 1)
+        self.assertEqual(failures, [])
+        self.assertEqual(config_mod.tallies['source_a_4'].flux, [0, 2, 3])
+
+    def test_batch_reports_no_compatible_groups_without_writing_files(self):
+        config_mod.tallies.update(source_a_4=tally(), source_b_4=tally(nps=2))
+        output, completed, unmatched, skipped_merged, failures = merge_mod.batch_merge_tallies(self.directory)
+        self.assertIsNone(output)
+        self.assertEqual(completed, [])
+        self.assertEqual(unmatched, 2)
+        self.assertEqual(skipped_merged, 0)
+        self.assertEqual(failures, [])
+        self.assertEqual(list(self.directory.iterdir()), [])
+
+    def test_batch_button_adds_and_selects_every_merged_result(self):
+        tree = Mock()
+        tree.get_children.return_value = []
+        config_mod.tallies.update(
+            source_a_4=tally(), source_b_4=tally(),
+            source_a_14=tally(tally_num='14'), source_b_14=tally(tally_num='14'),
+        )
+        with patch.dict(config_mod.plot_settings, work_dir_path=self.directory), \
+                patch.object(merge_mod, 'messagebox') as dialogs, \
+                patch.object(merge_mod.settings_mod, 'readsave_legend'):
+            merge_mod.batch_merge_all_tallies(tree)
+        dialogs.showinfo.assert_called_once()
+        self.assertEqual([path.name for path in config_mod.output_files],
+                         ['source_a+source_b_batch_merged.o'])
+        self.assertEqual(tree.change_state.call_count, 2)
+        self.assertEqual(tree.see.call_count, 2)
+
+    def test_batch_file_round_trips_all_tallies_and_cell_items(self):
+        config_mod.tallies.update(
+            source_a_4=tally(), source_b_4=tally(),
+            source_a_14=tally(tally_num='14'), source_b_14=tally(tally_num='14'),
+            source_a_24_cell_1=tally(tally_num='24'),
+            source_b_24_cell_1=tally(tally_num='24'),
+            source_a_24_cell_2=tally(tally_num='24', flux=[0, 4, 6], total=10),
+            source_b_24_cell_2=tally(tally_num='24', flux=[0, 4, 6], total=10),
+        )
+        output, completed, _, _, failures = merge_mod.batch_merge_tallies(self.directory)
+        self.assertEqual(failures, [])
+        self.assertEqual(len(completed), 4)
+        self.assertEqual(output.name, 'source_a+source_b_batch_merged.o')
+        config_mod.tallies.clear()
+        read_mod.read_tally(self.directory, output)
+        self.assertEqual(set(config_mod.tallies), {
+            f'{output.stem}_4_cell_1', f'{output.stem}_14_cell_1',
+            f'{output.stem}_24_cell_1', f'{output.stem}_24_cell_2',
+        })
+        self.assertEqual(config_mod.tallies[f'{output.stem}_4_cell_1'].flux, [0, 4, 6])
+        self.assertEqual(config_mod.tallies[f'{output.stem}_24_cell_2'].flux, [0, 8, 12])
+
+    def test_batch_rejects_same_tally_number_with_conflicting_metadata(self):
+        config_mod.tallies.update(
+            neutron_a_4=tally(), neutron_b_4=tally(),
+            photon_a_4=tally(particle='photons'), photon_b_4=tally(particle='photons'),
+        )
+        output, completed, _, _, failures = merge_mod.batch_merge_tallies(self.directory)
+        self.assertIsNone(output)
+        self.assertEqual(completed, [])
+        self.assertEqual(len(failures), 1)
+        self.assertIn('Tally 4', failures[0])
+        self.assertEqual(list(self.directory.iterdir()), [])
+
+    def test_batch_button_warns_when_no_group_can_be_merged(self):
+        tree = Mock()
+        config_mod.tallies.update(source_a_4=tally(), source_b_4=tally(nps=2))
+        with patch.dict(config_mod.plot_settings, work_dir_path=self.directory), \
+                patch.object(merge_mod, 'messagebox') as dialogs:
+            merge_mod.batch_merge_all_tallies(tree)
+        dialogs.showwarning.assert_called_once()
+        dialogs.showinfo.assert_not_called()
+        self.assertEqual(list(self.directory.iterdir()), [])
+
     def test_reader_allows_plotting_when_merge_metadata_is_missing(self):
         path = self.directory / 'unknown.o'
         path.write_text('1tally 4\n tally type 4\n particle(s): neutrons\n'

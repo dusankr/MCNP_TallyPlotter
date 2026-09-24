@@ -296,6 +296,7 @@ def read_tally(f_path, fname):
     try:
         with open(f_path / fname, 'r', encoding='utf-8') as temp_file:  # open MCNP output file
             content = temp_file.readlines()
+            batch_merged_file = any('Batch source-sum tally merge;' in line for line in content)
 
             cutoff_dict = cutoff_func(content)      # read cut-off table from output file, if does not exist then use default values
 
@@ -507,7 +508,10 @@ def read_tally(f_path, fname):
                                 )
                                 # print("last_tallies.....")
                             else:
-                                config_mod.tallies[fname.stem + '_' + str(tally_num)] = Tally(
+                                tally_key = fname.stem + '_' + str(tally_num)
+                                if batch_merged_file and len(surface_or_cell) >= 2:
+                                    tally_key += '_' + str(surface_or_cell[0]) + '_' + str(surface_or_cell[1])
+                                config_mod.tallies[tally_key] = Tally(
                                     tally_num=tally_num,
                                     tally_type=tally_type,
                                     particle=tally_ptc,

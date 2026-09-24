@@ -210,15 +210,39 @@ button_export = tk.ttk.Button(button_frame, text='Export tally to xlsx', command
 button_export.grid(column=3, row=0, sticky='ws')
 
 normalize_merge_var = tk.BooleanVar(value=False)
+batch_merge_var = tk.BooleanVar(value=False)
 merge_frame = tk.LabelFrame(button_frame)
 merge_frame.grid(column=4, row=0, sticky='ws', padx=(5, 0))
 button_merge = tk.ttk.Button(merge_frame, text='Merge tallies',
-                             command=lambda: merge_mod.merge_selected_tallies(
-                                 treeview_files, normalize_by_nps=normalize_merge_var.get()), width=20)
+                             command=lambda: (
+                                 merge_mod.batch_merge_all_tallies(treeview_files)
+                                 if batch_merge_var.get() else
+                                 merge_mod.merge_selected_tallies(
+                                     treeview_files, normalize_by_nps=normalize_merge_var.get())
+                             ), width=20)
 button_merge.grid(column=0, row=0, sticky='w')
 chk_normalize_merge = tk.ttk.Checkbutton(merge_frame, text='Total NPS normalization',
                                         variable=normalize_merge_var)
 chk_normalize_merge.grid(column=1, row=0, sticky='w', padx=(5, 0))
+chk_batch_merge = tk.ttk.Checkbutton(merge_frame, text='Batch merge all tallies',
+                                    variable=batch_merge_var)
+chk_batch_merge.grid(column=2, row=0, sticky='w', padx=(5, 0))
+
+def update_batch_merge_state(*_):
+    if normalize_merge_var.get():
+        batch_merge_var.set(False)
+        chk_batch_merge.state(['disabled'])
+        chk_normalize_merge.state(['!disabled'])
+    elif batch_merge_var.get():
+        chk_normalize_merge.state(['disabled'])
+        chk_batch_merge.state(['!disabled'])
+    else:
+        chk_batch_merge.state(['!disabled'])
+        chk_normalize_merge.state(['!disabled'])
+
+normalize_merge_var.trace_add('write', update_batch_merge_state)
+batch_merge_var.trace_add('write', update_batch_merge_state)
+update_batch_merge_state()
 
 # -----------------------------------
 workdir_label = tk.Label(down_frame, text='Work directory: ')
