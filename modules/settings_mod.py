@@ -11,6 +11,9 @@ import tomli_w
 
 
 LEGEND_CONFIG_FILE = "legend.toml"
+CONFIG_FILE = "config.toml"
+_MISSING = object()
+last_config_error = None
 
 
 # Mapping between TOML structure and flat plot_settings dictionary
@@ -69,14 +72,14 @@ TOML_TO_SETTINGS = {
 }
 
 
-def get_nested_value(data, keys):
+def get_nested_value(data, keys, default=None):
     """Get value from nested dictionary using tuple of keys."""
     value = data
     for key in keys:
         if isinstance(value, dict) and key in value:
             value = value[key]
         else:
-            return None
+            return default
     return value
 
 
@@ -89,209 +92,192 @@ def set_nested_value(data, keys, value):
     data[keys[-1]] = value
 
 
-def create_config(fname="config.toml"):
-    """Create a new TOML config file with default values."""
-    default_config = {
-        "paths": {
-            "work_dir_path": str(pathlib.Path.cwd()),
-            "export_dir_path": str(pathlib.Path.cwd()),
-            "xs_dir_path": str(pathlib.Path.cwd()),
-        },
-        "figure": {
-            "x_dimension": 20.0,
-            "y_dimension": 15.0,
-            "format": "png",
-            "dpi": 150.0,
-        },
-        "plot": {
-            "data_var": True,
-            "ratio": "no ratio",
-            "error_bar": True,
-            "first_bin": True,
-            "latex": False,
-        },
-        "axes": {
-            "x_scale": "log",
-            "y_scale": "log",
-            "y2_scale": "log",
-            # Optional title fields as string "None"
-            "x_title": "None",
-            "y_title": "None",
-            "y2_title": "None",
-            "y_ratio_title": "None",
-            "limits": {
-                # Optional limit fields as string "None"
-                "x_min": "None",
-                "x_max": "None",
-                "y_min": "None",
-                "y_max": "None",
-                "y2_min": "None",
-                "y2_max": "None",
-            },
-        },
-        "legend": {
-            "position": "best",
-            "size": 10,
-        },
-        "grid": {
-            "switch": True,
-            "option": "major",
-            "axis": "both",
-        },
-        "fonts": {
-            "ax_label_size": 12,
-            "tics_size": 10,
-        },
-        "title": {
-            # Optional title fields as string "None"
-            "fig_title": "None",
-            "fig_title_switch": False,
-            "fig_title_size": "None",
-        },
-        "cross_section": {
-            "xs_switch": False,
-        },
-        "line": {
-            "style_by_file": True,
-            "width": 1.5,
-        },
-        "advanced": {
-            "tally_multiplier": 1.0,
-        },
+def default_plot_settings():
+    """Return a complete, independently mutable set of runtime defaults."""
+    current_dir = pathlib.Path.cwd()
+    return {
+        "work_dir_path": current_dir,
+        "export_dir_path": current_dir,
+        "xs_dir_path": current_dir,
+        "fig_x_dimension": 20.0,
+        "fig_y_dimension": 15.0,
+        "fig_format": "png",
+        "fig_dpi": 150.0,
+        "x_title": None,
+        "y_title": None,
+        "ratio": "no ratio",
+        "data_var": True,
+        "leg_pos": "best",
+        "leg_size": 10,
+        "grid_switch": True,
+        "grid_opt": "major",
+        "grid_ax": "both",
+        "ax_label_size": 12,
+        "tics_size": 10,
+        "save_fig": False,
+        "error_bar": True,
+        "latex": False,
+        "x_min": None,
+        "x_max": None,
+        "y_min": None,
+        "y_max": None,
+        "y2_min": None,
+        "y2_max": None,
+        "xs_switch": False,
+        "y2_title": None,
+        "fig_title": None,
+        "fig_title_switch": False,
+        "fig_title_size": 14,
+        "first_bin": True,
+        "y2_scale": "log",
+        "y_scale": "log",
+        "x_scale": "log",
+        "tally_multiplier": 1.0,
+        "y_ratio_title": None,
+        "line_style_by_file": True,
+        "line_width": 1.5,
     }
-    
+
+
+PATH_SETTINGS = {"work_dir_path", "export_dir_path", "xs_dir_path"}
+BOOLEAN_SETTINGS = {
+    "data_var", "error_bar", "first_bin", "latex", "grid_switch",
+    "fig_title_switch", "xs_switch", "line_style_by_file",
+}
+INTEGER_SETTINGS = {"leg_size", "ax_label_size", "tics_size", "fig_title_size"}
+FLOAT_SETTINGS = {
+    "fig_x_dimension", "fig_y_dimension", "fig_dpi", "x_min", "x_max",
+    "y_min", "y_max", "y2_min", "y2_max", "tally_multiplier", "line_width",
+}
+OPTIONAL_SETTINGS = {
+    "x_title", "y_title", "y2_title", "y_ratio_title", "fig_title",
+    "x_min", "x_max", "y_min", "y_max", "y2_min", "y2_max",
+}
+ENUM_SETTINGS = {
+    "x_scale": {"linear", "log"},
+    "y_scale": {"linear", "log"},
+    "y2_scale": {"linear", "log"},
+    "grid_opt": {"major", "minor", "both"},
+    "grid_ax": {"x", "y", "both"},
+    "leg_pos": {
+        "best", "upper right", "upper left", "lower left", "lower right", "right",
+        "center left", "center right", "lower center", "upper center", "center",
+    },
+}
+
+
+def _coerce_setting(settings_key, value, toml_keys):
+    """Convert legacy string values using the expected type for each setting."""
+    label = ".".join(toml_keys)
+    if settings_key in OPTIONAL_SETTINGS and isinstance(value, str) and value.strip().lower() in ('none', ''):
+        return None
+    if settings_key in PATH_SETTINGS:
+        if not isinstance(value, (str, pathlib.Path)):
+            raise ValueError(f"{label} must be a path string")
+        return pathlib.Path(value)
+    if settings_key in BOOLEAN_SETTINGS:
+        if not isinstance(value, bool):
+            raise ValueError(f"{label} must be true or false")
+        return value
+    if settings_key in INTEGER_SETTINGS:
+        if isinstance(value, bool):
+            raise ValueError(f"{label} must be an integer")
+        try:
+            number = float(value)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"{label} must be an integer") from exc
+        if not number.is_integer():
+            raise ValueError(f"{label} must be an integer")
+        return int(number)
+    if settings_key in FLOAT_SETTINGS:
+        if isinstance(value, bool):
+            raise ValueError(f"{label} must be a number")
+        try:
+            return float(value)
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"{label} must be a number or 'None'") from exc
+    if not isinstance(value, str):
+        raise ValueError(f"{label} must be a string")
+    if settings_key in ENUM_SETTINGS and value not in ENUM_SETTINGS[settings_key]:
+        choices = ", ".join(sorted(ENUM_SETTINGS[settings_key]))
+        raise ValueError(f"{label} must be one of: {choices}")
+    return value
+
+
+def _settings_to_toml(settings):
+    toml_data = {}
+    for toml_keys, settings_key in TOML_TO_SETTINGS.items():
+        value = settings.get(settings_key)
+        if value is None:
+            value = "None"
+        elif isinstance(value, pathlib.Path):
+            value = str(value)
+        set_nested_value(toml_data, toml_keys, value)
+    return toml_data
+
+
+def create_config(fname=CONFIG_FILE):
+    """Create a new TOML config file with default values."""
+    default_config = _settings_to_toml(default_plot_settings())
     with open(fname, "wb") as f:
         tomli_w.dump(default_config, f)
 
 
 def reset_plot_settings_to_defaults():
     """Reset all plot settings to default values (None for limits, defaults for others)."""
-    config_mod.plot_settings['x_scale'] = 'log'
-    config_mod.plot_settings['y_scale'] = 'log'
-    config_mod.plot_settings['y2_scale'] = 'log'
-    config_mod.plot_settings['data_var'] = True
-    config_mod.plot_settings['ratio'] = 'no ratio'
-    config_mod.plot_settings['error_bar'] = True
-    config_mod.plot_settings['first_bin'] = True
-    config_mod.plot_settings['latex'] = False
-    config_mod.plot_settings['leg_pos'] = 'best'
-    config_mod.plot_settings['leg_size'] = 10
-    config_mod.plot_settings['grid_switch'] = True
-    config_mod.plot_settings['grid_opt'] = 'major'
-    config_mod.plot_settings['grid_ax'] = 'both'
-    config_mod.plot_settings['ax_label_size'] = 12
-    config_mod.plot_settings['tics_size'] = 10
-    config_mod.plot_settings['xs_switch'] = False
-    config_mod.plot_settings['fig_title_switch'] = False
-    config_mod.plot_settings['line_style_by_file'] = True
-    config_mod.plot_settings['line_width'] = 1.4
-    config_mod.plot_settings['tally_multiplier'] = 1.0
-    # Reset all limits to None (auto)
-    config_mod.plot_settings['x_min'] = None
-    config_mod.plot_settings['x_max'] = None
-    config_mod.plot_settings['y_min'] = None
-    config_mod.plot_settings['y_max'] = None
-    config_mod.plot_settings['y2_min'] = None
-    config_mod.plot_settings['y2_max'] = None
-    config_mod.plot_settings['x_title'] = None
-    config_mod.plot_settings['y_title'] = None
-    config_mod.plot_settings['y2_title'] = None
-    config_mod.plot_settings['y_ratio_title'] = None
-    config_mod.plot_settings['fig_title'] = None
-    config_mod.plot_settings['fig_title_size'] = 14
+    defaults = default_plot_settings()
+    preserved = {key: config_mod.plot_settings.get(key) for key in (
+        'work_dir_path', 'export_dir_path', 'xs_dir_path', 'fig_x_dimension',
+        'fig_y_dimension', 'fig_format', 'fig_dpi',
+    )}
+    config_mod.plot_settings.update(defaults)
+    config_mod.plot_settings.update({key: value for key, value in preserved.items() if value is not None})
 
 
-def read_config(fname="config.toml"):
-    """Read configuration from TOML file."""
-    if not pathlib.Path(fname).is_file():
-        print(f"Creating new config file: {fname}")
-        create_config(fname)
-    
-    # Read TOML file with error handling
+def read_config(fname=CONFIG_FILE):
+    """Read a complete, typed configuration and commit it only after validation."""
+    global last_config_error
     try:
+        if not pathlib.Path(fname).is_file():
+            print(f"Creating new config file: {fname}")
+            create_config(fname)
         with open(fname, "rb") as f:
             toml_data = tomllib.load(f)
-    except Exception as e:
-        print(f"Error reading config file: {e}")
-        print(f"Creating new config file: {fname}")
-        create_config(fname)
-        with open(fname, "rb") as f:
-            toml_data = tomllib.load(f)
-    
-    # Map TOML structure to flat plot_settings dictionary
-    for toml_keys, settings_key in TOML_TO_SETTINGS.items():
-        value = get_nested_value(toml_data, toml_keys)
-        if value is not None:
-            # Convert string "None" to actual None (for legacy compatibility)
-            if isinstance(value, str):
-                if value.strip().lower() in ('none', ''):
-                    value = None
-                else:
-                    # Try to convert to float/int if it's a numeric string
-                    try:
-                        if '.' in value:
-                            value = float(value)
-                        else:
-                            # Could be int or just a string - try int first
-                            try:
-                                value = int(value)
-                            except ValueError:
-                                pass  # Keep as string
-                    except (ValueError, AttributeError):
-                        pass  # Keep as string
-        
-        # Set the value (could be None now after conversion)
-        if value is not None:
-            config_mod.plot_settings[settings_key] = value
-    
-    # Convert path strings to Path objects
-    for path_key in ["work_dir_path", "export_dir_path", "xs_dir_path"]:
-        if config_mod.plot_settings[path_key] is not None:
-            try:
-                path = pathlib.Path(config_mod.plot_settings[path_key])
-                if path.is_file():
-                    # If it's a file, use parent directory
-                    config_mod.plot_settings[path_key] = path.parent
-                elif path.is_dir():
-                    config_mod.plot_settings[path_key] = path
-                else:
-                    # Path doesn't exist, use current directory
-                    config_mod.plot_settings[path_key] = pathlib.Path.cwd()
-            except Exception:
-                config_mod.plot_settings[path_key] = pathlib.Path.cwd()
-        else:
-            config_mod.plot_settings[path_key] = pathlib.Path.cwd()
+        loaded = default_plot_settings()
+        for toml_keys, settings_key in TOML_TO_SETTINGS.items():
+            value = get_nested_value(toml_data, toml_keys, _MISSING)
+            if value is not _MISSING:
+                # Older generated configs used "None" for a few non-optional
+                # fields. Treat those entries as omitted and use the default.
+                if (settings_key not in OPTIONAL_SETTINGS and isinstance(value, str)
+                        and value.strip().lower() in ('none', '')):
+                    continue
+                loaded[settings_key] = _coerce_setting(settings_key, value, toml_keys)
+    except Exception as exc:
+        last_config_error = f"Could not load {fname}: {exc}"
+        print(last_config_error)
+        if not any(value is not None for value in config_mod.plot_settings.values()):
+            config_mod.plot_settings.update(default_plot_settings())
+        return False
+
+    config_mod.plot_settings.clear()
+    config_mod.plot_settings.update(loaded)
+    last_config_error = None
+    return True
 
 
-def save_config(fname="config.toml"):
+def save_config(fname=CONFIG_FILE):
     """Save configuration to TOML file."""
-    # List of settings that should NOT be saved (transient flags)
-    exclude_from_save = ['save_fig']
-    
-    # Build TOML structure from flat plot_settings
-    toml_data = {}
-    
-    for toml_keys, settings_key in TOML_TO_SETTINGS.items():
-        # Skip excluded settings
-        if settings_key in exclude_from_save:
-            continue
-        
-        value = config_mod.plot_settings.get(settings_key)
-        
-        # Convert None to string "None" so it's stored in TOML
-        if value is None:
-            value = "None"
-        
-        # Convert Path objects to strings
-        if isinstance(value, pathlib.Path):
-            value = str(value)
-        
-        # Set the value in nested structure
-        set_nested_value(toml_data, toml_keys, value)
-    
-    # Write TOML file
-    with open(fname, "wb") as f:
-        tomli_w.dump(toml_data, f)
+    toml_data = _settings_to_toml(config_mod.plot_settings)
+    target = pathlib.Path(fname)
+    temporary = target.with_name(target.name + '.tmp')
+    try:
+        with open(temporary, "wb") as f:
+            tomli_w.dump(toml_data, f)
+        temporary.replace(target)
+    finally:
+        if temporary.exists():
+            temporary.unlink()
 
 
 def create_multipliers_config(fname="multipliers.toml"):

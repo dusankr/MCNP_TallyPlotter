@@ -75,7 +75,7 @@ root.rowconfigure(0, weight=1)
 root.protocol('WM_DELETE_WINDOW', ask_quit)  # program end
 # ----------------------------------------------------------------------------------------------------------------------
 # modules executed at startup
-settings_mod.read_config("config.toml")   # read settings from config file
+settings_mod.read_config(settings_mod.CONFIG_FILE)   # read settings from config file
 
 # Checkbox variable for using saved config
 use_saved_config_var = tk.BooleanVar(value=False)
@@ -169,7 +169,7 @@ treeview_files.tag_configure("evenrow", background="#d9e8f5", foreground="#00000
 button_frame = tk.Frame(down_frame)
 button_frame.grid(column=0, row=0, sticky='ws')
 
-button_file = tk.ttk.Button(button_frame, text='Chose directory', command=lambda: read_mod.open_folder(treeview_files, workdir_label, button_update), width=20)
+button_file = tk.ttk.Button(button_frame, text='Select directory', command=lambda: read_mod.open_folder(treeview_files, workdir_label, button_update), width=20)
 button_file.grid(column=0, row=0, sticky='ws')
 
 button_update = tk.ttk.Button(button_frame, text='Update directory', state='disabled', command=lambda: read_mod.read_folder(treeview_files), width=20)

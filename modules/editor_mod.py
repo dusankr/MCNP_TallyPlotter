@@ -12,7 +12,7 @@ from modules import plot_core
 
 
 # open library or any ascii file in text editor
-def open_lib(file_path, plot_win, tally):
+def open_lib(file_path, plot_win, tally, on_save=None):
     
     file_path = pathlib.Path(file_path)
     
@@ -42,28 +42,40 @@ def open_lib(file_path, plot_win, tally):
         editor_win.destroy()
 
     def read_lib():
-        with open(file_path, 'r') as lib_file:
+        with open(file_path, 'r', encoding='utf-8') as lib_file:
             text = lib_file.read()
             txt_edit.insert(tk.END, text)
 
         editor_win.title(f'Library editor - {file_path}')
 
     def save_lib():
-        with open(file_path, 'w') as output_file:
+        with open(file_path, 'w', encoding='utf-8') as output_file:
             text_s = txt_edit.get(1.0, tk.END)
             output_file.write(text_s)
-        
-        # tk.messagebox.showinfo(title='Config file', message='Config file was modified and saved.')
-
-        # read again config file
-        fname = pathlib.Path(file_path).name
-        if fname == "config.toml":
-            settings_mod.read_config("config.toml")
 
         try:
-            plot_core.plot_to_canvas(tally)
+            if on_save is not None:
+                # The owning window is responsible for loading the file, updating
+                # its controls, and redrawing from one consistent settings state.
+                if on_save() is False:
+                    return
+            else:
+                fname = pathlib.Path(file_path).name
+                if fname == settings_mod.CONFIG_FILE and not settings_mod.read_config(file_path):
+                    tk.messagebox.showerror(
+                        title='Config reload failed',
+                        message=settings_mod.last_config_error,
+                        parent=editor_win,
+                    )
+                    return
+                plot_core.plot_to_canvas(tally)
         except Exception as e:
-            tk.messagebox.showerror(title='Error', message=f'Error in settings value: {e}' + '\n' + 'Please close editor and update plot manualy.')
+            tk.messagebox.showerror(
+                title='Error',
+                message=f'Error in settings value: {e}',
+                parent=editor_win,
+            )
+            return
 
         # close an editor window and grab the plot window
         quit_m()

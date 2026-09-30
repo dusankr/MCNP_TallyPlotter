@@ -35,6 +35,21 @@ def convert_none_string(value):
     return value
 
 
+def add_write_traces(variables, callback, trace_handles):
+    """Install one write trace per variable and retain its exact handle."""
+    if trace_handles:
+        return
+    for variable in variables:
+        trace_handles.append((variable, variable.trace_add('write', callback)))
+
+
+def remove_write_traces(trace_handles):
+    """Remove only traces installed by add_write_traces()."""
+    for variable, trace_id in trace_handles:
+        variable.trace_remove('write', trace_id)
+    trace_handles.clear()
+
+
 # create new Top level window and plot data
 def plot_window(root, tally_to_plot):
     def quit_m():
@@ -104,9 +119,18 @@ def plot_window(root, tally_to_plot):
     # xlim_var = tk.BooleanVar(value=False)  # Check box variable - use X axis limits
 
     # Tally multiplier - load from config and get presets
-    multiplier_var = tk.StringVar(value=str(config_mod.plot_settings.get('tally_multiplier', 1.0)))
+    initial_multiplier = float(config_mod.plot_settings.get('tally_multiplier', 1.0))
+    multiplier_var = tk.StringVar(value=str(initial_multiplier))
     multiplier_presets = settings_mod.get_multiplier_presets()
-    multiplier_mode_var = tk.StringVar(value="default")  # default, preset_key, or custom
+    initial_multiplier_mode = "custom"
+    if initial_multiplier == 1.0:
+        initial_multiplier_mode = "default"
+    else:
+        for preset_key, preset_data in multiplier_presets.items():
+            if float(preset_data["value"]) == initial_multiplier:
+                initial_multiplier_mode = f"preset_{preset_key}"
+                break
+    multiplier_mode_var = tk.StringVar(value=initial_multiplier_mode)
   
     # Line options - load from config
     line_style_var = tk.BooleanVar(value=config_mod.plot_settings.get('line_style_by_file', True))
@@ -117,6 +141,7 @@ def plot_window(root, tally_to_plot):
     y_fig_var = tk.DoubleVar(value=config_mod.plot_settings.get('fig_y_dimension', 20))
     dpi_var = tk.DoubleVar(value=config_mod.plot_settings.get('fig_dpi', 150))
     latex_var = tk.BooleanVar(value=config_mod.plot_settings.get('latex', False))
+    updating_widgets = False
 
     # endregion
 
@@ -243,7 +268,6 @@ def plot_window(root, tally_to_plot):
 
         # save values to the config file
         settings_mod.save_config()
-        settings_mod.read_config("config.toml")
 
     # insert FIRST plot CANVAS
     plot_variables()
@@ -434,11 +458,17 @@ def plot_window(root, tally_to_plot):
     row_c += 1
     row_f = 0   
 
-    button_settings = tk.ttk.Button(config_frame, text='Settings editor', command=lambda: editor_mod.open_lib('config_export', plot_win, tally_to_plot))
+    button_settings = tk.ttk.Button(
+        config_frame,
+        text='Settings editor',
+        command=lambda: editor_mod.open_lib(
+            settings_mod.CONFIG_FILE, plot_win, tally_to_plot, on_save=reload_config
+        ),
+    )
     button_settings.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
     row_f += 1
 
-    button_reload = tk.ttk.Button(config_frame, text='Reload config', command=lambda: settings_mod.read_config("config_export"))
+    button_reload = tk.ttk.Button(config_frame, text='Reload settings', command=lambda: reload_config())
     button_reload.grid(column=0, columnspan=4, row=row_f, sticky='nswe', padx=2, pady=2)
     row_f += 1
 
@@ -613,79 +643,33 @@ def plot_window(root, tally_to_plot):
 
     # call replot when Option Menu is changed
     def my_callback(*args):
+        if updating_widgets:
+            return
         plot_variables()
         plot_core.plot_to_canvas(tally_to_plot)
 
-    # first definition of Tkinter Variables tracing
-    legend_pos.trace_add('write', my_callback)
-    ratio_sel.trace_add('write', my_callback)
-    x_axis_var.trace_add('write', my_callback)
-    y_axis_var.trace_add('write', my_callback)
-    y2_axis_var.trace_add('write', my_callback)
-    data_var.trace_add('write', my_callback)
-    axis_var.trace_add('write', my_callback)
-    leg_var.trace_add('write', my_callback)
-    grid_on_var.trace_add('write', my_callback)
-    grid_var.trace_add('write', my_callback)
-    grid_axis_var.trace_add('write', my_callback)
-    ticks_var.trace_add('write', my_callback)
-    xs_var.trace_add('write', my_callback)
-    error_var.trace_add('write', my_callback)
-    bin_var.trace_add('write', my_callback)
-    # xlim_var.trace_add('write', my_callback)
-    fig_title_var.trace_add('write', my_callback)
-    line_style_var.trace_add('write', my_callback)
-    line_width_var.trace_add('write', my_callback)
-    multiplier_mode_var.trace_add('write', my_callback)
+    replot_trace_vars = (
+        legend_pos, ratio_sel, x_axis_var, y_axis_var, y2_axis_var, data_var,
+        axis_var, leg_var, grid_on_var, grid_var, grid_axis_var, ticks_var,
+        xs_var, error_var, bin_var, fig_title_var, line_style_var,
+        line_width_var, multiplier_mode_var,
+    )
+    replot_trace_handles = []
+
+    def enable_replot_traces():
+        add_write_traces(replot_trace_vars, my_callback, replot_trace_handles)
+
+    def disable_replot_traces():
+        remove_write_traces(replot_trace_handles)
 
     # turn on-off online replot
     def turn_off_replot():
         if replot_var.get() is True:
             button_replot['state'] = 'normal'
-
-            legend_pos.trace_remove('write', legend_pos.trace_info()[0][1])
-            ratio_sel.trace_remove('write', ratio_sel.trace_info()[0][1])
-            x_axis_var.trace_remove('write', x_axis_var.trace_info()[0][1])
-            y_axis_var.trace_remove('write', y_axis_var.trace_info()[0][1])
-            y2_axis_var.trace_remove('write', y2_axis_var.trace_info()[0][1])
-            data_var.trace_remove('write', data_var.trace_info()[0][1])
-            axis_var.trace_remove('write', axis_var.trace_info()[0][1])
-            leg_var.trace_remove('write', leg_var.trace_info()[0][1])
-            grid_on_var.trace_remove('write', grid_on_var.trace_info()[0][1])
-            grid_var.trace_remove('write', grid_var.trace_info()[0][1])
-            grid_axis_var.trace_remove('write', grid_axis_var.trace_info()[0][1])
-            ticks_var.trace_remove('write', ticks_var.trace_info()[0][1])
-            xs_var.trace_remove('write', xs_var.trace_info()[0][1])
-            error_var.trace_remove('write', error_var.trace_info()[0][1])
-            bin_var.trace_remove('write', bin_var.trace_info()[0][1])
-            # xlim_var.trace_remove('write', xlim_var.trace_info()[0][1])
-            fig_title_var.trace_remove('write', fig_title_var.trace_info()[0][1])
-            line_style_var.trace_remove('write', line_style_var.trace_info()[0][1])
-            line_width_var.trace_remove('write', line_width_var.trace_info()[0][1])
-            multiplier_mode_var.trace_remove('write', multiplier_mode_var.trace_info()[0][1])
+            disable_replot_traces()
         else:
             button_replot['state'] = 'disabled'
-
-            legend_pos.trace_add('write', my_callback)
-            ratio_sel.trace_add('write', my_callback)
-            x_axis_var.trace_add('write', my_callback)
-            y_axis_var.trace_add('write', my_callback)
-            y2_axis_var.trace_add('write', my_callback)
-            data_var.trace_add('write', my_callback)
-            axis_var.trace_add('write', my_callback)
-            leg_var.trace_add('write', my_callback)
-            grid_on_var.trace_add('write', my_callback)
-            grid_var.trace_add('write', my_callback)
-            grid_axis_var.trace_add('write', my_callback)
-            ticks_var.trace_add('write', my_callback)
-            xs_var.trace_add('write', my_callback)
-            error_var.trace_add('write', my_callback)
-            bin_var.trace_add('write', my_callback)
-            # xlim_var.trace_add('write', my_callback)
-            fig_title_var.trace_add('write', my_callback)
-            line_style_var.trace_add('write', my_callback)
-            line_width_var.trace_add('write', my_callback)
-            multiplier_mode_var.trace_add('write', my_callback)
+            enable_replot_traces()
 
 
     # enable/disable grid settings
@@ -718,4 +702,90 @@ def plot_window(root, tally_to_plot):
             y2_log_radio['state'] = 'disabled'
             xs_min_entry['state'] = 'disabled'
             xs_max_entry['state'] = 'disabled'
-   
+
+    def sync_widgets_from_config():
+        """Copy loaded settings into all controls without triggering a save/replot."""
+        nonlocal updating_widgets
+        settings = config_mod.plot_settings
+        ratio = settings['ratio'] if settings['ratio'] in ratio_options else 'no ratio'
+        settings['ratio'] = ratio
+        multiplier = float(settings['tally_multiplier'])
+        multiplier_mode = 'custom'
+        if multiplier == 1.0:
+            multiplier_mode = 'default'
+        else:
+            for preset_key, preset_data in multiplier_presets.items():
+                if float(preset_data['value']) == multiplier:
+                    multiplier_mode = f'preset_{preset_key}'
+                    break
+
+        direct_values = (
+            (legend_pos, settings['leg_pos']),
+            (ratio_sel, ratio),
+            (x_axis_var, settings['x_scale']),
+            (y_axis_var, settings['y_scale']),
+            (y2_axis_var, settings['y2_scale']),
+            (data_var, settings['data_var']),
+            (axis_var, str(settings['ax_label_size'])),
+            (leg_var, str(settings['leg_size'])),
+            (ticks_var, str(settings['tics_size'])),
+            (grid_on_var, settings['grid_switch']),
+            (grid_var, settings['grid_opt']),
+            (grid_axis_var, settings['grid_ax']),
+            (xs_var, settings['xs_switch']),
+            (error_var, settings['error_bar']),
+            (bin_var, settings['first_bin']),
+            (fig_title_var, settings['fig_title_switch']),
+            (line_style_var, settings['line_style_by_file']),
+            (line_width_var, settings['line_width']),
+            (x_fig_var, settings['fig_x_dimension']),
+            (y_fig_var, settings['fig_y_dimension']),
+            (dpi_var, settings['fig_dpi']),
+            (latex_var, settings['latex']),
+            (multiplier_var, str(multiplier)),
+            (multiplier_mode_var, multiplier_mode),
+        )
+        limit_values = (
+            (x_min_var, settings['x_min']), (x_max_var, settings['x_max']),
+            (y_min_var, settings['y_min']), (y_max_var, settings['y_max']),
+            (y2_min_var, settings['y2_min']), (y2_max_var, settings['y2_max']),
+        )
+
+        updating_widgets = True
+        try:
+            for variable, value in direct_values:
+                variable.set(value)
+            for variable, value in limit_values:
+                variable.set('None' if value is None else str(value))
+        finally:
+            updating_widgets = False
+
+        change_state()
+        change_state3()
+
+    def reload_config():
+        """Reload config.toml, synchronize controls, and redraw the current plot."""
+        if not settings_mod.read_config(settings_mod.CONFIG_FILE):
+            tk.messagebox.showerror(
+                title='Config reload failed',
+                message=settings_mod.last_config_error or 'The configuration could not be loaded.',
+                parent=plot_win,
+            )
+            return False
+        sync_widgets_from_config()
+        try:
+            plot_core.plot_to_canvas(tally_to_plot)
+        except Exception as exc:
+            tk.messagebox.showerror(
+                title='Config reload failed',
+                message=f'The configuration was loaded, but the plot could not be updated: {exc}',
+                parent=plot_win,
+            )
+            return False
+        return True
+
+    # Install automatic replot callbacks only after every callback they can
+    # reach has been defined. This keeps all button commands valid even if a
+    # future trace setup error occurs.
+    enable_replot_traces()
+
