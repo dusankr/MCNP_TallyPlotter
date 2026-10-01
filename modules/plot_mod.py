@@ -80,6 +80,9 @@ def plot_window(root, tally_to_plot):
     data_var = tk.BooleanVar(value=config_mod.plot_settings.get('data_var', True))
 
     ratio_sel = tk.StringVar(value=config_mod.plot_settings.get('ratio', 'no ratio'))
+    ratio_reference_line_var = tk.BooleanVar(
+        value=config_mod.plot_settings.get('ratio_reference_line', False)
+    )
     replot_var = tk.BooleanVar(value=False)
 
     # font size variables - load from config
@@ -209,6 +212,7 @@ def plot_window(root, tally_to_plot):
     def plot_variables(save=False):
 
         config_mod.plot_settings["ratio"] = ratio_sel.get()
+        config_mod.plot_settings["ratio_reference_line"] = ratio_reference_line_var.get()
         config_mod.plot_settings["data_var"] = data_var.get()
         config_mod.plot_settings["leg_pos"] = legend_pos.get()
         config_mod.plot_settings["leg_size"] = leg_var.get()
@@ -332,6 +336,15 @@ def plot_window(root, tally_to_plot):
     # plot_window(root, treeview_files, treeview_files.get_checked()
     ratio_menu = tk.OptionMenu(data_inp_frame, ratio_sel, *ratio_options)
     ratio_menu.grid(column=0, row=row_f, sticky='nwe', padx=2, pady=2)
+    row_f += 1
+
+    chk_ratio_reference_line = tk.Checkbutton(
+        data_inp_frame,
+        text='show ideal ratio (y = 1)',
+        var=ratio_reference_line_var,
+        state='normal' if ratio_sel.get() != 'no ratio' else 'disabled',
+    )
+    chk_ratio_reference_line.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
 
     # LEGEND settings --------------------------------------------------------------------------------------------------
@@ -645,6 +658,7 @@ def plot_window(root, tally_to_plot):
     def my_callback(*args):
         if updating_widgets:
             return
+        change_ratio_reference_line_state()
         plot_variables()
         plot_core.plot_to_canvas(tally_to_plot)
 
@@ -652,7 +666,7 @@ def plot_window(root, tally_to_plot):
         legend_pos, ratio_sel, x_axis_var, y_axis_var, y2_axis_var, data_var,
         axis_var, leg_var, grid_on_var, grid_var, grid_axis_var, ticks_var,
         xs_var, error_var, bin_var, fig_title_var, line_style_var,
-        line_width_var, multiplier_mode_var,
+        line_width_var, multiplier_mode_var, ratio_reference_line_var,
     )
     replot_trace_handles = []
 
@@ -703,6 +717,12 @@ def plot_window(root, tally_to_plot):
             xs_min_entry['state'] = 'disabled'
             xs_max_entry['state'] = 'disabled'
 
+    def change_ratio_reference_line_state():
+        if ratio_sel.get() == 'no ratio':
+            chk_ratio_reference_line['state'] = 'disabled'
+        else:
+            chk_ratio_reference_line['state'] = 'normal'
+
     def sync_widgets_from_config():
         """Copy loaded settings into all controls without triggering a save/replot."""
         nonlocal updating_widgets
@@ -722,6 +742,7 @@ def plot_window(root, tally_to_plot):
         direct_values = (
             (legend_pos, settings['leg_pos']),
             (ratio_sel, ratio),
+            (ratio_reference_line_var, settings['ratio_reference_line']),
             (x_axis_var, settings['x_scale']),
             (y_axis_var, settings['y_scale']),
             (y2_axis_var, settings['y2_scale']),
@@ -762,6 +783,7 @@ def plot_window(root, tally_to_plot):
 
         change_state()
         change_state3()
+        change_ratio_reference_line_state()
 
     def reload_config():
         """Reload config.toml, synchronize controls, and redraw the current plot."""

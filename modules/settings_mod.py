@@ -30,6 +30,7 @@ TOML_TO_SETTINGS = {
     # Plot
     ("plot", "data_var"): "data_var",
     ("plot", "ratio"): "ratio",
+    ("plot", "ratio_reference_line"): "ratio_reference_line",
     ("plot", "error_bar"): "error_bar",
     ("plot", "first_bin"): "first_bin",
     ("plot", "latex"): "latex",
@@ -106,6 +107,7 @@ def default_plot_settings():
         "x_title": None,
         "y_title": None,
         "ratio": "no ratio",
+        "ratio_reference_line": False,
         "data_var": True,
         "leg_pos": "best",
         "leg_size": 10,
@@ -141,7 +143,7 @@ def default_plot_settings():
 
 PATH_SETTINGS = {"work_dir_path", "export_dir_path", "xs_dir_path"}
 BOOLEAN_SETTINGS = {
-    "data_var", "error_bar", "first_bin", "latex", "grid_switch",
+    "data_var", "ratio_reference_line", "error_bar", "first_bin", "latex", "grid_switch",
     "fig_title_switch", "xs_switch", "line_style_by_file",
 }
 INTEGER_SETTINGS = {"leg_size", "ax_label_size", "tics_size", "fig_title_size"}

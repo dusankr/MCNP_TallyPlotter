@@ -28,6 +28,7 @@ plot_settings = dict.fromkeys([
     "x_title",
     "y_title",
     "ratio",
+    "ratio_reference_line",
     "data_var",
     "leg_pos",
     "leg_size",

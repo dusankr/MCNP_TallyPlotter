@@ -48,6 +48,7 @@ def sort_treeview_column(tree, column, reverse):
         row_tag = 'oddrow' if index % 2 == 0 else 'evenrow'
         current_tags = tree.item(child, 'tags')
         checkbox_state = [tag for tag in current_tags if tag in ('checked', 'unchecked')]
-        tree.item(child, tags=tuple(checkbox_state) + (row_tag,))
+        status_tags = [tag for tag in current_tags if tag == 'zero_values']
+        tree.item(child, tags=tuple(status_tags) + tuple(checkbox_state) + (row_tag,))
 
     tree.heading(column, command=lambda: sort_treeview_column(tree, column, not reverse))

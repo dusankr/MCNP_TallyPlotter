@@ -61,7 +61,8 @@ style = tk.ttk.Style()
 # style.theme_use('vista')
 
 # Configure treeview with row borders/gridlines
-style.configure("Treeview", rowheight=25, background="#ffffff", fieldbackground="#ffffff", relief="solid", borderwidth=1)
+style.configure("Treeview", rowheight=25, background="#ffffff", fieldbackground="#ffffff",
+                foreground="#000000", relief="solid", borderwidth=1)
 style.configure("Treeview.Heading", background="#d0d0d0", foreground="black", borderwidth=1, relief="raised")
 
 # Configure selection colors
@@ -161,9 +162,13 @@ try:
 except:
     pass
 
+# Configure the warning tag first: Treeview resolves overlapping tag options
+# by tag creation order, so this keeps its red foreground highest priority.
+treeview_files.tag_configure("zero_values", foreground="#c00000")
+
 # Configure tag colors for alternating rows with higher contrast
-treeview_files.tag_configure("oddrow", background="#ffffff", foreground="#000000")
-treeview_files.tag_configure("evenrow", background="#d9e8f5", foreground="#000000")
+treeview_files.tag_configure("oddrow", background="#ffffff")
+treeview_files.tag_configure("evenrow", background="#d9e8f5")
 
 # widgets in DOWN frame in GUI -----------------------------------------------------------------------------------------
 button_frame = tk.Frame(down_frame)

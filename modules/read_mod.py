@@ -280,7 +280,11 @@ def refresh_tally_tree(treeview_files):
         # Replace empty or --- comments with N/A
         comment_display = tally.comment if tally.comment and tally.comment != "---" else "N/A"
         
-        row_id = treeview_files.insert('', index='end', iid=key,
+        # Keep the warning tag first on the item as well as giving it the
+        # earliest creation priority in the main Treeview setup.
+        tags = (("zero_values",) if tally.has_only_zero_values else ()) + ("unchecked", row_tag)
+
+        treeview_files.insert('', index='end', iid=key,
                               values=[fname, tally.tally_num, tally.tally_type, tally.particle,
                                       tally.nps if tally.nps is not None else 'N/A',
                                       tally.num_bins, tally.cutoff_energy,
@@ -288,7 +292,7 @@ def refresh_tally_tree(treeview_files):
                                       tally.checks_passed, tally.relative_error,
                                       tally.variance_of_variance, tally.slope,
                                       tally.figure_of_merit, comment_display],
-                              tags=("unchecked", row_tag))
+                              tags=tags)
 
 
 # read data from all tallies in one output file and add them into global dictionary

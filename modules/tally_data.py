@@ -95,6 +95,14 @@ class Tally:
     def num_bins(self) -> int:
         """Get number of energy bins (excluding first cutoff bin)."""
         return len(self.energy) - 1
+
+    @property
+    def has_only_zero_values(self) -> bool:
+        """Whether every value-column entry in the reported tally bins is zero."""
+        # This intentionally inspects flux only, never energy. flux[0] is the
+        # reader's cutoff-bin placeholder, so require at least one actual
+        # reported value before classifying a tally as zero-only.
+        return len(self.flux) > 1 and all(value == 0 for value in self.flux[1:])
     
     @property
     def energy_min(self) -> float:

@@ -10,6 +10,12 @@ import pathlib
 import tkinter as tk
 
 
+def add_ratio_reference_line(axis, settings):
+    """Draw the ideal-ratio guide only for an active ratio plot."""
+    if settings.get("ratio_reference_line", False) and settings.get("ratio") != "no ratio":
+        axis.axhline(1.0, color='black', linestyle='--', linewidth=0.75, zorder=3)
+
+
 def plot_to_canvas(tally):
 
     # Refresh labels for editor saves, manual updates, and reopened plot windows.
@@ -211,6 +217,10 @@ def plot_to_canvas(tally):
             config_mod.ax.set_ylim(bottom=config_mod.plot_settings["y_min"], top=config_mod.plot_settings["y_max"])
         except Exception as e:
             tk.messagebox.showerror('Error', 'Something went wrong during setting Y limits (usually user\'s value is not a number!). Error: ' + str(e))
+
+    # Add the guide after clipping so it stays visible above tally curves and
+    # error bars whenever y = 1 lies within the selected range.
+    add_ratio_reference_line(config_mod.ax, config_mod.plot_settings)
 
     # plot settings ----------------------------------------------------------------------------------------------------
     if config_mod.plot_settings["xs_switch"]:
