@@ -2,7 +2,8 @@
 # TODO_list:
 
 # LIBRARIES
-from modules import read_mod, plot_mod, settings_mod, export_mod, config_mod, merge_mod, treeview_mod
+from modules import (read_mod, plot_mod, settings_mod, export_mod, config_mod,
+                     merge_mod, treeview_mod, tally_table_mod)
 # GUI libraries
 import tkinter as tk
 import ttkwidgets
@@ -154,6 +155,11 @@ tree_y_scroll.grid(sticky='wens', column=5, row=0, rowspan=5, padx=5, pady=5)
 
 treeview_files.configure(xscrollcommand=tree_x_scroll.set)
 treeview_files.configure(yscrollcommand=tree_y_scroll.set)
+treeview_files.bind(
+    '<Double-1>',
+    lambda event: tally_table_mod.open_tally_table_from_event(event, treeview_files, root),
+    add='+',
+)
 
 # Enable grid lines to separate rows
 # Note: gridlines parameter may not work on all ttk themes
