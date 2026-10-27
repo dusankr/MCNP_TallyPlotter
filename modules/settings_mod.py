@@ -4,14 +4,19 @@
 
 # libraries
 from modules import config_mod
+from modules.moving_average_mod import validate_window
 import pathlib
 import shutil
+import copy
 import tomllib
 import tomli_w
 
 
 LEGEND_CONFIG_FILE = "legend.toml"
 CONFIG_FILE = "config.toml"
+AXIS_TITLES_FILE = "axis_titles.toml"
+last_axis_titles_error = None
+_axis_title_cache = {}
 _MISSING = object()
 last_config_error = None
 
@@ -34,6 +39,8 @@ TOML_TO_SETTINGS = {
     ("plot", "error_bar"): "error_bar",
     ("plot", "first_bin"): "first_bin",
     ("plot", "latex"): "latex",
+    ("plot", "moving_average"): "moving_average",
+    ("plot", "moving_average_window"): "moving_average_window",
     # Axes
     ("axes", "x_scale"): "x_scale",
     ("axes", "y_scale"): "y_scale",
@@ -42,6 +49,10 @@ TOML_TO_SETTINGS = {
     ("axes", "y_title"): "y_title",
     ("axes", "y2_title"): "y2_title",
     ("axes", "y_ratio_title"): "y_ratio_title",
+    ("axes", "x_title_preset"): "x_title_preset",
+    ("axes", "y_title_preset"): "y_title_preset",
+    ("axes", "y2_title_preset"): "y2_title_preset",
+    ("axes", "y_ratio_title_preset"): "y_ratio_title_preset",
     # Axes limits
     ("axes", "limits", "x_min"): "x_min",
     ("axes", "limits", "x_max"): "x_max",
@@ -138,13 +149,19 @@ def default_plot_settings():
         "y_ratio_title": None,
         "line_style_by_file": True,
         "line_width": 1.5,
+        "moving_average": False,
+        "moving_average_window": 5,
+        "x_title_preset": "auto",
+        "y_title_preset": "auto",
+        "y2_title_preset": "auto",
+        "y_ratio_title_preset": "auto",
     }
 
 
 PATH_SETTINGS = {"work_dir_path", "export_dir_path", "xs_dir_path"}
 BOOLEAN_SETTINGS = {
     "data_var", "ratio_reference_line", "error_bar", "first_bin", "latex", "grid_switch",
-    "fig_title_switch", "xs_switch", "line_style_by_file",
+    "fig_title_switch", "xs_switch", "line_style_by_file", "moving_average",
 }
 INTEGER_SETTINGS = {"leg_size", "ax_label_size", "tics_size", "fig_title_size"}
 FLOAT_SETTINGS = {
@@ -171,6 +188,8 @@ ENUM_SETTINGS = {
 def _coerce_setting(settings_key, value, toml_keys):
     """Convert legacy string values using the expected type for each setting."""
     label = ".".join(toml_keys)
+    if settings_key == 'moving_average_window':
+        return validate_window(value)
     if settings_key in OPTIONAL_SETTINGS and isinstance(value, str) and value.strip().lower() in ('none', ''):
         return None
     if settings_key in PATH_SETTINGS:
@@ -255,6 +274,14 @@ def read_config(fname=CONFIG_FILE):
                         and value.strip().lower() in ('none', '')):
                     continue
                 loaded[settings_key] = _coerce_setting(settings_key, value, toml_keys)
+        # Existing configs store only title strings. Preserve those as custom titles.
+        for title in ('x_title', 'y_title', 'y2_title', 'y_ratio_title'):
+            mode = title + '_preset'
+            if get_nested_value(toml_data, ('axes', mode), _MISSING) is _MISSING:
+                loaded[mode] = 'custom' if loaded[title] is not None else 'auto'
+            elif loaded[mode] == 'auto' and loaded[title] is not None:
+                # Editing an automatic label directly in config.toml must still work.
+                loaded[mode] = 'custom'
     except Exception as exc:
         last_config_error = f"Could not load {fname}: {exc}"
         print(last_config_error)
@@ -280,6 +307,51 @@ def save_config(fname=CONFIG_FILE):
     finally:
         if temporary.exists():
             temporary.unlink()
+
+
+def default_axis_title_presets() -> dict:
+    """Return example presets without coupling labels to data transformations."""
+    return {
+        'x': {'energy': {'value': 'energy (MeV)', 'description': 'Energy (MeV)'}},
+        'y': {
+            'per_mev': {'value': 'Tally / MeV / particle', 'description': 'Tally per MeV per particle'},
+            'per_particle': {'value': 'Tally / particle', 'description': 'Tally per particle'},
+            'ratio': {'value': 'Ratio (-)', 'description': 'Ratio'},
+        },
+        'y2': {'cross_section': {'value': 'Cross Section (barns)', 'description': 'Cross section (barns)'}},
+    }
+
+
+def get_axis_title_presets(fname=None) -> dict:
+    """Load and validate presets, keeping the last valid file on failure."""
+    global last_axis_titles_error
+    path = pathlib.Path(fname if fname is not None else AXIS_TITLES_FILE)
+    cache_key = path.resolve()
+    try:
+        if not path.exists():
+            with path.open('wb') as stream:
+                tomli_w.dump(default_axis_title_presets(), stream)
+        with path.open('rb') as stream:
+            data = tomllib.load(stream)
+        presets = {}
+        for axis in ('x', 'y', 'y2'):
+            entries = data.get(axis, {})
+            if not isinstance(entries, dict):
+                raise ValueError(f'{axis} must be a table of presets')
+            presets[axis] = {}
+            for name, entry in entries.items():
+                if not isinstance(entry, dict) or any(
+                    not isinstance(entry.get(field), str) or not entry[field].strip()
+                    for field in ('value', 'description')
+                ):
+                    raise ValueError(f'{axis}.{name} needs nonempty value and description strings')
+                presets[axis][name] = {field: entry[field] for field in ('value', 'description')}
+    except (OSError, ValueError) as exc:
+        last_axis_titles_error = f'Could not load {path}: {exc}'
+        return copy.deepcopy(_axis_title_cache.get(cache_key, default_axis_title_presets()))
+    _axis_title_cache[cache_key] = presets
+    last_axis_titles_error = None
+    return copy.deepcopy(presets)
 
 
 def create_multipliers_config(fname="multipliers.toml"):

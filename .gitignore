@@ -13,6 +13,7 @@ conda
 *.old
 # config files and folders
 *.toml
+!axis_titles.toml
 config_legend
 config_export
 # build folders (pyinstaller, etc.)

@@ -61,7 +61,9 @@ plot_settings = dict.fromkeys([
     "tally_multiplier",
     "y_ratio_title",
     "line_style_by_file",
-    "line_width"
+    "line_width",
+    "moving_average", "moving_average_window",
+    "x_title_preset", "y_title_preset", "y2_title_preset", "y_ratio_title_preset",
 ])
 
 # second option how to create dict:

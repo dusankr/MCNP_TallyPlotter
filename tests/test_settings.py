@@ -130,6 +130,35 @@ class ConfigReloadTests(unittest.TestCase):
         self.assertEqual(self.config_path.read_text(encoding="utf-8"), original_text)
         self.assertFalse(self.config_path.with_name("config.toml.tmp").exists())
 
+    def test_legacy_titles_become_custom_and_new_features_default_off(self):
+        self.write_config({'axes': {'y_title': 'Existing title'}})
+        self.assertTrue(settings_mod.read_config(self.config_path))
+        self.assertEqual(config_mod.plot_settings['y_title_preset'], 'custom')
+        self.assertEqual(config_mod.plot_settings['x_title_preset'], 'auto')
+        self.assertFalse(config_mod.plot_settings['moving_average'])
+        self.assertEqual(config_mod.plot_settings['moving_average_window'], 5)
+
+    def test_external_title_override_works_with_auto_mode(self):
+        self.write_config({'axes': {'y_title': 'Edited label', 'y_title_preset': 'auto'}})
+        self.assertTrue(settings_mod.read_config(self.config_path))
+        self.assertEqual(config_mod.plot_settings['y_title'], 'Edited label')
+        self.assertEqual(config_mod.plot_settings['y_title_preset'], 'custom')
+
+    def test_new_features_round_trip_and_invalid_window_does_not_replace_settings(self):
+        expected = settings_mod.default_plot_settings()
+        expected.update(moving_average=True, moving_average_window=7,
+                        x_title='energy (MeV)', x_title_preset='preset:energy',
+                        y_title='Flux', y_title_preset='custom',
+                        y_ratio_title='Custom ratio', y_ratio_title_preset='custom')
+        config_mod.plot_settings.clear()
+        config_mod.plot_settings.update(expected)
+        settings_mod.save_config(self.config_path)
+        self.assertTrue(settings_mod.read_config(self.config_path))
+        self.assertEqual(config_mod.plot_settings, expected)
+        self.write_config({'plot': {'moving_average_window': 4}})
+        self.assertFalse(settings_mod.read_config(self.config_path))
+        self.assertEqual(config_mod.plot_settings, expected)
+
 
 if __name__ == "__main__":
     unittest.main()

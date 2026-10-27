@@ -4,9 +4,8 @@
 # TODO set automaticaly lin/log based on data scale
 
 # libraries
-from modules import config_mod, settings_mod
+from modules import config_mod, settings_mod, figure_export_mod, moving_average_mod
 import math
-import pathlib
 import tkinter as tk
 
 
@@ -16,7 +15,35 @@ def add_ratio_reference_line(axis, settings):
         axis.axhline(1.0, color='black', linestyle='--', linewidth=0.75, zorder=3)
 
 
+def y_axis_title(settings: dict) -> str:
+    """Resolve ordinary and ratio titles independently."""
+    if settings.get('ratio', 'no ratio') != 'no ratio':
+        return settings.get('y_ratio_title') or 'Ratio (-)'
+    return settings.get('y_title') or (
+        'Tally / MeV / particle' if settings.get('data_var', True) else 'Tally / particle'
+    )
+
+
+def add_moving_average(axis, centers, values, settings: dict, color, label: str,
+                       reference_values=None) -> None:
+    """Overlay the mean of displayed bins; undefined ratios remain gaps."""
+    if not settings.get('moving_average', False):
+        return
+    data = list(values)
+    if reference_values is not None:
+        data = [value if math.isfinite(reference) and reference != 0 else math.nan
+                for value, reference in zip(data, reference_values)]
+    window = moving_average_mod.validate_window(settings.get('moving_average_window', 5))
+    smoothed = moving_average_mod.centered_moving_average(data, window)
+    axis.plot(centers, smoothed, color=color, linestyle='--',
+              linewidth=settings.get('line_width', 1.5), zorder=4,
+              label=f'{label} (moving average, {window} bins)')
+
+
 def plot_to_canvas(tally):
+
+    parent = config_mod.canvas_id.get_tk_widget().winfo_toplevel()
+    parent = parent.grab_current() or parent
 
     # Refresh labels for editor saves, manual updates, and reopened plot windows.
     settings_mod.readsave_legend()
@@ -57,13 +84,11 @@ def plot_to_canvas(tally):
         key = config_mod.plot_settings["ratio"]
         reference_tally = config_mod.tallies[key]
         
-        x_ratio, y_ratio, y_err_ratio = reference_tally.get_data(
+        _, y_ratio, _ = reference_tally.get_data(
             normalized=config_mod.plot_settings["data_var"],
             include_first_bin=config_mod.plot_settings["first_bin"]
         )
         
-        y_label = 'Tally / MeV / particle' if config_mod.plot_settings["data_var"] else 'Tally / particle'
-
         tally_to_plot.remove(key)   # remove tally name from the list for ratio plot
 
     # plot all chosen values
@@ -76,9 +101,6 @@ def plot_to_canvas(tally):
             include_first_bin=config_mod.plot_settings["first_bin"]
         )
         
-        # Set y_label based on normalization
-        y_label = 'Tally / MeV / particle' if config_mod.plot_settings["data_var"] else 'Tally / particle'
-
         # take the correct name for legend
         legend_name = tally_obj.legend_name
 
@@ -89,7 +111,7 @@ def plot_to_canvas(tally):
                 float(config_mod.plot_settings["tally_multiplier"])
                 multiplier = True
             except ValueError:
-                tk.messagebox.showwarning('Warning', 'Tally multiplier is not a number, using default value 1.0')
+                tk.messagebox.showwarning('Warning', 'Tally multiplier is not a number, using default value 1.0', parent=parent)
                 config_mod.plot_settings["tally_multiplier"] = 1.0
                 multiplier = False
 
@@ -100,8 +122,6 @@ def plot_to_canvas(tally):
 
         # return ratio values
         if config_mod.plot_settings["ratio"] != 'no ratio':
-            y_label = 'Tally to Tally ratio (-)'
-            
             # Use Tally method for ratio calculation
             x_data, y_data, y_data_err, success = tally_obj.calculate_ratio(
                 reference_tally=reference_tally,
@@ -113,12 +133,9 @@ def plot_to_canvas(tally):
                 error_msg = (f"Cannot create ratio plot!\n\n"
                            f"Tallies '{tally_obj.legend_name}' and '{reference_tally.legend_name}' have different energy bins.\n\n"
                            f"Ratio plots require tallies with identical energy binning (same bin count and bin boundaries).")
-                tk.messagebox.showerror('Ratio Plot Error', error_msg)
+                config_mod.plot_settings['save_fig'] = False
+                tk.messagebox.showerror('Ratio Plot Error', error_msg, parent=parent)
                 return  # Stop plotting entirely
-            
-            # Use custom y_ratio_title if provided
-            if config_mod.plot_settings["y_ratio_title"] is not None:
-                y_label = config_mod.plot_settings["y_ratio_title"]
             
             # return new curve title for ratio plot
             legend_name = f"{tally_obj.legend_name}/{reference_tally.legend_name}"
@@ -152,6 +169,14 @@ def plot_to_canvas(tally):
             err_capsize = line_width * 1.5    # Cap size scales proportionally
             lineerr = config_mod.ax.errorbar(x_data_center, y_data[1:], yerr=err[1:], xerr=0, color=p_color, marker='None', linestyle='None', linewidth=err_linewidth, capthick=err_capthick, capsize=err_capsize)     
 
+        # Like the error bars, the overlay uses real displayed bins, never the
+        # artificial leading cutoff value used to draw the step curve.
+        add_moving_average(
+            config_mod.ax, x_data_center, y_data[1:], config_mod.plot_settings,
+            p_color, legend_name,
+            reference_values=y_ratio[1:] if config_mod.plot_settings['ratio'] != 'no ratio' else None,
+        )
+
     # XS plot (if true, run) -------------------------------------------------------------------------------------------
     if config_mod.plot_settings["xs_switch"]:
         config_mod.ax2 = config_mod.ax.twinx()
@@ -166,8 +191,7 @@ def plot_to_canvas(tally):
         if config_mod.plot_settings["y2_title"] is not None:
             config_mod.ax2.set_ylabel(config_mod.plot_settings["y2_title"],fontsize=config_mod.plot_settings["ax_label_size"])
         else:
-            config_mod.plot_settings["y2_title"] = "Cross Section (barns)"
-            config_mod.ax2.set_ylabel(config_mod.plot_settings["y2_title"], fontsize=config_mod.plot_settings["ax_label_size"])
+            config_mod.ax2.set_ylabel("Cross Section (barns)", fontsize=config_mod.plot_settings["ax_label_size"])
         
         # XS tic settings
         config_mod.ax2.tick_params(axis='y', labelsize=config_mod.plot_settings["tics_size"])
@@ -183,7 +207,7 @@ def plot_to_canvas(tally):
             try:
                 config_mod.ax2.set_ylim(bottom=config_mod.plot_settings["y2_min"], top=config_mod.plot_settings["y2_max"])
             except Exception as e:
-                tk.messagebox.showerror('Error', 'Something went wrong during setting XS Y limits (usually user\'s value is not a number!). Error: ' + str(e))
+                tk.messagebox.showerror('Error', 'Something went wrong during setting XS Y limits (usually user\'s value is not a number!). Error: ' + str(e), parent=parent)
     
     # set X and Y axes SCALE -------------------------------------------------------------------------------------------
     config_mod.ax.set_xscale(config_mod.plot_settings["x_scale"])
@@ -209,14 +233,14 @@ def plot_to_canvas(tally):
         try:
             config_mod.ax.set_xlim(left=config_mod.plot_settings["x_min"], right=config_mod.plot_settings["x_max"])
         except Exception as e:
-            tk.messagebox.showerror('Error', 'Something went wrong during setting X limits (usually user\'s value is not a number!). Error: ' + str(e))
+            tk.messagebox.showerror('Error', 'Something went wrong during setting X limits (usually user\'s value is not a number!). Error: ' + str(e), parent=parent)
 
     # Set y limits - allow setting just min or max or both
     if config_mod.plot_settings["y_min"] is not None or config_mod.plot_settings["y_max"] is not None:
         try:
             config_mod.ax.set_ylim(bottom=config_mod.plot_settings["y_min"], top=config_mod.plot_settings["y_max"])
         except Exception as e:
-            tk.messagebox.showerror('Error', 'Something went wrong during setting Y limits (usually user\'s value is not a number!). Error: ' + str(e))
+            tk.messagebox.showerror('Error', 'Something went wrong during setting Y limits (usually user\'s value is not a number!). Error: ' + str(e), parent=parent)
 
     # Add the guide after clipping so it stays visible above tally curves and
     # error bars whenever y = 1 lies within the selected range.
@@ -238,10 +262,7 @@ def plot_to_canvas(tally):
     else:
         config_mod.ax.set_xlabel('energy (MeV)', fontsize=config_mod.plot_settings["ax_label_size"])
 
-    if config_mod.plot_settings["y_title"] is not None:
-        config_mod.ax.set_ylabel(config_mod.plot_settings["y_title"], fontsize=config_mod.plot_settings["ax_label_size"])
-    else:
-        config_mod.ax.set_ylabel(y_label, fontsize=config_mod.plot_settings["ax_label_size"])
+    config_mod.ax.set_ylabel(y_axis_title(config_mod.plot_settings), fontsize=config_mod.plot_settings["ax_label_size"])
 
     config_mod.ax.tick_params(axis='both', labelsize=config_mod.plot_settings["tics_size"])
 
@@ -250,43 +271,7 @@ def plot_to_canvas(tally):
 
     # SAVE figure into folder with specific dimensions, DPI and format
     if config_mod.plot_settings["save_fig"] is True:
-        # store original figure size and reuse it after saving the figure
-        x_dim, y_dim = config_mod.fig_id.get_size_inches()
-        
-        # set the figure size in cm
-        config_mod.fig_id.set_size_inches(config_mod.plot_settings["fig_x_dimension"] / 2.54, config_mod.plot_settings["fig_y_dimension"] / 2.54)
-        
-        # get the export directory path and file format from a file save as dialog, available formats: png, pdf, ps, eps and svg
-        picture_path = pathlib.Path(tk.filedialog.asksaveasfilename(initialdir=config_mod.plot_settings["export_dir_path"], title='Choose folder and file name without an extension:', filetypes=[("PNG files", "*.png"), ("PDF files", "*.pdf"), ("SVG files", "*.svg"), ("EPS files", "*.eps"), ("PS files", "*.ps")], defaultextension=".png"))
-        
-        # check if folder exists
-        if not pathlib.Path.exists(picture_path.parent) or str(picture_path) == '.':
-            tk.messagebox.showerror('Input error', 'No directory and file were selected.')
-            # Reset save_fig flag even if user cancels
-            config_mod.plot_settings["save_fig"] = False
-            return
-
-        # Update export directory path to remember the last used location
-        config_mod.plot_settings["export_dir_path"] = picture_path.parent
-
-        # extract format from the path
-        config_mod.plot_settings["fig_format"] = picture_path.suffix[1:]
-
-        # save the figure
-        try:
-            config_mod.fig_id.savefig(picture_path, format=config_mod.plot_settings["fig_format"], dpi=int(config_mod.plot_settings["fig_dpi"]), bbox_inches='tight')
-            tk.messagebox.showinfo('File saved', 'Figure was saved to the export directory:\n' + str(picture_path))
-
-        except PermissionError:
-            tk.messagebox.showerror('Read error', 'File might be opened and unavailable for plotter, please close it and then you can continue.')
-        except Exception as e:
-            tk.messagebox.showerror('Error', 'Something went wrong during saving the figure. Please check the settings and try again. Error: ' + str(e))  
-
-        # set the original figure size
-        config_mod.fig_id.set_size_inches(x_dim, y_dim)
-        
-        # Reset save_fig flag after saving is complete
-        config_mod.plot_settings["save_fig"] = False
+        figure_export_mod.save_figure(config_mod.fig_id, config_mod.plot_settings, parent)
 
     # draw the plot        
     config_mod.canvas_id.draw()

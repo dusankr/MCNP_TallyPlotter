@@ -1,0 +1,20 @@
+# Independent label choices. These presets do not change data or multipliers.
+[x.energy]
+value = "energy (MeV)"
+description = "Energy (MeV)"
+
+[y.per_mev]
+value = "Tally / MeV / particle"
+description = "Tally per MeV per particle"
+
+[y.per_particle]
+value = "Tally / particle"
+description = "Tally per particle"
+
+[y.ratio]
+value = "Ratio (-)"
+description = "Ratio"
+
+[y2.cross_section]
+value = "Cross Section (barns)"
+description = "Cross section (barns)"

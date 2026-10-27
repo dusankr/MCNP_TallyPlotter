@@ -117,6 +117,38 @@ python mcnp_tally_plot_main.py
 </figure>
 
 ### Plot settings and replot
+
+The settings panel has two tabs: **Plot settings** and **Titles & average**.
+The Replot and Quit controls stay available below both tabs.
+
+- **Axis titles** provides independent X, Y, and secondary-Y choices: Auto,
+  named presets, or Custom. Enter custom text and press Enter or leave the field
+  to apply it. During ratio plotting, the Y control edits a separate ratio title,
+  defaulting to `Ratio (-)`. Leaving ratio mode restores the ordinary Y title.
+- **Edit title presets** opens `axis_titles.toml`. Its `[x.name]`, `[y.name]`, and
+  `[y2.name]` entries each contain a `value` label and a `description` shown in
+  the selector. Saving in the editor refreshes the presets and plot. After
+  external edits, use **Reload settings**, which reloads both TOML files.
+  Presets change labels only. Invalid files retain the last working presets.
+- **Moving average** adds a dashed overlay for each tally, with its window size
+  in the legend. It defaults to off with a 5-bin window. Choose a positive odd
+  bin count; windows shorten at edges and gaps. The average uses the displayed
+  normalized/multiplied values, or the displayed ratio in ratio mode, and
+  leaves gaps at undefined ratios. Original curves and error bars stay visible;
+  numerical data and exports are unaffected. Axis clipping does not recompute
+  the average from the clipped range.
+- **Save figure** opens a dialog owned by the plot window and saves without an
+  extra success confirmation. Canceling the dialog is quiet. Saved figures
+  include any active moving-average overlays.
+
+Title selections and moving-average options are stored in `config.toml`.
+Check **Use saved config** in the main window to reuse them when opening plots.
+Older configuration files continue to work; new controls use defaults when
+their settings are absent. Explicit title overrides use the existing
+`x_title`, `y_title`, `y2_title`, and `y_ratio_title` entries. Named selections
+also store a corresponding `*_preset` entry; set it to `custom` when replacing
+an active named preset through the configuration editor.
+
 - most of the plot settings are applied instantly.
 - this behavior could be deactivated by check box in bottom part of the window (Replot frame). Then, all changes are applied with button **Replot**.
 - A Quit button could be used for a return to the main window. 

@@ -13,15 +13,17 @@
 
 # libraries
 import matplotlib.style
-from modules import config_mod, editor_mod, plot_core, read_mod, settings_mod
+from modules import (config_mod, editor_mod, plot_core, read_mod, settings_mod,
+                     axis_titles_mod, moving_average_mod)
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
+from matplotlib.figure import Figure
 import matplotlib
 import matplotlib.pyplot as plt     # MUST stay here!!!
 import tkinter as tk
 
 
 #  Functions  ##########################################################################################################
-def convert_none_string(value):
+def convert_none_string(value, parent=None):
     """Convert string 'None' or 'none' to Python None, try to convert to float if possible."""
     if isinstance(value, str):
         if value.strip().lower() in ('none', ''):
@@ -30,7 +32,7 @@ def convert_none_string(value):
             return float(value)
         except ValueError:
             # If it's not a valid number, show error and return None
-            tk.messagebox.showerror('Input Error', f'Invalid numeric value: "{value}"\nPlease enter a number or "None" for auto limits.')
+            tk.messagebox.showerror('Input Error', f'Invalid numeric value: "{value}"\nPlease enter a number or "None" for auto limits.', parent=parent)
             return None
     return value
 
@@ -53,9 +55,11 @@ def remove_write_traces(trace_handles):
 # create new Top level window and plot data
 def plot_window(root, tally_to_plot):
     def quit_m():
-        # close the editor window and grab the plot window
-        root.grab_set()
+        plot_win.grab_release()
+        plt.close(config_mod.fig_id)
         plot_win.destroy()
+        if previous_grab is not None and previous_grab.winfo_exists():
+            previous_grab.grab_set()
 
     # close the plot window if there are no tallies
     if tally_to_plot == None:
@@ -145,12 +149,19 @@ def plot_window(root, tally_to_plot):
     dpi_var = tk.DoubleVar(value=config_mod.plot_settings.get('fig_dpi', 150))
     latex_var = tk.BooleanVar(value=config_mod.plot_settings.get('latex', False))
     updating_widgets = False
+    title_controls = None
+    axis_title_presets = settings_mod.get_axis_title_presets()
+    moving_average_var = tk.BooleanVar(value=config_mod.plot_settings.get('moving_average', False))
+    average_window_var = tk.StringVar(value=str(config_mod.plot_settings.get('moving_average_window', 5)))
 
     # endregion
 
     # ------------------------------------------------------------------------------------------------------------------
     # NEW Window definition---------------------------------------------------------------------------------------------
+    previous_grab = root.grab_current()
     plot_win = tk.Toplevel(root)
+    plot_win.transient(root)
+    plot_win.protocol('WM_DELETE_WINDOW', quit_m)
     plot_win.grab_set()      # the main window is locked until the new window is closed
     plot_win.geometry('1200x700')
 
@@ -169,8 +180,17 @@ def plot_window(root, tally_to_plot):
     # plot_frame.grid_propagate(False)      # Turn of auto resize of plot frame
 
     # PLOT_OPTION both columns
-    option_frame = tk.LabelFrame(plot_win, width=40)
-    option_frame.grid(column=1, row=0, sticky='nswe', padx=2, pady=2)
+    options_container = tk.ttk.Frame(plot_win)
+    options_container.grid(column=1, row=0, sticky='nswe', padx=2, pady=2)
+    options_container.rowconfigure(0, weight=1)
+    options_container.columnconfigure(0, weight=1)
+    settings_tabs = tk.ttk.Notebook(options_container)
+    settings_tabs.grid(column=0, row=0, sticky='nswe')
+    option_frame = tk.ttk.Frame(settings_tabs)
+    settings_tabs.add(option_frame, text='Plot settings')
+    title_average_frame = tk.ttk.Frame(settings_tabs, padding=4)
+    title_average_frame.columnconfigure(0, weight=1)
+    settings_tabs.add(title_average_frame, text='Titles & average')
     option_frame.columnconfigure(0, weight=1)
     option_frame.columnconfigure(1, weight=1)
     option_frame.rowconfigure(0, weight=1)  # weight=0 means no stretching...
@@ -192,7 +212,7 @@ def plot_window(root, tally_to_plot):
     # bottom_opt_frame.grid(column=0, columnspan=2, row=1)
 
     # Canvas definition     # TODO try to define this only in plot core
-    config_mod.fig_id = matplotlib.pyplot.figure()
+    config_mod.fig_id = Figure()
     config_mod.ax = config_mod.fig_id.add_subplot()
 
     config_mod.canvas_id = FigureCanvasTkAgg(config_mod.fig_id, plot_frame)  # add Figure to canvas from plot function
@@ -210,6 +230,17 @@ def plot_window(root, tally_to_plot):
 
     # save values from widgets into dictionary
     def plot_variables(save=False):
+
+        try:
+            average_window = moving_average_mod.validate_window(average_window_var.get())
+        except ValueError as exc:
+            average_window_var.set(str(config_mod.plot_settings.get('moving_average_window', 5)))
+            tk.messagebox.showerror('Moving average', str(exc), parent=plot_win.grab_current() or plot_win)
+            return False
+
+        if title_controls is not None:
+            title_controls.set_ratio(ratio_sel.get() != 'no ratio')
+            title_controls.apply(config_mod.plot_settings)
 
         config_mod.plot_settings["ratio"] = ratio_sel.get()
         config_mod.plot_settings["ratio_reference_line"] = ratio_reference_line_var.get()
@@ -231,12 +262,13 @@ def plot_window(root, tally_to_plot):
         config_mod.plot_settings["latex"] = latex_var.get()
         
         # limits - convert string "None" to Python None or float
-        config_mod.plot_settings["x_min"] = convert_none_string(x_min_var.get())
-        config_mod.plot_settings["x_max"] = convert_none_string(x_max_var.get())
-        config_mod.plot_settings["y_min"] = convert_none_string(y_min_var.get())
-        config_mod.plot_settings["y_max"] = convert_none_string(y_max_var.get())
-        config_mod.plot_settings["y2_min"] = convert_none_string(y2_min_var.get())
-        config_mod.plot_settings["y2_max"] = convert_none_string(y2_max_var.get())
+        dialog_parent = plot_win.grab_current() or plot_win
+        config_mod.plot_settings["x_min"] = convert_none_string(x_min_var.get(), dialog_parent)
+        config_mod.plot_settings["x_max"] = convert_none_string(x_max_var.get(), dialog_parent)
+        config_mod.plot_settings["y_min"] = convert_none_string(y_min_var.get(), dialog_parent)
+        config_mod.plot_settings["y_max"] = convert_none_string(y_max_var.get(), dialog_parent)
+        config_mod.plot_settings["y2_min"] = convert_none_string(y2_min_var.get(), dialog_parent)
+        config_mod.plot_settings["y2_max"] = convert_none_string(y2_max_var.get(), dialog_parent)
         
         # config_mod.plot_settings["x_lim"] = xlim_var.get()
         config_mod.plot_settings["fig_title_switch"] = fig_title_var.get()
@@ -269,13 +301,18 @@ def plot_window(root, tally_to_plot):
         # Line options
         config_mod.plot_settings['line_style_by_file'] = line_style_var.get()
         config_mod.plot_settings['line_width'] = line_width_var.get()
+        config_mod.plot_settings['moving_average'] = moving_average_var.get()
+        config_mod.plot_settings['moving_average_window'] = average_window
 
         # save values to the config file
         settings_mod.save_config()
+        return True
 
-    # insert FIRST plot CANVAS
-    plot_variables()
-    plot_core.plot_to_canvas(tally_to_plot)
+    def redraw(save=False):
+        if plot_variables(save):
+            plot_core.plot_to_canvas(tally_to_plot)
+
+    # The first plot is drawn after all controls and callbacks are initialized.
 
     # region Description: all Tkinter Widgets used for plot settings
     # PLOT OPTION FRAME ------------------------------------------------------------------------------------------------
@@ -410,7 +447,7 @@ def plot_window(root, tally_to_plot):
     row_c += 1
     row_f = 0   
 
-    button_save = tk.ttk.Button(save_frame, text='Save figure', command=lambda: (plot_variables(True), plot_core.plot_to_canvas(tally_to_plot)))
+    button_save = tk.ttk.Button(save_frame, text='Save figure', command=lambda: redraw(True))
     button_save.grid(column=0, columnspan=4, row=row_f, sticky='nwse', padx=2, pady=2)
     row_f += 1
 
@@ -520,13 +557,13 @@ def plot_window(root, tally_to_plot):
     x_min_label.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
     x_min_entry = tk.Entry(limits_frame, width=6, textvariable=x_min_var)
     x_min_entry.grid(column=1, row=row_f, sticky='nw', padx=2, pady=2)
-    x_min_entry.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
+    x_min_entry.bind('<Return>', lambda event: redraw())
     x_min_entry.bind('<FocusOut>', lambda event: plot_variables())
     x_max_label = tk.Label(limits_frame, text='X max')
     x_max_label.grid(column=2, row=row_f, sticky='nw', padx=2, pady=2)
     x_max_entry = tk.Entry(limits_frame, width=6, textvariable=x_max_var)
     x_max_entry.grid(column=3, row=row_f, sticky='nw', padx=2, pady=2)
-    x_max_entry.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
+    x_max_entry.bind('<Return>', lambda event: redraw())
     x_max_entry.bind('<FocusOut>', lambda event: plot_variables())
     row_f += 1
 
@@ -538,12 +575,12 @@ def plot_window(root, tally_to_plot):
     y_min_label.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
     y_min_entry = tk.Entry(limits_frame, width=6, textvariable=y_min_var)
     y_min_entry.grid(column=1, row=row_f, sticky='nw', padx=2, pady=2)
-    y_min_entry.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
+    y_min_entry.bind('<Return>', lambda event: redraw())
     y_min_entry.bind('<FocusOut>', lambda event: plot_variables())
     y_max_label = tk.Label(limits_frame, text='Y max')
     y_max_label.grid(column=2, row=row_f, sticky='nw', padx=2, pady=2)
     y_max_entry = tk.Entry(limits_frame, width=6, textvariable=y_max_var)
-    y_max_entry.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
+    y_max_entry.bind('<Return>', lambda event: redraw())
     y_max_entry.bind('<FocusOut>', lambda event: plot_variables())
     y_max_entry.grid(column=3, row=row_f, sticky='nw', padx=2, pady=2)
     row_f += 1
@@ -552,13 +589,13 @@ def plot_window(root, tally_to_plot):
     xs_min_label.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
     xs_min_entry = tk.Entry(limits_frame, width=6, textvariable=y2_min_var, state='disabled')
     xs_min_entry.grid(column=1, row=row_f, sticky='nw', padx=2, pady=2)
-    xs_min_entry.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
+    xs_min_entry.bind('<Return>', lambda event: redraw())
     xs_min_entry.bind('<FocusOut>', lambda event: plot_variables())
     xs_max_label = tk.Label(limits_frame, text='Y2 max')
     xs_max_label.grid(column=2, row=row_f, sticky='nw', padx=2, pady=2)
     xs_max_entry = tk.Entry(limits_frame, width=6, textvariable=y2_max_var, state='disabled')
     xs_max_entry.grid(column=3, row=row_f, sticky='nw', padx=2, pady=2)
-    xs_max_entry.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
+    xs_max_entry.bind('<Return>', lambda event: redraw())
     xs_max_entry.bind('<FocusOut>', lambda event: plot_variables())
     row_f += 1
 
@@ -609,7 +646,7 @@ def plot_window(root, tally_to_plot):
     multiplier_label.grid(column=0, row=row_f, sticky='nw', padx=2, pady=2)
     multiplier_entry = tk.Entry(multiplier_frame, width=20, textvariable=multiplier_var, justify="right", state='disabled')
     multiplier_entry.grid(column=1, row=row_f, sticky='nswe', padx=2, pady=2)
-    multiplier_entry.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
+    multiplier_entry.bind('<Return>', lambda event: redraw())
     multiplier_entry.bind('<FocusOut>', lambda event: (multiplier_mode_var.set("custom"), plot_variables()))
     row_f += 1
 
@@ -621,7 +658,7 @@ def plot_window(root, tally_to_plot):
     row_f = 0
 
     # Checkbox for unique line style based on filename
-    chk_line_style = tk.Checkbutton(line_options_frame, text='Unique linestyle by file', var=line_style_var, command=lambda: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
+    chk_line_style = tk.Checkbutton(line_options_frame, text='Unique linestyle by file', var=line_style_var)
     chk_line_style.grid(column=0, columnspan=2, row=row_f, sticky='w', padx=2, pady=2)
     row_f += 1
 
@@ -631,20 +668,20 @@ def plot_window(root, tally_to_plot):
     
     line_width_spinbox = tk.ttk.Spinbox(line_options_frame, from_=0.1, to=5.0, increment=0.1, textvariable=line_width_var, wrap=True, width=6)
     line_width_spinbox.grid(column=1, row=row_f, sticky='w', padx=2, pady=2)
-    line_width_spinbox.bind('<Return>', lambda event: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)))
+    line_width_spinbox.bind('<Return>', lambda event: redraw())
     row_f += 1
 
     # ------------------------------------------------------------------------------------------------------------------
     # replot frame -----------------------------------------------------------------------------------------------------
-    replot_frame = tk.LabelFrame(option_frame, text='Replot')
-    replot_frame.grid(column=0, columnspan=2, row=1, sticky='swe', padx=2, pady=2)
+    replot_frame = tk.LabelFrame(options_container, text='Replot')
+    replot_frame.grid(column=0, row=1, sticky='swe', padx=2, pady=2)
     replot_frame.columnconfigure(0, weight=1)
     replot_frame.columnconfigure(1, weight=1)
 
     chk_replot = tk.Checkbutton(replot_frame, text='disable instant changes', var=replot_var, command=lambda: turn_off_replot())
     chk_replot.grid(column=0, row=0, sticky='swe', padx=2, pady=2)
 
-    button_replot = tk.ttk.Button(replot_frame, text='Replot', command=lambda: (plot_variables(), plot_core.plot_to_canvas(tally_to_plot)), state='disabled')
+    button_replot = tk.ttk.Button(replot_frame, text='Replot', command=redraw, state='disabled')
     button_replot.grid(column=0, row=1, sticky='swen', padx=2, pady=2)
     
     button_quit = tk.ttk.Button(replot_frame, width=24, text='Quit', command=lambda: quit_m())
@@ -659,14 +696,66 @@ def plot_window(root, tally_to_plot):
         if updating_widgets:
             return
         change_ratio_reference_line_state()
-        plot_variables()
+        redraw()
+
+    def title_changed():
+        if not updating_widgets and not replot_var.get():
+            my_callback()
+
+    def reload_title_presets():
+        nonlocal axis_title_presets
+        title_controls.apply(config_mod.plot_settings)
+        axis_title_presets = settings_mod.get_axis_title_presets()
+        title_controls.sync(config_mod.plot_settings, axis_title_presets)
+        title_controls.apply(config_mod.plot_settings)
+        if settings_mod.last_axis_titles_error:
+            tk.messagebox.showerror('Title presets reload failed',
+                                    settings_mod.last_axis_titles_error,
+                                    parent=plot_win.grab_current() or plot_win)
+            return False
         plot_core.plot_to_canvas(tally_to_plot)
+        return True
+
+    title_controls = axis_titles_mod.AxisTitleControls(
+        title_average_frame, config_mod.plot_settings, axis_title_presets,
+        on_change=title_changed,
+        on_edit=lambda: editor_mod.open_lib(
+            settings_mod.AXIS_TITLES_FILE, plot_win, tally_to_plot,
+            on_save=reload_title_presets),
+    )
+    title_controls.grid(column=0, row=0, sticky='new', padx=2, pady=2)
+    ratio_sel.trace_add('write', lambda *_: title_controls.set_ratio(ratio_sel.get() != 'no ratio'))
+
+    average_frame = tk.ttk.LabelFrame(title_average_frame, text='Moving average', padding=6)
+    average_frame.grid(column=0, row=1, sticky='new', padx=2, pady=6)
+    average_check = tk.ttk.Checkbutton(average_frame, text='Show moving-average overlay',
+                                     variable=moving_average_var)
+    average_check.grid(column=0, columnspan=2, row=0, sticky='w')
+    tk.ttk.Label(average_frame, text='Window (odd number of bins):').grid(column=0, row=1, sticky='w')
+    average_spinbox = tk.ttk.Spinbox(average_frame, from_=1, to=999, increment=2,
+                                    textvariable=average_window_var, width=7,
+                                    command=lambda: apply_average_window())
+    average_spinbox.grid(column=1, row=1, sticky='w', padx=5, pady=5)
+    tk.ttk.Label(average_frame, text='Centered average; shorter windows at edges.\n'
+                 'Original curves and error bars remain visible.\n'
+                 'Applies to the displayed values, including ratios.', justify='left').grid(
+                     column=0, columnspan=2, row=2, sticky='w')
+
+    def apply_average_window(event=None):
+        if not updating_widgets:
+            if replot_var.get():
+                plot_variables()
+            else:
+                redraw()
+
+    average_spinbox.bind('<Return>', apply_average_window)
+    average_spinbox.bind('<FocusOut>', apply_average_window)
 
     replot_trace_vars = (
         legend_pos, ratio_sel, x_axis_var, y_axis_var, y2_axis_var, data_var,
         axis_var, leg_var, grid_on_var, grid_var, grid_axis_var, ticks_var,
         xs_var, error_var, bin_var, fig_title_var, line_style_var,
-        line_width_var, multiplier_mode_var, ratio_reference_line_var,
+        line_width_var, multiplier_mode_var, ratio_reference_line_var, moving_average_var,
     )
     replot_trace_handles = []
 
@@ -765,6 +854,8 @@ def plot_window(root, tally_to_plot):
             (latex_var, settings['latex']),
             (multiplier_var, str(multiplier)),
             (multiplier_mode_var, multiplier_mode),
+            (moving_average_var, settings['moving_average']),
+            (average_window_var, str(settings['moving_average_window'])),
         )
         limit_values = (
             (x_min_var, settings['x_min']), (x_max_var, settings['x_max']),
@@ -778,6 +869,8 @@ def plot_window(root, tally_to_plot):
                 variable.set(value)
             for variable, value in limit_values:
                 variable.set('None' if value is None else str(value))
+            title_controls.sync(settings, axis_title_presets)
+            title_controls.apply(settings)
         finally:
             updating_widgets = False
 
@@ -787,13 +880,15 @@ def plot_window(root, tally_to_plot):
 
     def reload_config():
         """Reload config.toml, synchronize controls, and redraw the current plot."""
+        nonlocal axis_title_presets
         if not settings_mod.read_config(settings_mod.CONFIG_FILE):
             tk.messagebox.showerror(
                 title='Config reload failed',
                 message=settings_mod.last_config_error or 'The configuration could not be loaded.',
-                parent=plot_win,
+                parent=plot_win.grab_current() or plot_win,
             )
             return False
+        axis_title_presets = settings_mod.get_axis_title_presets()
         sync_widgets_from_config()
         try:
             plot_core.plot_to_canvas(tally_to_plot)
@@ -801,13 +896,24 @@ def plot_window(root, tally_to_plot):
             tk.messagebox.showerror(
                 title='Config reload failed',
                 message=f'The configuration was loaded, but the plot could not be updated: {exc}',
-                parent=plot_win,
+                parent=plot_win.grab_current() or plot_win,
             )
+            return False
+        if settings_mod.last_axis_titles_error:
+            tk.messagebox.showerror('Title presets reload failed',
+                                    settings_mod.last_axis_titles_error,
+                                    parent=plot_win.grab_current() or plot_win)
             return False
         return True
 
     # Install automatic replot callbacks only after every callback they can
     # reach has been defined. This keeps all button commands valid even if a
     # future trace setup error occurs.
+    sync_widgets_from_config()
+    plot_variables()
+    plot_core.plot_to_canvas(tally_to_plot)
+    if settings_mod.last_axis_titles_error:
+        tk.messagebox.showerror('Title presets load failed', settings_mod.last_axis_titles_error,
+                                parent=plot_win)
     enable_replot_traces()
 

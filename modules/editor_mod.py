@@ -16,7 +16,9 @@ def open_lib(file_path, plot_win, tally, on_save=None):
     
     file_path = pathlib.Path(file_path)
     
-    editor_win = tk.Toplevel()
+    previous_grab = plot_win.grab_current()
+    editor_win = tk.Toplevel(plot_win)
+    editor_win.transient(plot_win)
     editor_win.grab_set()
     editor_win.minsize(500, 300)
     editor_win.title('Library editor')
@@ -37,9 +39,12 @@ def open_lib(file_path, plot_win, tally, on_save=None):
     button_quit.grid(column=1, row=0, sticky='we', padx=5, pady=5)
 
     def quit_m():
-        # close the editor window and grab the plot window
-        plot_win.grab_set()
+        editor_win.grab_release()
         editor_win.destroy()
+        if previous_grab is not None and previous_grab.winfo_exists():
+            previous_grab.grab_set()
+
+    editor_win.protocol('WM_DELETE_WINDOW', quit_m)
 
     def read_lib():
         with open(file_path, 'r', encoding='utf-8') as lib_file:
@@ -49,11 +54,10 @@ def open_lib(file_path, plot_win, tally, on_save=None):
         editor_win.title(f'Library editor - {file_path}')
 
     def save_lib():
-        with open(file_path, 'w', encoding='utf-8') as output_file:
-            text_s = txt_edit.get(1.0, tk.END)
-            output_file.write(text_s)
-
         try:
+            with open(file_path, 'w', encoding='utf-8') as output_file:
+                text_s = txt_edit.get(1.0, tk.END)
+                output_file.write(text_s)
             if on_save is not None:
                 # The owning window is responsible for loading the file, updating
                 # its controls, and redrawing from one consistent settings state.
@@ -81,4 +85,9 @@ def open_lib(file_path, plot_win, tally, on_save=None):
         quit_m()
 
     # open and read file into the editor window
-    read_lib()
+    try:
+        read_lib()
+    except (OSError, UnicodeError) as exc:
+        tk.messagebox.showerror('Read error', str(exc), parent=editor_win)
+        quit_m()
+    return editor_win
