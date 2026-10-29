@@ -7,6 +7,14 @@ description = "Energy (MeV)"
 value = "Tally / MeV / particle"
 description = "Tally per MeV per particle"
 
+[y.flux_per_mev]
+value = "Flux (ptc/cm$^2$/MeV/s)"
+description = "Flux per MeV"
+
+[y.flux]
+value = "Flux (ptc/cm$^2$/s)"
+description = "Flux"
+
 [y.per_particle]
 value = "Tally / particle"
 description = "Tally per particle"
@@ -18,3 +26,4 @@ description = "Ratio"
 [y2.cross_section]
 value = "Cross Section (barns)"
 description = "Cross section (barns)"
+
