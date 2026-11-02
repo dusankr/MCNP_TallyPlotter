@@ -25,9 +25,10 @@ def y_axis_title(settings: dict) -> str:
 
 
 def add_moving_average(axis, centers, values, settings: dict, color, label: str,
-                       reference_values=None) -> None:
+                       reference_values=None, line_style='-') -> None:
     """Overlay the mean of displayed bins; undefined ratios remain gaps."""
-    if not settings.get('moving_average', False):
+    mode = settings.get('moving_average_mode', 'original')
+    if mode == 'original':
         return
     data = list(values)
     if reference_values is not None:
@@ -35,7 +36,7 @@ def add_moving_average(axis, centers, values, settings: dict, color, label: str,
                 for value, reference in zip(data, reference_values)]
     window = moving_average_mod.validate_window(settings.get('moving_average_window', 5))
     smoothed = moving_average_mod.centered_moving_average(data, window)
-    axis.plot(centers, smoothed, color=color, linestyle='--',
+    axis.plot(centers, smoothed, color=color, linestyle=line_style if mode == 'average' else '--',
               linewidth=settings.get('line_width', 1.5), zorder=4,
               label=f'{label} (moving average, {window} bins)')
 
@@ -159,9 +160,11 @@ def plot_to_canvas(tally):
         # Get line width from settings, default to 1.5 if not set
         line_width = config_mod.plot_settings.get("line_width", 1.5)
 
-        linestep, = config_mod.ax.step(x_data, y_data, color=p_color, label=legend_name, linestyle=line_style, linewidth=line_width)
+        show_original = config_mod.plot_settings.get('moving_average_mode', 'original') != 'average'
+        if show_original:
+            config_mod.ax.step(x_data, y_data, color=p_color, label=legend_name, linestyle=line_style, linewidth=line_width)
 
-        if config_mod.plot_settings["error_bar"]:
+        if show_original and config_mod.plot_settings["error_bar"]:
             err = [a * b for a, b in zip(y_data_err, y_data)]  # abs error
             # Scale error bar thickness and cap size with line width
             err_linewidth = line_width * 0.7  # Error bar lines slightly thinner than main line
@@ -175,6 +178,7 @@ def plot_to_canvas(tally):
             config_mod.ax, x_data_center, y_data[1:], config_mod.plot_settings,
             p_color, legend_name,
             reference_values=y_ratio[1:] if config_mod.plot_settings['ratio'] != 'no ratio' else None,
+            line_style=line_style,
         )
 
     # XS plot (if true, run) -------------------------------------------------------------------------------------------

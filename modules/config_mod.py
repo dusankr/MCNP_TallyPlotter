@@ -62,7 +62,7 @@ plot_settings = dict.fromkeys([
     "y_ratio_title",
     "line_style_by_file",
     "line_width",
-    "moving_average", "moving_average_window",
+    "moving_average_mode", "moving_average_window",
     "x_title_preset", "y_title_preset", "y2_title_preset", "y_ratio_title_preset",
 ])
 

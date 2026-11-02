@@ -81,6 +81,14 @@ class PlotGuiTests(unittest.TestCase):
         control['menu'].current(control['ids'].index(mode))
         control['menu'].event_generate('<<ComboboxSelected>>')
 
+    def average_selector(self):
+        return next(widget for widget in descendants(self.plot)
+                    if isinstance(widget, ttk.Combobox) and tuple(widget.cget('values')) ==
+                    ('Original only', 'Original + average', 'Average only'))
+
+    def choose_average(self, label):
+        self.average_selector().set(label)
+
     def choose_ratio(self, label):
         menu = next(widget['menu'] for widget in descendants(self.plot)
                     if isinstance(widget, tk.OptionMenu)
@@ -110,7 +118,7 @@ class PlotGuiTests(unittest.TestCase):
     def test_external_preset_and_config_reload_update_controls_and_average(self):
         self.choose_title('x', 'preset:energy')
         self.presets_path.write_text('[x.energy]\nvalue="Updated energy"\ndescription="Updated"\n', encoding='utf-8')
-        self.settings.update(moving_average=True, moving_average_window=3)
+        self.settings.update(moving_average_mode='average', moving_average_window=3)
         settings_mod.save_config()
         self.button('Reload settings').invoke()
         self.assertEqual(config_mod.ax.get_xlabel(), 'Updated energy')
@@ -149,11 +157,11 @@ class PlotGuiTests(unittest.TestCase):
         self.plot.tk.call(self.plot.protocol('WM_DELETE_WINDOW'))
         self.assertIsNone(self.root.grab_current())
 
-    def test_average_checkbox_and_manual_replot(self):
-        self.button('Show moving-average overlay').invoke()
+    def test_average_selector_and_manual_replot(self):
+        self.choose_average('Original + average')
         self.assertTrue(any('moving average' in line.get_label() for line in config_mod.ax.lines))
         self.button('disable instant changes').invoke()
-        self.button('Show moving-average overlay').invoke()
+        self.choose_average('Original only')
         self.assertTrue(any('moving average' in line.get_label() for line in config_mod.ax.lines))
         self.button('Replot').invoke()
         self.assertFalse(any('moving average' in line.get_label() for line in config_mod.ax.lines))
@@ -161,7 +169,7 @@ class PlotGuiTests(unittest.TestCase):
 
     def test_reopening_plot_restores_preset_and_average(self):
         self.choose_title('x', 'preset:energy')
-        self.button('Show moving-average overlay').invoke()
+        self.choose_average('Average only')
         self.button('Quit').invoke()
         self.assertTrue(settings_mod.read_config(self.config_path))
         plot_mod.plot_window(self.root, ['source', 'reference'])
@@ -188,6 +196,7 @@ class PlotGuiTests(unittest.TestCase):
         self.errors.assert_not_called()
 
     def test_invalid_average_input_keeps_last_valid_settings(self):
+        self.choose_average('Original + average')
         spinbox = next(widget for widget in descendants(self.plot)
                        if isinstance(widget, ttk.Spinbox) and widget.cget('increment') == 2)
         spinbox.set('4')
@@ -196,6 +205,53 @@ class PlotGuiTests(unittest.TestCase):
         self.assertEqual(config_mod.plot_settings['moving_average_window'], 5)
         self.assertEqual(spinbox.get(), '5')
         self.errors.assert_called_once()
+
+    def test_mode_switches_control_states_and_preserve_error_bar_preference(self):
+        errors = self.button('show/hide error bars')
+        spinbox = next(widget for widget in descendants(self.plot)
+                       if isinstance(widget, ttk.Spinbox) and widget.cget('increment') == 2)
+        self.assertEqual(str(spinbox.cget('state')), 'disabled')
+        errors.invoke()
+        self.assertTrue(self.settings['error_bar'])
+        self.choose_average('Average only')
+        self.assertEqual(str(errors.cget('state')), 'disabled')
+        self.assertEqual(str(spinbox.cget('state')), 'normal')
+        self.assertTrue(self.settings['error_bar'])
+        self.assertEqual(len(config_mod.ax.containers), 0)
+        self.button('disable instant changes').invoke()
+        self.choose_average('Original only')
+        self.assertEqual(str(errors.cget('state')), 'normal')
+        self.assertEqual(str(spinbox.cget('state')), 'disabled')
+        self.assertEqual(len(config_mod.ax.containers), 0)
+        self.button('Replot').invoke()
+        self.assertEqual(len(config_mod.ax.containers), 2)
+        self.assertTrue(self.settings['error_bar'])
+
+    def test_original_two_tab_layout_and_replot_footer(self):
+        self.plot.transient('')
+        self.plot.overrideredirect(True)
+        self.plot.geometry('1200x700-20000-20000')
+        self.plot.deiconify()
+        self.plot.update()
+        notebook = next(widget for widget in descendants(self.plot) if isinstance(widget, ttk.Notebook))
+        names = [notebook.tab(tab, 'text') for tab in notebook.tabs()]
+        self.assertEqual(names, ['Plot settings', 'Titles & average'])
+        first_tab, second_tab = [notebook.nametowidget(tab) for tab in notebook.tabs()]
+        self.assertTrue(str(self.controls).startswith(str(second_tab) + '.'))
+        self.assertTrue(str(self.average_selector()).startswith(str(second_tab) + '.'))
+        for label in ('Save figure', 'Settings editor', 'Reload settings'):
+            self.assertTrue(str(self.button(label)).startswith(str(first_tab) + '.'))
+        groups = [widget.cget('text') for widget in first_tab.winfo_children()]
+        self.assertEqual(groups, ['Plot settings I', 'Plot settings II'])
+        for tab in (first_tab, second_tab):
+            notebook.select(tab)
+            self.plot.update()
+            for label in ('Replot', 'Quit', 'disable instant changes'):
+                button = self.button(label)
+                self.assertTrue(button.winfo_ismapped())
+                self.assertLessEqual(button.winfo_rooty() + button.winfo_height(),
+                                     self.plot.winfo_rooty() + self.plot.winfo_height())
+        self.errors.assert_not_called()
 
 
 if __name__ == '__main__':

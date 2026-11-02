@@ -151,7 +151,9 @@ def plot_window(root, tally_to_plot):
     updating_widgets = False
     title_controls = None
     axis_title_presets = settings_mod.get_axis_title_presets()
-    moving_average_var = tk.BooleanVar(value=config_mod.plot_settings.get('moving_average', False))
+    average_modes = {'Original only': 'original', 'Original + average': 'both', 'Average only': 'average'}
+    average_labels = {mode: label for label, mode in average_modes.items()}
+    average_mode_var = tk.StringVar(value=average_labels[config_mod.plot_settings.get('moving_average_mode', 'original')])
     average_window_var = tk.StringVar(value=str(config_mod.plot_settings.get('moving_average_window', 5)))
 
     # endregion
@@ -301,7 +303,7 @@ def plot_window(root, tally_to_plot):
         # Line options
         config_mod.plot_settings['line_style_by_file'] = line_style_var.get()
         config_mod.plot_settings['line_width'] = line_width_var.get()
-        config_mod.plot_settings['moving_average'] = moving_average_var.get()
+        config_mod.plot_settings['moving_average_mode'] = average_modes[average_mode_var.get()]
         config_mod.plot_settings['moving_average_window'] = average_window
 
         # save values to the config file
@@ -726,18 +728,18 @@ def plot_window(root, tally_to_plot):
     title_controls.grid(column=0, row=0, sticky='new', padx=2, pady=2)
     ratio_sel.trace_add('write', lambda *_: title_controls.set_ratio(ratio_sel.get() != 'no ratio'))
 
-    average_frame = tk.ttk.LabelFrame(title_average_frame, text='Moving average', padding=6)
+    average_frame = tk.ttk.LabelFrame(title_average_frame, text='Curve display', padding=6)
     average_frame.grid(column=0, row=1, sticky='new', padx=2, pady=6)
-    average_check = tk.ttk.Checkbutton(average_frame, text='Show moving-average overlay',
-                                     variable=moving_average_var)
-    average_check.grid(column=0, columnspan=2, row=0, sticky='w')
+    average_menu = tk.ttk.Combobox(average_frame, state='readonly',
+                                 textvariable=average_mode_var, values=list(average_modes))
+    average_menu.grid(column=0, columnspan=2, row=0, sticky='ew')
     tk.ttk.Label(average_frame, text='Window (odd number of bins):').grid(column=0, row=1, sticky='w')
     average_spinbox = tk.ttk.Spinbox(average_frame, from_=1, to=999, increment=2,
                                     textvariable=average_window_var, width=7,
                                     command=lambda: apply_average_window())
     average_spinbox.grid(column=1, row=1, sticky='w', padx=5, pady=5)
     tk.ttk.Label(average_frame, text='Centered average; shorter windows at edges.\n'
-                 'Original curves and error bars remain visible.\n'
+                 'Average only hides original curves and error bars.\n'
                  'Applies to the displayed values, including ratios.', justify='left').grid(
                      column=0, columnspan=2, row=2, sticky='w')
 
@@ -751,11 +753,20 @@ def plot_window(root, tally_to_plot):
     average_spinbox.bind('<Return>', apply_average_window)
     average_spinbox.bind('<FocusOut>', apply_average_window)
 
+    def update_average_controls(*args):
+        mode = average_modes[average_mode_var.get()]
+        average_spinbox.configure(state='disabled' if mode == 'original' else 'normal')
+        chk_error.configure(state='disabled' if mode == 'average' else 'normal')
+
+    # Widget state must follow the selection even when automatic plotting is off.
+    average_mode_var.trace_add('write', update_average_controls)
+    update_average_controls()
+
     replot_trace_vars = (
         legend_pos, ratio_sel, x_axis_var, y_axis_var, y2_axis_var, data_var,
         axis_var, leg_var, grid_on_var, grid_var, grid_axis_var, ticks_var,
         xs_var, error_var, bin_var, fig_title_var, line_style_var,
-        line_width_var, multiplier_mode_var, ratio_reference_line_var, moving_average_var,
+        line_width_var, multiplier_mode_var, ratio_reference_line_var, average_mode_var,
     )
     replot_trace_handles = []
 
@@ -854,7 +865,7 @@ def plot_window(root, tally_to_plot):
             (latex_var, settings['latex']),
             (multiplier_var, str(multiplier)),
             (multiplier_mode_var, multiplier_mode),
-            (moving_average_var, settings['moving_average']),
+            (average_mode_var, average_labels[settings['moving_average_mode']]),
             (average_window_var, str(settings['moving_average_window'])),
         )
         limit_values = (

@@ -27,10 +27,13 @@ def open_lib(file_path, plot_win, tally, on_save=None):
     editor_win.columnconfigure(0, weight=1)
 
     txt_edit = tk.Text(editor_win, bg='white')
-    txt_edit.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)
+    txt_edit.grid(column=0, row=0, sticky='nswe', padx=(5, 0), pady=5)
+    text_scrollbar = tk.ttk.Scrollbar(editor_win, orient='vertical', command=txt_edit.yview)
+    text_scrollbar.grid(column=1, row=0, sticky='ns', padx=(0, 5), pady=5)
+    txt_edit.configure(yscrollcommand=text_scrollbar.set)
 
     button_frame = tk.Frame(editor_win)
-    button_frame.grid(column=0, row=1, sticky='nswe', padx=5, pady=5)
+    button_frame.grid(column=0, columnspan=2, row=1, sticky='nswe', padx=5, pady=5)
 
     save_button = tk.Button(button_frame, text='Save file', command=lambda: save_lib() )
     save_button.grid(column=0, row=0, sticky='nswe', padx=5, pady=5)

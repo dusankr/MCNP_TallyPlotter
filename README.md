@@ -119,7 +119,10 @@ python mcnp_tally_plot_main.py
 ### Plot settings and replot
 
 The settings panel has two tabs: **Plot settings** and **Titles & average**.
-The Replot and Quit controls stay available below both tabs.
+**Plot settings** uses the original two-column arrangement for data, axes,
+legend, grid, save, cross-section, and configuration controls.
+**Titles & average** contains axis-title presets and curve-display controls.
+The automatic-update, Replot, and Quit controls stay available below both tabs.
 
 - **Axis titles** provides independent X, Y, and secondary-Y choices: Auto,
   named presets, or Custom. Enter custom text and press Enter or leave the field
@@ -130,24 +133,37 @@ The Replot and Quit controls stay available below both tabs.
   the selector. Saving in the editor refreshes the presets and plot. After
   external edits, use **Reload settings**, which reloads both TOML files.
   Presets change labels only. Invalid files retain the last working presets.
-- **Moving average** adds a dashed overlay for each tally, with its window size
-  in the legend. It defaults to off with a 5-bin window. Choose a positive odd
+- **Curve display** offers **Original only** (the default), **Original + average**,
+  and **Average only**. Both average modes label curves with their window size;
+  the combined view uses dashed overlays, while Average only uses the normal
+  line-style settings. Average only hides original curves and error bars and
+  disables the error-bar control, preserving its preference for switching back.
+  Cross sections and the ideal-ratio line remain independently controlled.
+  The remembered average window defaults to 5 bins and is disabled in Original
+  only mode. Choose a positive odd
   bin count; windows shorten at edges and gaps. The average uses the displayed
   normalized/multiplied values, or the displayed ratio in ratio mode, and
-  leaves gaps at undefined ratios. Original curves and error bars stay visible;
-  numerical data and exports are unaffected. Axis clipping does not recompute
+  leaves gaps at undefined ratios. Numerical data and exports are unaffected.
+  Axis clipping does not recompute
   the average from the clipped range.
 - **Save figure** opens a dialog owned by the plot window and saves without an
   extra success confirmation. Canceling the dialog is quiet. Saved figures
   include any active moving-average overlays.
 
 Title selections and moving-average options are stored in `config.toml`.
+The `[plot].moving_average_mode` setting accepts `original`, `both`, and
+`average`. Old `moving_average = false/true` settings load as `original/both`.
+An explicit new mode takes precedence, and subsequent saves use only the new key.
 Check **Use saved config** in the main window to reuse them when opening plots.
 Older configuration files continue to work; new controls use defaults when
 their settings are absent. Explicit title overrides use the existing
 `x_title`, `y_title`, `y2_title`, and `y_ratio_title` entries. Named selections
 also store a corresponding `*_preset` entry; set it to `custom` when replacing
 an active named preset through the configuration editor.
+
+F8 imports retain all reported energy rows, including the first two. The general
+first-bin visibility control still applies to F8. Further investigation of F8
+bin interpretation and plotting is recorded in [PLAN.md](PLAN.md).
 
 - most of the plot settings are applied instantly.
 - this behavior could be deactivated by check box in bottom part of the window (Replot frame). Then, all changes are applied with button **Replot**.

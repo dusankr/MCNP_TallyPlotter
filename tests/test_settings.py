@@ -135,7 +135,7 @@ class ConfigReloadTests(unittest.TestCase):
         self.assertTrue(settings_mod.read_config(self.config_path))
         self.assertEqual(config_mod.plot_settings['y_title_preset'], 'custom')
         self.assertEqual(config_mod.plot_settings['x_title_preset'], 'auto')
-        self.assertFalse(config_mod.plot_settings['moving_average'])
+        self.assertEqual(config_mod.plot_settings['moving_average_mode'], 'original')
         self.assertEqual(config_mod.plot_settings['moving_average_window'], 5)
 
     def test_external_title_override_works_with_auto_mode(self):
@@ -146,7 +146,7 @@ class ConfigReloadTests(unittest.TestCase):
 
     def test_new_features_round_trip_and_invalid_window_does_not_replace_settings(self):
         expected = settings_mod.default_plot_settings()
-        expected.update(moving_average=True, moving_average_window=7,
+        expected.update(moving_average_mode='average', moving_average_window=7,
                         x_title='energy (MeV)', x_title_preset='preset:energy',
                         y_title='Flux', y_title_preset='custom',
                         y_ratio_title='Custom ratio', y_ratio_title_preset='custom')
@@ -158,6 +158,35 @@ class ConfigReloadTests(unittest.TestCase):
         self.write_config({'plot': {'moving_average_window': 4}})
         self.assertFalse(settings_mod.read_config(self.config_path))
         self.assertEqual(config_mod.plot_settings, expected)
+
+
+    def test_average_mode_migrates_legacy_config_and_saves_only_new_key(self):
+        for legacy, expected in ((False, 'original'), (True, 'both')):
+            with self.subTest(legacy=legacy):
+                self.write_config({'plot': {'moving_average': legacy}})
+                self.assertTrue(settings_mod.read_config(self.config_path))
+                self.assertEqual(config_mod.plot_settings['moving_average_mode'], expected)
+                settings_mod.save_config(self.config_path)
+                import tomllib
+                saved = tomllib.loads(self.config_path.read_text(encoding='utf-8'))
+                self.assertNotIn('moving_average', saved['plot'])
+                self.assertEqual(saved['plot']['moving_average_mode'], expected)
+
+    def test_explicit_average_mode_takes_precedence_over_legacy_value(self):
+        for mode in ('original', 'both', 'average'):
+            self.write_config({'plot': {'moving_average': 'ignored legacy value', 'moving_average_mode': mode}})
+            self.assertTrue(settings_mod.read_config(self.config_path))
+            self.assertEqual(config_mod.plot_settings['moving_average_mode'], mode)
+
+    def test_invalid_average_mode_preserves_working_configuration(self):
+        previous = settings_mod.default_plot_settings()
+        config_mod.plot_settings.clear()
+        config_mod.plot_settings.update(previous)
+        for invalid in ('unknown', '', 'None', True):
+            with self.subTest(invalid=invalid):
+                self.write_config({'plot': {'moving_average_mode': invalid}})
+                self.assertFalse(settings_mod.read_config(self.config_path))
+                self.assertEqual(config_mod.plot_settings, previous)
 
 
 if __name__ == "__main__":

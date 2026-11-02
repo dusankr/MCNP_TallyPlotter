@@ -39,7 +39,7 @@ TOML_TO_SETTINGS = {
     ("plot", "error_bar"): "error_bar",
     ("plot", "first_bin"): "first_bin",
     ("plot", "latex"): "latex",
-    ("plot", "moving_average"): "moving_average",
+    ("plot", "moving_average_mode"): "moving_average_mode",
     ("plot", "moving_average_window"): "moving_average_window",
     # Axes
     ("axes", "x_scale"): "x_scale",
@@ -149,7 +149,7 @@ def default_plot_settings():
         "y_ratio_title": None,
         "line_style_by_file": True,
         "line_width": 1.5,
-        "moving_average": False,
+        "moving_average_mode": "original",
         "moving_average_window": 5,
         "x_title_preset": "auto",
         "y_title_preset": "auto",
@@ -161,7 +161,7 @@ def default_plot_settings():
 PATH_SETTINGS = {"work_dir_path", "export_dir_path", "xs_dir_path"}
 BOOLEAN_SETTINGS = {
     "data_var", "ratio_reference_line", "error_bar", "first_bin", "latex", "grid_switch",
-    "fig_title_switch", "xs_switch", "line_style_by_file", "moving_average",
+    "fig_title_switch", "xs_switch", "line_style_by_file",
 }
 INTEGER_SETTINGS = {"leg_size", "ax_label_size", "tics_size", "fig_title_size"}
 FLOAT_SETTINGS = {
@@ -173,6 +173,7 @@ OPTIONAL_SETTINGS = {
     "x_min", "x_max", "y_min", "y_max", "y2_min", "y2_max",
 }
 ENUM_SETTINGS = {
+    "moving_average_mode": {"original", "both", "average"},
     "x_scale": {"linear", "log"},
     "y_scale": {"linear", "log"},
     "y2_scale": {"linear", "log"},
@@ -270,10 +271,15 @@ def read_config(fname=CONFIG_FILE):
             if value is not _MISSING:
                 # Older generated configs used "None" for a few non-optional
                 # fields. Treat those entries as omitted and use the default.
-                if (settings_key not in OPTIONAL_SETTINGS and isinstance(value, str)
+                if (settings_key not in OPTIONAL_SETTINGS and settings_key != 'moving_average_mode' and isinstance(value, str)
                         and value.strip().lower() in ('none', '')):
                     continue
                 loaded[settings_key] = _coerce_setting(settings_key, value, toml_keys)
+        if get_nested_value(toml_data, ('plot', 'moving_average_mode'), _MISSING) is _MISSING:
+            legacy_average = get_nested_value(toml_data, ('plot', 'moving_average'), False)
+            if not isinstance(legacy_average, bool):
+                raise ValueError('plot.moving_average must be true or false')
+            loaded['moving_average_mode'] = 'both' if legacy_average else 'original'
         # Existing configs store only title strings. Preserve those as custom titles.
         for title in ('x_title', 'y_title', 'y2_title', 'y_ratio_title'):
             mode = title + '_preset'

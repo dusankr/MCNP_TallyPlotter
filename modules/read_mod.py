@@ -371,15 +371,6 @@ def read_tally(f_path, fname):
                             elif tally_ptc == particle:
                                 cutoff_en = cutoff_dict[particle]
 
-                        '''
-                        # for tally F8 are the first two lines skipped:
-                        # first value is a non-analog knock-on e- negativ scores
-                        # epsilon bin (more details in manual)
-                        if tally_type == 8:
-                            i = data_start + 2
-                        else:
-                            i = data_start
-                        '''
                         i = data_start
 
                         line = content[i].split()
@@ -444,14 +435,6 @@ def read_tally(f_path, fname):
                             error = [0]
                             surface_or_cell = control_next_tally_connection
 
-                            '''
-                            # for tally F8 are the first two lines skipped:
-                            # first value is a non-analog knock-on e- negative scores
-                            # epsilon bin (more details in manual)
-                            if tally_type == 8:
-                                next_tally += 2
-                            '''
-                            
                             line = content[next_tally].split()
                             while line[0] != 'total':
                                 energy.append(float(line[0]))

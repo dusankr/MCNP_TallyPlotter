@@ -125,7 +125,7 @@ class MovingAverageTests(unittest.TestCase):
 class PlotRenderingTests(unittest.TestCase):
     def setUp(self):
         self.settings = settings_mod.default_plot_settings()
-        self.settings.update(moving_average=True, moving_average_window=3,
+        self.settings.update(moving_average_mode='both', moving_average_window=3,
                              data_var=False, error_bar=True, x_scale='linear', y_scale='linear')
         self.tally = Tally('4', 4, 'neutrons', [0, 1, 2, 3, 4], [0, 2, 4, 8, 10],
                            [0, .1, .1, .1, .1], 0, [0, 2, 4, 8, 10], legend_name='Test')
@@ -195,6 +195,48 @@ class PlotRenderingTests(unittest.TestCase):
             self.assertIn('moving average, 3 bins', path.read_text(encoding='utf-8'))
         self.assertEqual(tuple(self.figure.get_size_inches()), original_size)
         self.assertFalse(self.settings['save_fig'])
+
+    def test_display_modes_control_curves_legends_and_errors_in_regular_and_ratio_plots(self):
+        config_mod.tallies['reference'] = copy.deepcopy(self.tally)
+        for ratio in ('no ratio', 'reference'):
+            for mode, curves, errors in (('original', 1, 1), ('both', 2, 1), ('average', 1, 0)):
+                with self.subTest(ratio=ratio, mode=mode):
+                    self.settings.update(ratio=ratio, moving_average_mode=mode, error_bar=True)
+                    plot_core.plot_to_canvas(['test'] if ratio == 'no ratio' else ['test', 'reference'])
+                    labels = self.axis.get_legend_handles_labels()[1]
+                    self.assertEqual(len(labels), curves)
+                    self.assertEqual(len(self.axis.containers), errors)
+                    self.assertEqual(sum('moving average' in label for label in labels), mode != 'original')
+                    if mode == 'average':
+                        self.assertTrue(all('moving average' in label for label in labels))
+
+    def test_average_only_respects_file_styles_and_keeps_xs_and_ratio_guide(self):
+        config_mod.tallies['other'] = copy.deepcopy(self.tally)
+        self.settings.update(moving_average_mode='average', line_width=2.5)
+        plot_core.plot_to_canvas(['test', 'other'])
+        self.assertEqual([line.get_linestyle() for line in self.axis.lines], ['-', '--'])
+        self.assertTrue(all(line.get_linewidth() == 2.5 for line in self.axis.lines))
+        self.settings.update(ratio='other', ratio_reference_line=True, xs_switch=True, y2_scale='linear')
+        with patch.object(config_mod, 'xs_data', {'XS': ([1, 2], [3, 4])}):
+            plot_core.plot_to_canvas(['test', 'other'])
+        self.assertTrue(any(list(line.get_ydata()) == [1, 1] for line in self.axis.lines))
+        self.assertEqual(config_mod.ax2.lines[0].get_label(), 'XS')
+        self.assertEqual(len(self.axis.containers), 0)
+
+    def test_average_only_preserves_gap_clipping_and_saved_legend(self):
+        reference = copy.deepcopy(self.tally)
+        reference.flux = [0, 1, 0, 2, 2]
+        config_mod.tallies['reference'] = reference
+        self.settings.update(ratio='reference', moving_average_mode='average', y_min=0, y_max=10)
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / 'only-average.svg'
+            self.settings['save_fig'] = True
+            with patch.object(figure_export_mod.filedialog, 'asksaveasfilename', return_value=str(path)):
+                plot_core.plot_to_canvas(['test', 'reference'])
+            self.assertIn('moving average, 3 bins', path.read_text(encoding='utf-8'))
+        self.assertEqual(len(self.axis.lines), 1)
+        self.assertTrue(math.isnan(self.axis.lines[0].get_ydata()[1]))
+        self.assertEqual(self.axis.get_ylim(), (0, 10))
 
 
 if __name__ == '__main__':
