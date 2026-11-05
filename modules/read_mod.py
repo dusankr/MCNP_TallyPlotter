@@ -12,9 +12,11 @@ from modules import config_mod, settings_mod
 from modules.tally_data import Tally
 import pathlib  # better and easier work with file and directory paths
 import tkinter as tk
+from tkinter import filedialog, messagebox
 import os
 import traceback
 import re
+import logging
 from decimal import Decimal, InvalidOperation
 
 # lib for Windows API (nt is name for win OS)
@@ -531,41 +533,58 @@ def read_tally(f_path, fname):
         print('Read process crash for this file: ' + fname.name)
 
 
-# read XS data
-def read_xs(name_label):
-    config_mod.plot_settings["xs_dir_path"] = pathlib.Path(tk.filedialog.askopenfilename(title='Choose directory with XS file', initialdir=config_mod.plot_settings["work_dir_path"]))
+def load_xs_file(path: pathlib.Path) -> dict:
+    """Read active curves from the existing IAEA ENDF export format."""
+    with open(path, 'r', encoding='utf-8') as source:
+        content = source.readlines()
+    curves = {}
+    index = 0
+    while index < len(content):
+        fields = content[index].split()
+        if not fields or fields[0] != 'name:':
+            index += 1
+            continue
+        name = ' '.join(fields[1:])
+        if not name:
+            raise ValueError('A cross-section curve has no name.')
+        # This export format has seven metadata lines after each active name.
+        index += 8
+        energy, values = [], []
+        while index < len(content) and content[index].strip() != '//':
+            fields = content[index].split()
+            if len(fields) < 2:
+                raise ValueError(f'Invalid data row for {name} at line {index + 1}.')
+            energy.append(float(fields[0]))
+            values.append(float(fields[1]))
+            index += 1
+        if index == len(content) or not energy:
+            raise ValueError(f'Missing data or end marker for {name}.')
+        curves[name] = [energy, values]
+        index += 1
+    if not curves:
+        raise ValueError('No active cross-section curves were found in the file.')
+    return curves
 
+
+def read_xs(name_label) -> bool:
+    """Choose an XS file and replace loaded data only after a successful read."""
+    parent = name_label.winfo_toplevel()
+    previous_path = pathlib.Path(config_mod.plot_settings['xs_dir_path'])
+    filename = filedialog.askopenfilename(
+        parent=parent, title='Choose XS file',
+        initialdir=previous_path if previous_path.is_dir() else previous_path.parent,
+    )
+    if not filename:
+        return False
+    path = pathlib.Path(filename).resolve()
     try:
-        with open(config_mod.plot_settings["xs_dir_path"], 'r', encoding='utf-8') as temp_file:  # open XS file
-            content = temp_file.readlines()
-
-            config_mod.xs_data.clear()
-
-            x_dat = []
-            y_dat = []
-
-            i = 0
-            while i < len(content):
-                if (content[i][0] != '#') and (len(content[i]) > 1):
-                    line = content[i].split()
-                    if line[0] == "name:":
-                        name_xs = line[1] + " " + line[2]
-
-                        i += 8
-                        while content[i] != "//\n":
-                            line = content[i].split()
-                            x_dat.append(float(line[0]))
-                            y_dat.append(float(line[1]))
-                            i += 1
-                        config_mod.xs_data[name_xs] = [x_dat, y_dat]
-                        x_dat, y_dat = [], []
-                    else:
-                        i += 1
-                else:
-                    i += 1
-
-        name_label["text"] = config_mod.plot_settings["xs_dir_path"].name
-
-    except:
-        traceback.print_exc()
-        print('Read process crash for this file:')
+        curves = load_xs_file(path)
+    except (OSError, ValueError) as exc:
+        logging.getLogger(__name__).warning('Could not load cross sections from %s: %s', path, exc)
+        messagebox.showerror('Cross-section load failed', f'Could not load {path}:\n{exc}', parent=parent)
+        return False
+    config_mod.xs_data.clear()
+    config_mod.xs_data.update(curves)
+    config_mod.plot_settings['xs_dir_path'] = path
+    name_label['text'] = path.name
+    return True

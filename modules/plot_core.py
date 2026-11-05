@@ -4,7 +4,7 @@
 # TODO set automaticaly lin/log based on data scale
 
 # libraries
-from modules import config_mod, settings_mod, figure_export_mod, moving_average_mod
+from modules import config_mod, settings_mod, figure_export_mod, moving_average_mod, window_mod
 import math
 import tkinter as tk
 
@@ -44,19 +44,20 @@ def add_moving_average(axis, centers, values, settings: dict, color, label: str,
 def plot_to_canvas(tally):
 
     parent = config_mod.canvas_id.get_tk_widget().winfo_toplevel()
-    parent = parent.grab_current() or parent
+    parent = window_mod.dialog_parent(parent)
 
     # Refresh labels for editor saves, manual updates, and reopened plot windows.
     settings_mod.readsave_legend()
 
     tally_to_plot = tally[:]
 
-    config_mod.ax.clear()
-
     if config_mod.ax2 != None:
         config_mod.ax2.remove()
         #config_mod.ax2.clear()
         config_mod.ax2 = None
+
+    # Detach the shared XS axis before clear() resets the primary axis limits.
+    config_mod.ax.clear()
 
     # Define line styles for different file groups (solid, dashed, dotted, dashdot)
     available_linestyles = ['-', '--', ':', '-.']
@@ -181,7 +182,7 @@ def plot_to_canvas(tally):
             line_style=line_style,
         )
 
-    # XS plot (if true, run) -------------------------------------------------------------------------------------------
+    # XS curves use their original data independently of tally averaging.
     if config_mod.plot_settings["xs_switch"]:
         config_mod.ax2 = config_mod.ax.twinx()
         
@@ -226,12 +227,6 @@ def plot_to_canvas(tally):
     
     # axis limits ------------------------------------------------------------------------------------------------------
     
-    # get x limits from the plot
-    '''
-    if config_mod.plot_settings["x_min"] is None or config_mod.plot_settings["x_max"] is None:
-        config_mod.plot_settings["x_min"], config_mod.plot_settings["x_max"] = config_mod.ax.get_xlim()
-        print(config_mod.plot_settings["x_min"], config_mod.plot_settings["x_max"])
-    '''
     # Set x limits - allow setting just min or max or both
     if config_mod.plot_settings["x_min"] is not None or config_mod.plot_settings["x_max"] is not None:
         try:

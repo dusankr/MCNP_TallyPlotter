@@ -10,11 +10,16 @@ import shutil
 import copy
 import tomllib
 import tomli_w
+import math
+import logging
 
 
 LEGEND_CONFIG_FILE = "legend.toml"
 CONFIG_FILE = "config.toml"
 AXIS_TITLES_FILE = "axis_titles.toml"
+MULTIPLIERS_FILE = "multipliers.toml"
+last_multiplier_error = None
+_multiplier_cache = {}
 last_axis_titles_error = None
 _axis_title_cache = {}
 _MISSING = object()
@@ -373,22 +378,37 @@ def create_multipliers_config(fname="multipliers.toml"):
         tomli_w.dump(default_multipliers, f)
 
 
-def get_multiplier_presets(fname="multipliers.toml"):
+def get_multiplier_presets(fname=None):
     """Read multiplier presets from multipliers.toml file and return as dictionary.
     Returns dict with format: {key: {'value': float, 'description': str}}
     """
-    if not pathlib.Path(fname).is_file():
-        create_multipliers_config(fname)
-    
+    global last_multiplier_error
+    path = pathlib.Path(fname if fname is not None else MULTIPLIERS_FILE)
+    cache_key = path.resolve()
     try:
-        with open(fname, "rb") as f:
+        if not path.is_file():
+            create_multipliers_config(path)
+        with open(path, "rb") as f:
             toml_data = tomllib.load(f)
-        
         multipliers = toml_data.get("multipliers", {})
-        return multipliers
-    except Exception as e:
-        print(f"Warning: Could not read multiplier presets: {e}")
-        return {}
+        if not isinstance(multipliers, dict):
+            raise ValueError('multipliers must be a table of presets')
+        validated = {}
+        for name, entry in multipliers.items():
+            if (not isinstance(entry, dict) or isinstance(entry.get('value'), bool)
+                    or not isinstance(entry.get('description'), str) or not entry['description'].strip()):
+                raise ValueError(f'{name} needs a numeric value and a nonempty description')
+            value = float(entry.get('value'))
+            if not math.isfinite(value):
+                raise ValueError(f'{name} must have a finite multiplier value')
+            validated[name] = dict(value=value, description=entry['description'])
+    except (OSError, ValueError, TypeError) as exc:
+        last_multiplier_error = f'Could not load {path}: {exc}'
+        logging.getLogger(__name__).warning(last_multiplier_error)
+        return copy.deepcopy(_multiplier_cache.get(cache_key, {}))
+    _multiplier_cache[cache_key] = validated
+    last_multiplier_error = None
+    return copy.deepcopy(validated)
 
 
 def create_legend_config(fname=LEGEND_CONFIG_FILE):

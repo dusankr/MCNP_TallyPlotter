@@ -8,7 +8,7 @@ from modules import config_mod
 import pathlib
 import tkinter as tk
 from modules import settings_mod
-from modules import plot_core
+from modules import plot_core, window_mod
 
 
 # open library or any ascii file in text editor
@@ -16,7 +16,7 @@ def open_lib(file_path, plot_win, tally, on_save=None):
     
     file_path = pathlib.Path(file_path)
     
-    previous_grab = plot_win.grab_current()
+    previous_grab = window_mod.current_grab(plot_win)
     editor_win = tk.Toplevel(plot_win)
     editor_win.transient(plot_win)
     editor_win.grab_set()

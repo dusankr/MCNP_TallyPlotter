@@ -118,27 +118,40 @@ python mcnp_tally_plot_main.py
 
 ### Plot settings and replot
 
-The settings panel has two tabs: **Plot settings** and **Titles & average**.
+The settings panel has two tabs: **Plot settings** and **Average**.
 **Plot settings** uses the original two-column arrangement for data, axes,
 legend, grid, save, cross-section, and configuration controls.
-**Titles & average** contains axis-title presets and curve-display controls.
+**Plot settings II** includes an **Axis and plot titles** frame. That column
+scrolls vertically when needed. **Average** contains the curve-display controls.
 The automatic-update, Replot, and Quit controls stay available below both tabs.
 
-- **Axis titles** provides independent X, Y, and secondary-Y choices: Auto,
-  named presets, or Custom. Enter custom text and press Enter or leave the field
-  to apply it. During ratio plotting, the Y control edits a separate ratio title,
+- **Axis and plot titles** provides independent X, Y, and secondary-Y choices:
+  Auto, named presets, or Custom. Custom text updates the plot after a short
+  typing pause; Enter or leaving the field applies it immediately. During ratio
+  plotting, the Y control edits a separate ratio title,
   defaulting to `Ratio (-)`. Leaving ratio mode restores the ordinary Y title.
-- **Edit title presets** opens `axis_titles.toml`. Its `[x.name]`, `[y.name]`, and
+  The **Plot title** selector offers **No title** and **Custom**. Choosing No
+  title hides it while retaining the text for reuse. In manual Replot mode,
+  title changes are applied when **Replot** is pressed. Each text field sits
+  directly below its dropdown.
+- **Presets editor** in the titles frame opens `axis_titles.toml`. Its `[x.name]`, `[y.name]`, and
   `[y2.name]` entries each contain a `value` label and a `description` shown in
   the selector. Saving in the editor refreshes the presets and plot. After
-  external edits, use **Reload settings**, which reloads both TOML files.
+  external edits, use **Reload settings**, which reloads configuration and preset files.
   Presets change labels only. Invalid files retain the last working presets.
+- **Tally multiplier** has a dropdown and numeric field that expand across the
+  frame. Choose **Custom value** to edit the coefficient. Its **Presets editor**
+  opens `multipliers.toml`; saving refreshes the choices and active coefficient.
+  Removing an active preset keeps its value as Custom. Ratio, legend-position,
+  grid, and multiplier selectors use the same readonly combobox style as titles.
 - **Curve display** offers **Original only** (the default), **Original + average**,
   and **Average only**. Both average modes label curves with their window size;
   the combined view uses dashed overlays, while Average only uses the normal
   line-style settings. Average only hides original curves and error bars and
   disables the error-bar control, preserving its preference for switching back.
-  Cross sections and the ideal-ratio line remain independently controlled.
+  Averaging applies only to tally curves and tally ratios. Cross sections retain
+  their original values in every display mode; the ideal-ratio line remains
+  independently controlled.
   The remembered average window defaults to 5 bins and is disabled in Original
   only mode. Choose a positive odd
   bin count; windows shorten at edges and gaps. The average uses the displayed
@@ -182,13 +195,20 @@ bin interpretation and plotting is recorded in [PLAN.md](PLAN.md).
 * **Font size** frame - allows change Axes labels and Ticks font size.
 * **Grid settings** frame - allows to turn on/off a grid with different settings.
 * **Save** frame allows store a figure with specific dimensions and DPI. LaTeX option is **not** available right now.
-* **Cross-section** (XS) frame allows showing XS data in the picture with a secondary Y axis. Options connected to XS are activated when user uploads XS data
+* **Cross-section** (XS) frame allows showing XS data in the picture with a secondary Y axis. When **Use saved config** is checked, opening a plot reloads the remembered XS file and visibility setting. With that option unchecked, the plot starts without XS data; use **Read XS** to load it. **Reload settings** explicitly restores the remembered XS file. The filename and controls update automatically. If a requested saved file cannot be read, the plotter reports the problem and turns off the unavailable XS axis; use **Read XS** to select a replacement.
 * **Settings** frame - allows open and modify `config_export` file. This file stores all current options chosen by user in GUI window and some options which are availabel only through configuration file. Functions available in config file (this might change in time):
   * a text of axes labels
   * text used in the figure title (has to be activated by user - default off)
   * Reload config button - read again setting from the  `config` file (in case users made changes in an external text editor)
 * **Axes limits** allows to change minimum and maximum values of all axes.
   * `None` value is used if user wants let the plotter chose these values automatically. Changes might be applied by hitting `Enter` key when the cursor is active in an entry box.
+  * Toolbar rectangle zoom, pan, Home, Back, and Forward automatically copy the
+    visible X/Y ranges (and Y2 when XS is shown) into the limit fields and saved
+    settings. Changing averaging or other plot controls then preserves that view.
+  * **Auto X**, **Auto Y**, and **Auto Y2** reset both limits for the selected
+    axis to automatic scaling. Uncheck Auto to fix the current visible range,
+    or edit individual limit fields. Other axes keep their ranges. In manual
+    Replot mode, press **Replot** to apply a reset. Y2 is available when XS is shown.
 
 <figure>
   <img

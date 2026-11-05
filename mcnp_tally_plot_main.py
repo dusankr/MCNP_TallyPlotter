@@ -85,9 +85,10 @@ use_saved_config_var = tk.BooleanVar(value=False)
 # Function to open plot window with config handling
 def open_plot_window():
     """Open plot window, resetting settings to defaults if checkbox is unchecked."""
-    if not use_saved_config_var.get():
+    use_saved_config = use_saved_config_var.get()
+    if not use_saved_config:
         settings_mod.reset_plot_settings_to_defaults()
-    plot_mod.plot_window(root, selected_tally())
+    plot_mod.plot_window(root, selected_tally(), use_saved_config=use_saved_config)
 
 # MENU (not used due to problems on Mac devices) -----------------------------------------------------------------------
 # does NOT work at MAC devices...

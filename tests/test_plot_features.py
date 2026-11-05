@@ -238,6 +238,23 @@ class PlotRenderingTests(unittest.TestCase):
         self.assertTrue(math.isnan(self.axis.lines[0].get_ydata()[1]))
         self.assertEqual(self.axis.get_ylim(), (0, 10))
 
+    def test_cross_section_data_are_never_averaged(self):
+        xs_data = {'XS': ([.5, 1, 2, 3], [2, 100, 4, 40])}
+        before = copy.deepcopy(xs_data)
+        self.settings.update(xs_switch=True, y2_scale='linear')
+        with patch.object(config_mod, 'xs_data', xs_data):
+            for mode in ('original', 'both', 'average'):
+                for window in (3, 5):
+                    with self.subTest(mode=mode, window=window):
+                        self.settings.update(moving_average_mode=mode, moving_average_window=window)
+                        plot_core.plot_to_canvas(['test'])
+                        self.assertEqual(len(config_mod.ax2.lines), 1)
+                        curve = config_mod.ax2.lines[0]
+                        self.assertEqual(list(curve.get_xdata()), before['XS'][0])
+                        self.assertEqual(list(curve.get_ydata()), before['XS'][1])
+                        self.assertEqual(curve.get_label(), 'XS')
+                        self.assertEqual(xs_data, before)
+
 
 if __name__ == '__main__':
     unittest.main()
