@@ -42,7 +42,7 @@ Phase 1 was implemented and committed as `ca60553`. The plotting-control follow-
 
 - Replaced the average checkbox with **Original only**, **Original + average**, and **Average only**. Average only hides original curves and error bars, preserves the error-bar preference, and uses the normal line styles. Averaging, ratio gaps, and saved figures retain their existing behavior.
 - Added `plot.moving_average_mode` (`original`, `both`, `average`). Legacy booleans migrate to `original`/`both`; explicit new modes take precedence and saves write only the new key.
-- The four-tab reorganization was reversed at the user's request. Restored **Plot settings** with its original two columns and **Titles & average** for axis labels and averaging. Replot/quit controls remain below both tabs.
+- The four-tab reorganization was reversed at the user's request. The current tabs are **Plot settings** and **Average**. Plot settings retains two columns, with **Axis and plot titles** in its scrollable second column; Average contains the curve-display controls. Replot/quit controls remain below both tabs.
 - Removed the disabled F8-specific first-two-row skipping blocks. Imports retain all reported rows; the general first-bin visibility control remains available.
 - Regression coverage includes display modes, legacy configuration, restored preferences, the restored two-tab layout, and F8 row retention for single and multiple cells.
 
