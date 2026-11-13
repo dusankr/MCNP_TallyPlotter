@@ -76,6 +76,8 @@ def open_lib(file_path, plot_win, tally, on_save=None):
                     )
                     return
                 plot_core.plot_to_canvas(tally)
+                if fname == settings_mod.LEGEND_CONFIG_FILE:
+                    editor_win.nametowidget('.').event_generate('<<LegendNamesChanged>>')
         except Exception as e:
             tk.messagebox.showerror(
                 title='Error',

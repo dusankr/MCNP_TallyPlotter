@@ -12,6 +12,7 @@ import tomllib
 import tomli_w
 import math
 import logging
+import tempfile
 
 
 LEGEND_CONFIG_FILE = "legend.toml"
@@ -458,5 +459,39 @@ def readsave_legend(fname=LEGEND_CONFIG_FILE):
         # Fallback: use keys as names
         for key in config_mod.tallies.keys():
             config_mod.tallies[key].legend_name = key
+
+
+def update_tally_legend(tally_key: str, name: str, fname=LEGEND_CONFIG_FILE) -> str:
+    """Persist one legend label and update the loaded tally after a successful write."""
+    if tally_key not in config_mod.tallies:
+        raise KeyError(f'Unknown tally: {tally_key}')
+    label = name.strip()
+    if not label:
+        raise ValueError('Legend description cannot be empty.')
+
+    path = pathlib.Path(fname)
+    if path.exists():
+        with path.open('rb') as source:
+            data = tomllib.load(source)
+    else:
+        data = {}
+    legend = data.setdefault('legend', {})
+    if not isinstance(legend, dict):
+        raise ValueError('The [legend] section must be a TOML table.')
+    legend[tally_key] = label
+
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile('wb', dir=path.parent, prefix=f'.{path.name}.',
+                                         suffix='.tmp', delete=False) as destination:
+            temporary = pathlib.Path(destination.name)
+            tomli_w.dump(data, destination)
+        temporary.replace(path)
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+
+    config_mod.tallies[tally_key].legend_name = label
+    return label
 
 

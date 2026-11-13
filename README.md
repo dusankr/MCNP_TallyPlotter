@@ -73,6 +73,7 @@ python mcnp_tally_plot_main.py
   - the first column is check box for data selection
   - **File** - is a unique identifier created from output file name and tally number
   - **Tally number** - tally number from output file
+  - **Legend** - description used in plot legends, loaded from `legend.toml`. Double-click this cell to edit it in place; press Enter or click away to save, or Escape to cancel. The edited name is saved for future sessions.
   - **Tally type** - shows a tally type from output file
   - **Particle** - tally particle
   - **Number of values** - number of values in the tally

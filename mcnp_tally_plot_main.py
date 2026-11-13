@@ -3,7 +3,7 @@
 
 # LIBRARIES
 from modules import (read_mod, plot_mod, settings_mod, export_mod, config_mod,
-                     merge_mod, treeview_mod, tally_table_mod)
+                     merge_mod, treeview_mod, tally_table_mod, legend_tree_mod)
 # GUI libraries
 import tkinter as tk
 import ttkwidgets
@@ -119,6 +119,7 @@ treeview_files['show'] = 'headings', 'tree'
 TREEVIEW_COLUMN_WIDTHS = {
     'File': 150,
     'Tally number': 80,
+    'Legend': 180,
     'Tally type': 60,
     'Particle': 60,
     'NPS': 100,
@@ -134,7 +135,7 @@ TREEVIEW_COLUMN_WIDTHS = {
     'comment': 200
 }
 
-treeview_files['columns'] = ('File', 'Tally number', 'Tally type', 'Particle', 'NPS', 'Number of values', 'E_cut-off (MeV)', 'E_min (MeV)', 'E_max (MeV)', 'Checks', 'Rel. Error', 'VoV', 'Slope', 'FoM', 'comment')
+treeview_files['columns'] = ('File', 'Tally number', 'Legend', 'Tally type', 'Particle', 'NPS', 'Number of values', 'E_cut-off (MeV)', 'E_min (MeV)', 'E_max (MeV)', 'Checks', 'Rel. Error', 'VoV', 'Slope', 'FoM', 'comment')
 
 for col_name in treeview_files['columns']:
     col_width = TREEVIEW_COLUMN_WIDTHS.get(col_name, 100)  # Default to 100 if not specified
@@ -156,11 +157,14 @@ tree_y_scroll.grid(sticky='wens', column=5, row=0, rowspan=5, padx=5, pady=5)
 
 treeview_files.configure(xscrollcommand=tree_x_scroll.set)
 treeview_files.configure(yscrollcommand=tree_y_scroll.set)
-treeview_files.bind(
-    '<Double-1>',
-    lambda event: tally_table_mod.open_tally_table_from_event(event, treeview_files, root),
-    add='+',
-)
+def on_tree_double_click(event):
+    if legend_tree_mod.edit_legend_from_event(event, treeview_files):
+        return 'break'
+    return tally_table_mod.open_tally_table_from_event(event, treeview_files, root)
+
+
+treeview_files.bind('<Double-1>', on_tree_double_click, add='+')
+root.bind('<<LegendNamesChanged>>', lambda _event: legend_tree_mod.refresh_legend_column(treeview_files))
 
 # Enable grid lines to separate rows
 # Note: gridlines parameter may not work on all ttk themes

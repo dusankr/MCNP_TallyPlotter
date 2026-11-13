@@ -287,7 +287,8 @@ def refresh_tally_tree(treeview_files):
         tags = (("zero_values",) if tally.has_only_zero_values else ()) + ("unchecked", row_tag)
 
         treeview_files.insert('', index='end', iid=key,
-                              values=[fname, tally.tally_num, tally.tally_type, tally.particle,
+                              values=[fname, tally.tally_num, tally.legend_name,
+                                      tally.tally_type, tally.particle,
                                       tally.nps if tally.nps is not None else 'N/A',
                                       tally.num_bins, tally.cutoff_energy,
                                       tally.energy_min, tally.energy_max,
